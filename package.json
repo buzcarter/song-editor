@@ -1,0 +1,66 @@
+{
+  "name": "@ukegeeks/song-editor",
+  "version": "1.0.0-beta.1",
+  "description": "UkeGeeks Song-a-Matic: a browser editor for ChordPro songs with ukulele chord diagrams, menus, transpose and a Chord Builder",
+  "license": "GPL-3.0-or-later",
+  "author": "Buz Carter <buz@ukegeeks.org>",
+  "homepage": "https://github.com/buzcarter/song-editor#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/buzcarter/song-editor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/buzcarter/song-editor/issues"
+  },
+  "keywords": [
+    "ukulele",
+    "chordpro",
+    "chords",
+    "songbook",
+    "editor",
+    "ukegeeks"
+  ],
+  "type": "commonjs",
+  "main": "./dist/markup.js",
+  "exports": {
+    ".": "./dist/markup.js",
+    "./markup": "./dist/markup.js",
+    "./browser": "./dist/ugsEditorPlus.min.js",
+    "./css": "./dist/css/ugsEditorPlus.min.css",
+    "./dist/*": "./dist/*",
+    "./package.json": "./package.json"
+  },
+  "unpkg": "./dist/ugsEditorPlus.min.js",
+  "jsdelivr": "./dist/ugsEditorPlus.min.js",
+  "files": [
+    "dist",
+    "CHANGELOG.md"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "build": "node scripts/build.js",
+    "build:js": "node scripts/build.js js",
+    "build:css": "node scripts/build.js css",
+    "test": "node --test test/*.test.js",
+    "prepublishOnly": "npm run build && npm test",
+    "demo": "npm run build && node scripts/demo.js"
+  },
+  "peerDependencies": {
+    "@ukegeeks/ace-chordpro-extension": "^1.0.0",
+    "@ukegeeks/song-formatter": "^1.0.0-beta.1"
+  },
+  "peerDependenciesMeta": {
+    "@ukegeeks/ace-chordpro-extension": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@ukegeeks/ace-chordpro-extension": "^1.0.0",
+    "@ukegeeks/song-formatter": "^1.0.0-beta.1",
+    "jsdom": "^31.0.0",
+    "less": "^4.9.1",
+    "terser": "^5.51.2"
+  }
+}
