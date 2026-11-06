@@ -98,6 +98,16 @@ npm run build   # dist/
 npm test        # needs a build first
 ```
 
+### Demo
+
+```
+npm run demo    # builds, then serves http://localhost:8098/demo/
+```
+
+`demo/index.html` is a plain host page that calls `mount()` with one of the 16 sample songs from the Songbook (`demo/songs/`). The controls at the bottom right pick the song and turn the Save button on or off (`?song=…&save=0`). The demo's `save()` writes nothing: it logs the song to the console and returns a message. In the console, `demoEditor.getSong()` returns the current text.
+
+The demo server (`scripts/demo.js`, no dependencies) serves this folder on 127.0.0.1 only, so the page loads `dist/` and the peer packages straight from `node_modules/`. Set `PORT` to use another port.
+
 The JavaScript in `src/js/editor/` and the LESS in `src/less/` moved here unchanged from the Songbook and keep their tabs; new code uses 2 spaces. `scripts/build.js` lists the bundle's files in load order. Never edit `dist/`.
 
 `test/fixtures/` holds the editor markup as the Songbook 1.5 served it; `test/markup.test.js` checks `editorHtml()` still matches it.

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Song-a-Matic demo</title>
+  <!-- fonts used by the color themes -->
+  <link href="https://fonts.googleapis.com/css?family=Peralta|Smokum|Cherry+Cream+Soda|Ranchers|Creepster|Lobster|Permanent+Marker|Architects+Daughter|Bree+Serif" rel="stylesheet" />
+  <!-- the host page's own styles (copied from the UkeGeeks Songbook) -->
+  <link rel="stylesheet" href="css/yuiReset.css" />
+  <link rel="stylesheet" href="css/basic-page-layout.css" />
+  <!-- Song Formatter (peer dependency) -->
+  <link rel="stylesheet" href="../node_modules/@ukegeeks/song-formatter/dist/css/ukeGeeks.music.css" />
+  <!-- the editor; title="ugsEditorCss" is required -->
+  <link rel="stylesheet" href="../dist/css/ugsEditorPlus.min.css" title="ugsEditorCss" />
+  <link rel="stylesheet" href="../dist/css/ugsEditorPlus.print.css" media="print" />
+  <link rel="stylesheet" href="demo.css" />
+</head>
+<body>
+  <div id="songEditor"></div>
+
+  <aside class="demoBar" aria-label="Demo controls">
+    <strong>Demo</strong>
+    <label>Song <select id="demoSong"></select></label>
+    <label><input type="checkbox" id="demoSave" /> Save button</label>
+    <span id="demoLog" class="demoLog" role="status"></span>
+  </aside>
+
+  <script src="../node_modules/@ukegeeks/song-formatter/dist/song-formatter.bundle.js"></script>
+  <script src="../dist/ugsEditorPlus.min.js"></script>
+  <script src="demo.js"></script>
+</body>
+</html>

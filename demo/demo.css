@@ -1,0 +1,37 @@
+/* The demo controls, kept out of the editor's way (bottom right). */
+.demoBar {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 10000;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  max-width: calc(100vw - 24px);
+  padding: 8px 12px;
+  border-radius: 6px;
+  background: rgba(30, 30, 30, 0.88);
+  color: #eee;
+  font: 12px/1.4 Verdana, Arial, sans-serif;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.demoBar select {
+  max-width: 16em;
+  font: inherit;
+}
+
+.demoLog:empty {
+  display: none;
+}
+
+.demoLog {
+  color: #9fd89f;
+}
+
+@media print {
+  .demoBar {
+    display: none;
+  }
+}

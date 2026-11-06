@@ -44,7 +44,8 @@
     "build:js": "node scripts/build.js js",
     "build:css": "node scripts/build.js css",
     "test": "node --test test/*.test.js",
-    "prepublishOnly": "npm run build && npm test"
+    "prepublishOnly": "npm run build && npm test",
+    "demo": "npm run build && node scripts/demo.js"
   },
   "peerDependencies": {
     "@ukegeeks/ace-chordpro-extension": "^1.0.0",
