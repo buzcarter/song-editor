@@ -9,4 +9,6 @@ The Song-a-Matic editor moves out of the [UkeGeeks Songbook](https://github.com/
 - `editorHtml()` (Node, and `ugsEditorPlus.markup` in the browser) generates the editor markup that pages used to copy by hand.
 - New option `aceUrl`: where the Fullscreen editor's `ace-chordpro.min.js` lives.
 - Still works: `songAmatic.init(options)` and `updateSong.init(ajaxUri, filename)`.
+- `dist/` is laid out like a web page: `js/`, `css/`, `img/editor/`, plus `markup.js` for Node.
+- Demo: https://buzcarter.github.io/song-editor/ (`npm run demo` locally).
 - Left in the Songbook: the song list's quick search (`typeahead`) and New Song dialog.

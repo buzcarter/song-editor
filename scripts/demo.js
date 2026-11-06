@@ -5,18 +5,16 @@
  *   npm run demo                # builds dist/, then serves
  *   PORT=9000 node scripts/demo.js
  *
- * Serves this repo's folder read-only (so the page can load dist/ and the peer
- * packages from node_modules/), plus /demo/songs.json, the list of sample songs.
- * Local only: binds to 127.0.0.1. No dependencies.
+ * Same layout as the published demo site (see scripts/site.js), served straight
+ * from dist/, node_modules/ and demo/. Local only: binds to 127.0.0.1. No dependencies.
  */
 'use strict';
 
 const http = require('node:http');
 const fs = require('node:fs/promises');
 const path = require('node:path');
+const { MOUNTS, songList } = require('./site');
 
-const ROOT = path.resolve(__dirname, '..');
-const SONGS = path.join(ROOT, 'demo/songs');
 const PORT = Number(process.env.PORT) || 8098;
 const HOST = '127.0.0.1';
 
@@ -38,34 +36,33 @@ const send = (res, status, body, type = 'text/plain; charset=utf-8') => {
   res.end(body);
 };
 
-async function songList() {
-  const files = (await fs.readdir(SONGS)).filter((f) => f.endsWith('.txt'));
-  return files.sort((a, b) => a.localeCompare(b)).map((file) => ({
-    file,
-    name: file.replace(/\.cpm\.txt$|\.txt$/, ''),
-  }));
+/** URL path (without the leading "/") -> file on disk, or null */
+function resolve(urlPath) {
+  if (urlPath.split('/').some((part) => part === '..' || part.startsWith('.'))) {
+    return null;
+  }
+  for (const [prefix, dir] of MOUNTS) {
+    if (urlPath.startsWith(prefix)) {
+      const file = path.join(dir, urlPath.slice(prefix.length));
+      return file.startsWith(dir + path.sep) ? file : null;
+    }
+  }
+  return null;
 }
 
 async function handle(req, res) {
-  const url = new URL(req.url, `http://${HOST}`);
-  let pathname = decodeURIComponent(url.pathname);
+  let urlPath = decodeURIComponent(new URL(req.url, `http://${HOST}`).pathname).slice(1);
 
-  if (pathname === '/') {
-    res.writeHead(302, { Location: '/demo/' });
-    return res.end();
-  }
-  if (pathname === '/demo/songs.json') {
+  if (urlPath === 'songs.json') {
     return send(res, 200, JSON.stringify(await songList()), TYPES['.json']);
   }
-  if (pathname.endsWith('/')) {
-    pathname += 'index.html';
+  if (urlPath === '' || urlPath.endsWith('/')) {
+    urlPath += 'index.html';
   }
 
-  const file = path.join(ROOT, pathname);
-  if (!file.startsWith(ROOT + path.sep) || pathname.split('/').some((part) => part.startsWith('.'))) {
-    return send(res, 404, 'Not found');
-  }
+  const file = resolve(urlPath);
   try {
+    if (!file) throw new Error('not found');
     const body = await fs.readFile(file);
     return send(res, 200, body, TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream');
   } catch {
@@ -81,5 +78,5 @@ const server = http.createServer((req, res) => {
 });
 
 server.listen(PORT, HOST, () => {
-  console.log(`Song-a-Matic demo: http://localhost:${server.address().port}/demo/`);
+  console.log(`Song-a-Matic demo: http://localhost:${server.address().port}/`);
 });

@@ -39,7 +39,7 @@ function loadEditorPage({ body = '' } = {}) {
     });
   };
 
-  const scripts = [require.resolve('@ukegeeks/song-formatter/browser'), path.join(DIST, 'ugsEditorPlus.min.js')];
+  const scripts = [require.resolve('@ukegeeks/song-formatter/browser'), path.join(DIST, 'js/ugsEditorPlus.min.js')];
   for (const file of scripts) {
     const script = window.document.createElement('script');
     script.textContent = read(file);

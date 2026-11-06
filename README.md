@@ -1,5 +1,7 @@
 # UkeGeeks Song Editor
 
+**[Try the demo](https://buzcarter.github.io/song-editor/)**
+
 The **Song-a-Matic** editor from the [UkeGeeks Songbook](https://github.com/buzcarter/UkeGeeks): a browser editor for ChordPro songs with ukulele chord diagrams. It has a toolbar with an Edit Song box, Appearance (font and diagram sizes, layout, color themes), Transpose and tunings (GCEA, DGBE, ADF#B), print-ready paper sizes, a Chord Builder for custom chord diagrams, and a fullscreen editor with ChordPro highlighting.
 
 ```
@@ -11,10 +13,10 @@ npm install @ukegeeks/ace-chordpro-extension   # optional: the Fullscreen editor
 
 | File | What it is |
 |---|---|
-| `dist/ugsEditorPlus.min.js` | The editor, as a browser script. Defines `window.ugsEditorPlus` and `window.ugsChordBuilder`. Also `ugsEditorPlus.merged.js`, unminified. |
+| `dist/js/ugsEditorPlus.min.js` | The editor, as a browser script. Defines `window.ugsEditorPlus` and `window.ugsChordBuilder`. Also `ugsEditorPlus.merged.js`, unminified. |
 | `dist/css/ugsEditorPlus.min.css` | The editor's styles (also `.merged.css`). |
 | `dist/css/ugsEditorPlus.print.css` | Print styles. |
-| `dist/img/editor/` | Images the CSS uses. Keep `css/` and `img/` side by side: the CSS points at `../img/editor/`. |
+| `dist/img/editor/` | Images the CSS uses. `dist/` is laid out like a web page's `js/`, `css/` and `img/` folders: copy them side by side, since the CSS and `mount()` look for images at `../img/editor/`. |
 | `dist/markup.js` | The editor's HTML, for server-rendered pages (Node: `require('@ukegeeks/song-editor')`). |
 
 The editor doesn't bundle its two dependencies, so a page never gets a second copy:
@@ -100,27 +102,17 @@ npm test        # needs a build first
 
 ### Demo
 
+Live: **https://buzcarter.github.io/song-editor/**
+
 ```
-npm run demo    # builds, then serves http://localhost:8098/demo/
+npm run demo    # builds, then serves http://localhost:8098/
 ```
 
 `demo/index.html` is a plain host page that calls `mount()` with one of the 16 sample songs from the Songbook (`demo/songs/`). The controls at the bottom right pick the song and turn the Save button on or off (`?song=…&save=0`). The demo's `save()` writes nothing: it logs the song to the console and returns a message. In the console, `demoEditor.getSong()` returns the current text.
 
-The demo server (`scripts/demo.js`, no dependencies) serves this folder on 127.0.0.1 only, so the page loads `dist/` and the peer packages straight from `node_modules/`. Set `PORT` to use another port.
+`scripts/site.js` lays the site out: the page at the root, this package's build in `dist/`, and the two peer packages in `vendor/`. The local server (`scripts/demo.js`, no dependencies, 127.0.0.1 only) serves that layout straight from `demo/`, `dist/` and `node_modules/`; set `PORT` to use another port. `npm run build:site` writes the same layout to `.site/` as static files.
 
-The JavaScript in `src/js/editor/` and the LESS in `src/less/` moved here unchanged from the Songbook and keep their tabs; new code uses 2 spaces. `scripts/build.js` lists the bundle's files in load order. Never edit `dist/`.
-
-`test/fixtures/` holds the editor markup as the Songbook 1.5 served it; `test/markup.test.js` checks `editorHtml()` still matches it.
-
-<img src="docs/images/ukegeeks-mascot-192.png" alt="The UkeGeeks mascot, a dinosaur playing the ukulele" width="96" height="96" align="right">
-
-- **[ukegeeks.org](https://ukegeeks.org)**: edit a song online, the User's Guide, and the blog.
-- **[UkeGeeks Songbook](https://github.com/buzcarter/UkeGeeks)**: your own songbook app, run with Node.js or PHP.
-- **[Unnamed Editor](https://github.com/buzcarter/song-formatter)** (this repo): full-featured editor supporting transposing, choosing amoung styles, chord diagram sizes, and more.
-- **[Song Formatter](https://github.com/buzcarter/song-formatter)** chord diagrams and songsheets on your own website.
-- **[ACE ChordPro Extension](https://github.com/buzcarter/ace-chordpro-extension)**: ChordPro editing for the Ace code editor.
-
-Not sure which one you need? See [which UkeGeeks tool is right for you](https://ukegeeks.org/projects/).
+GitHub Actions (`.github/workflows/deploy-demo.yml`) builds and tests every pull request, and on a push to `main` publishes `.site/` to GitHub Pages. One-time setting: **Settings → Pages → Source: GitHub Actions**.
 
 ## License
 
