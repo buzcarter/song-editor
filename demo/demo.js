@@ -33,8 +33,8 @@
   // the editor
   const editor = ugsEditorPlus.songAmatic.mount(document.getElementById('songEditor'), {
     song,
-    aceUrl: '../node_modules/@ukegeeks/ace-chordpro-extension/dist/',
-    imgUrl: '../dist/img/editor/',
+    // the Ace extension's dist/ folder (the default is "ace/" next to ugsEditorPlus.min.js)
+    aceUrl: 'vendor/ace/',
     save: withSave
       ? async (text) => {
         // a real host would write the file or post it to a server here

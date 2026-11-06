@@ -25,13 +25,13 @@
   "exports": {
     ".": "./dist/markup.js",
     "./markup": "./dist/markup.js",
-    "./browser": "./dist/ugsEditorPlus.min.js",
+    "./browser": "./dist/js/ugsEditorPlus.min.js",
     "./css": "./dist/css/ugsEditorPlus.min.css",
     "./dist/*": "./dist/*",
     "./package.json": "./package.json"
   },
-  "unpkg": "./dist/ugsEditorPlus.min.js",
-  "jsdelivr": "./dist/ugsEditorPlus.min.js",
+  "unpkg": "./dist/js/ugsEditorPlus.min.js",
+  "jsdelivr": "./dist/js/ugsEditorPlus.min.js",
   "files": [
     "dist",
     "CHANGELOG.md"
@@ -45,6 +45,7 @@
     "build:css": "node scripts/build.js css",
     "test": "node --test test/*.test.js",
     "prepublishOnly": "npm run build && npm test",
+    "build:site": "node scripts/build-site.js",
     "demo": "npm run build && node scripts/demo.js"
   },
   "peerDependencies": {

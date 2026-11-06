@@ -12,8 +12,8 @@ const exists = (file) => fs.existsSync(path.join(DIST, file));
 
 test('dist has the bundle, CSS, markup and images', () => {
   for (const file of [
-    'ugsEditorPlus.merged.js',
-    'ugsEditorPlus.min.js',
+    'js/ugsEditorPlus.merged.js',
+    'js/ugsEditorPlus.min.js',
     'markup.js',
     'css/ugsEditorPlus.merged.css',
     'css/ugsEditorPlus.min.css',
@@ -36,7 +36,7 @@ test('every image the CSS points at is in dist/img/editor', () => {
 });
 
 test('the bundle leaves out the Songbook-only song list code', () => {
-  const js = fs.readFileSync(path.join(DIST, 'ugsEditorPlus.merged.js'), 'utf8');
+  const js = fs.readFileSync(path.join(DIST, 'js/ugsEditorPlus.merged.js'), 'utf8');
   assert.ok(!js.includes('ugsEditorPlus.typeahead ='), 'no typeahead');
   assert.ok(!js.includes('ugsEditorPlus.newSong ='), 'no newSong');
   assert.ok(!js.includes('/ajaxupdatesong'), 'no hard-coded save URL');

@@ -8,11 +8,11 @@
   <!-- the host page's own styles (copied from the UkeGeeks Songbook) -->
   <link rel="stylesheet" href="css/yuiReset.css" />
   <link rel="stylesheet" href="css/basic-page-layout.css" />
-  <!-- Song Formatter (peer dependency) -->
-  <link rel="stylesheet" href="../node_modules/@ukegeeks/song-formatter/dist/css/ukeGeeks.music.css" />
+  <!-- Song Formatter (peer dependency; vendor/ = its dist/ folder, see scripts/site.js) -->
+  <link rel="stylesheet" href="vendor/song-formatter/css/ukeGeeks.music.css" />
   <!-- the editor; title="ugsEditorCss" is required -->
-  <link rel="stylesheet" href="../dist/css/ugsEditorPlus.min.css" title="ugsEditorCss" />
-  <link rel="stylesheet" href="../dist/css/ugsEditorPlus.print.css" media="print" />
+  <link rel="stylesheet" href="dist/css/ugsEditorPlus.min.css" title="ugsEditorCss" />
+  <link rel="stylesheet" href="dist/css/ugsEditorPlus.print.css" media="print" />
   <link rel="stylesheet" href="demo.css" />
 </head>
 <body>
@@ -25,8 +25,8 @@
     <span id="demoLog" class="demoLog" role="status"></span>
   </aside>
 
-  <script src="../node_modules/@ukegeeks/song-formatter/dist/song-formatter.bundle.js"></script>
-  <script src="../dist/ugsEditorPlus.min.js"></script>
+  <script src="vendor/song-formatter/song-formatter.bundle.js"></script>
+  <script src="dist/js/ugsEditorPlus.min.js"></script>
   <script src="demo.js"></script>
 </body>
 </html>

@@ -2,13 +2,14 @@
 /**
  * Builds the Song-a-Matic editor into dist/:
  *
- *   src/js/**                          -> dist/ugsEditorPlus.merged.js + .min.js (browser bundle)
- *   src/markup.js                      -> dist/markup.js (also inside the bundle)
+ *   src/js/**                          -> dist/js/ugsEditorPlus.merged.js + .min.js (browser bundle)
+ *   src/markup.js                      -> dist/markup.js (Node; also inside the bundle)
  *   src/less/ugsEditorPlus_merged.less -> dist/css/ugsEditorPlus.merged.css + .min.css
  *   src/css/ugsEditorPlus.print.css    -> dist/css/ (hand-written, copied)
  *   img/editor/*                       -> dist/img/editor/
  *
- * The CSS points at the images with "../img/editor/", so keep css/ and img/ side by side.
+ * dist/ is laid out like a host page (js/ css/ img/): the CSS points at the images with
+ * "../img/editor/", and mount() looks for them at "../img/editor/" from the bundle's folder.
  *
  * Usage: node scripts/build.js [js|css|img]   (no argument builds everything)
  *
@@ -94,8 +95,8 @@ async function buildJs() {
     format: { comments: false, preamble: banner },
   });
 
-  await write(path.join(DIST, `${name}.merged.js`), merged);
-  await write(path.join(DIST, `${name}.min.js`), result.code + '\n');
+  await write(path.join(DIST, `js/${name}.merged.js`), merged);
+  await write(path.join(DIST, `js/${name}.min.js`), result.code + '\n');
   for (const [from, to] of COPIES.js) {
     await copy(path.join(ROOT, from), path.join(DIST, to));
   }
@@ -131,6 +132,9 @@ async function main() {
   if (target && !TARGETS[target]) {
     console.error('usage: node scripts/build.js [js|css|img]');
     process.exit(2);
+  }
+  if (!target) {
+    await fs.rm(DIST, { recursive: true, force: true });
   }
   for (const [name, build] of Object.entries(TARGETS)) {
     if (!target || target === name) {
