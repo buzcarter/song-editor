@@ -4,6 +4,8 @@
 
 The **Song-a-Matic** editor from the [UkeGeeks Songbook](https://github.com/buzcarter/UkeGeeks): a browser editor for ChordPro songs with ukulele chord diagrams. It has a toolbar with an Edit Song box, Appearance (font and diagram sizes, layout, color themes), Transpose and tunings (GCEA, DGBE, ADF#B), print-ready paper sizes, a Chord Builder for custom chord diagrams, and a fullscreen editor with ChordPro highlighting.
 
+![ukulele song-editor screenshot](docs/images/ukulele-song-editor-screenshot.jpg)
+
 ```
 npm install @ukegeeks/song-editor @ukegeeks/song-formatter
 npm install @ukegeeks/ace-chordpro-extension   # optional: the Fullscreen editor
