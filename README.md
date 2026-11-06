@@ -1,1 +1,107 @@
-# ukegeeks-unnamed-editor-project
+# UkeGeeks Song Editor
+
+The **Song-a-Matic** editor from the [UkeGeeks Songbook](https://github.com/buzcarter/UkeGeeks): a browser editor for ChordPro songs with ukulele chord diagrams. It has a toolbar with an Edit Song box, Appearance (font and diagram sizes, layout, color themes), Transpose and tunings (GCEA, DGBE, ADF#B), print-ready paper sizes, a Chord Builder for custom chord diagrams, and a fullscreen editor with ChordPro highlighting.
+
+```
+npm install @ukegeeks/song-editor @ukegeeks/song-formatter
+npm install @ukegeeks/ace-chordpro-extension   # optional: the Fullscreen editor
+```
+
+## What's in the package
+
+| File | What it is |
+|---|---|
+| `dist/ugsEditorPlus.min.js` | The editor, as a browser script. Defines `window.ugsEditorPlus` and `window.ugsChordBuilder`. Also `ugsEditorPlus.merged.js`, unminified. |
+| `dist/css/ugsEditorPlus.min.css` | The editor's styles (also `.merged.css`). |
+| `dist/css/ugsEditorPlus.print.css` | Print styles. |
+| `dist/img/editor/` | Images the CSS uses. Keep `css/` and `img/` side by side: the CSS points at `../img/editor/`. |
+| `dist/markup.js` | The editor's HTML, for server-rendered pages (Node: `require('@ukegeeks/song-editor')`). |
+
+The editor doesn't bundle its two dependencies, so a page never gets a second copy:
+
+- **Song Formatter** (`@ukegeeks/song-formatter`) reads ChordPro and draws the song and its SVG chord diagrams. Load its `dist/song-formatter.bundle.js` and `dist/css/ukeGeeks.music.css` first.
+- **ACE ChordPro Extension** (`@ukegeeks/ace-chordpro-extension`) is the Fullscreen editor. It loads only when someone clicks Fullscreen, from the `aceUrl` folder (see below).
+
+## Use it on a page
+
+```html
+<link rel="stylesheet" href="css/ukeGeeks.music.css" />
+<link rel="stylesheet" href="css/ugsEditorPlus.min.css" title="ugsEditorCss" />
+<link rel="stylesheet" href="css/ugsEditorPlus.print.css" media="print" />
+
+<div id="songEditor"></div>
+
+<script src="js/song-formatter.bundle.js"></script>
+<script src="js/ugsEditorPlus.min.js"></script>
+<script>
+  const editor = ugsEditorPlus.songAmatic.mount(document.getElementById('songEditor'), {
+    song: '{title: Hello}\n[C]Hello [G7]world',
+    save: async (text) => {
+      // write the song wherever your app keeps it
+      return 'Saved.';
+    },
+  });
+</script>
+```
+
+The editor stylesheet **must** have `title="ugsEditorCss"`: the editor changes font and diagram sizes by editing rules in it.
+
+The editor finds its parts by `id`, so a page holds one editor.
+
+### `ugsEditorPlus.songAmatic.mount(container, options)`
+
+Writes the editor into `container` (an empty element), renders the song and returns `{ getSong() }`.
+
+| Option | Default | |
+|---|---|---|
+| `song` | `''` | The ChordPro text to open. |
+| `save` | none | `(text) => message`, or a promise of one. Called by the Save button; the message shows next to it. A rejection shows a "problem saving" alert. **Without `save` there's no Save button**, for read-only pages. |
+| `aceUrl` | `ace/` in the folder `ugsEditorPlus.min.js` was loaded from | Folder (with trailing slash) holding `ace-chordpro.min.js`. |
+| `imgUrl` | `../img/editor/` from the folder `ugsEditorPlus.min.js` was loaded from | Folder holding `busy.gif`. |
+| any of `ugsEditorPlus.options` | | `showEditOnLoad`, `fontSize`, `diagramSize`, `diagramPosition`, `lyricStyle`, `paper`, `theme`, `tuning`, `hideChordEnclosures`, `sortAlphabetical`, `ignoreCommonChords`, `commonChords`. See `src/js/editor/ugsEditorPlus.options.js`. |
+
+`editor.getSong()` returns the text in the Edit Song box.
+
+### Server-rendered pages
+
+To render the editor's HTML on the server (no flash of an empty page), use `editorHtml()`, then call `init()` instead of `mount()`:
+
+```js
+const { editorHtml } = require('@ukegeeks/song-editor');
+
+const html = editorHtml({
+  canSave: true,          // show the Save button
+  imgUrl: '/img/editor/',
+  title, subtitle, artist, album, // pre-rendered into the songsheet
+  body: chordProText,
+});
+```
+
+```html
+<script>
+  ugsEditorPlus.songAmatic.init(options);
+  ugsEditorPlus.updateSong.setSaveHandler(async (text) => 'Saved.');
+</script>
+```
+
+Every value is HTML-escaped; existing entities such as `&amp;` are kept.
+
+### Older pages
+
+Pages built for the UkeGeeks Songbook 1.5 keep working: the markup copied into the page, then `ugsEditorPlus.songAmatic.init(options)` and `ugsEditorPlus.updateSong.init(ajaxUri, filename)`, which posts the song to the Songbook server.
+
+## Develop
+
+```
+npm install
+npm run build   # dist/
+npm test        # needs a build first
+```
+
+The JavaScript in `src/js/editor/` and the LESS in `src/less/` moved here unchanged from the Songbook and keep their tabs; new code uses 2 spaces. `scripts/build.js` lists the bundle's files in load order. Never edit `dist/`.
+
+`test/fixtures/` holds the editor markup as the Songbook 1.5 served it; `test/markup.test.js` checks `editorHtml()` still matches it.
+
+## License
+
+GPL-3.0-or-later. Copyright 2010–2026 Buz Carter.
