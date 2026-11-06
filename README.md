@@ -114,6 +114,16 @@ npm run demo    # builds, then serves http://localhost:8098/
 
 GitHub Actions (`.github/workflows/deploy-demo.yml`) builds and tests every pull request, and on a push to `main` publishes `.site/` to GitHub Pages. One-time setting: **Settings → Pages → Source: GitHub Actions**.
 
+<img src="docs/images/ukegeeks-mascot-192.png" alt="The UkeGeeks mascot, a dinosaur playing the ukulele" width="96" height="96" align="right">
+
+- **[ukegeeks.org](https://ukegeeks.org)**: edit a song online, the User's Guide, and the blog.
+- **[UkeGeeks Songbook](https://github.com/buzcarter/UkeGeeks)**: your own songbook app, run with Node.js or PHP.
+- **[Unnamed Editor](https://github.com/buzcarter/song-formatter)** (this repo): full-featured editor supporting transposing, choosing amoung styles, chord diagram sizes, and more.
+- **[Song Formatter](https://github.com/buzcarter/song-formatter)** chord diagrams and songsheets on your own website.
+- **[ACE ChordPro Extension](https://github.com/buzcarter/ace-chordpro-extension)**: ChordPro editing for the Ace code editor.
+
+Not sure which one you need? See [which UkeGeeks tool is right for you](https://ukegeeks.org/projects/).
+
 ## License
 
 GPL-3.0-or-later. Copyright 2010–2026 Buz Carter.
