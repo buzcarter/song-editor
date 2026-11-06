@@ -18,6 +18,17 @@ ugsEditorPlus.options = {
 	useLegacyIe: false,
 
 	/**
+	 * Folder (with a trailing slash) holding ace-chordpro.min.js, loaded when the Fullscreen editor opens.
+	 * Empty means "ace/" next to the folder ugsEditorPlus.min.js was loaded from.
+	 * @example
+	 *  "/js/ace/"
+	 * @property aceUrl
+	 * @type Text
+	 * @default ""
+	 */
+	aceUrl: "",
+
+	/**
 	 * If true the Edit Song box is shown when the page loads; false hides it.
 	 * @example
 	 *  Allowed values: true, false

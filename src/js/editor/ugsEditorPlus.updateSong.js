@@ -1,5 +1,5 @@
 /**
- * Updates an exising song via AJAX.
+ * Saves the song: runs the host page's save callback when the Save button is clicked.
  * Dependencies: ugsEditorPlus.dom
 
  * @class updateSong
@@ -13,8 +13,12 @@ ugsEditorPlus.updateSong = (function() {
 	 */
 	var _public = {};
 
-	var _ajaxUri = '';
-	var _filename = '';
+	/**
+	 * The host's save callback: takes the ChordPro text, returns (a promise of) the message to show.
+	 * @property _save
+	 * @type {Function}
+	 */
+	var _save = null;
 
 	/**
 	 * Name / Value pairs for CSS selectors of HTML elements to be manipulated
@@ -36,9 +40,34 @@ ugsEditorPlus.updateSong = (function() {
 	 */
 	var _isUpdating = false;
 
+	/**
+	 * Saves by posting to the UkeGeeks Songbook server (the original behavior).
+	 * Kept so pages that call updateSong.init() keep working; new pages pass `save` to songAmatic.mount().
+	 * @method init
+	 * @param ajaxUri {string}
+	 * @param filename {string}
+	 */
 	_public.init = function(ajaxUri, filename) {
-		_ajaxUri = ajaxUri;
-		_filename = filename;
+		_public.setSaveHandler(function(song) {
+			var data = {
+				'handler': 'ugs_update_81jr',
+				'filename': filename,
+				'song': song
+			};
+			return ugsEditorPlus.dom.postJson(ajaxUri, data).then(function(data) {
+				//if (data.HasErrors)
+				return data.Message;
+			});
+		});
+	};
+
+	/**
+	 * Wires the Save button to a save callback.
+	 * @method setSaveHandler
+	 * @param save {Function} takes the ChordPro text; returns a message, or a promise of one. A rejection shows the "problem saving" alert.
+	 */
+	_public.setSaveHandler = function(save) {
+		_save = save;
 
 		ugsEditorPlus.dom.on(_selectors.button, 'click', function(e) {
 			e.preventDefault();
@@ -92,17 +121,14 @@ ugsEditorPlus.updateSong = (function() {
 			return;
 		}
 
-		var data = {
-			'handler': 'ugs_update_81jr',
-			'filename': _filename,
-			'song': ele('song').value
-		};
-
 		_isUpdating = true;
 		showBusy();
-		ugsEditorPlus.dom.postJson(_ajaxUri, data)
-			.then(function(data) {
-				doAjaxOk(data);
+		Promise.resolve()
+			.then(function() {
+				return _save(ele('song').value);
+			})
+			.then(function(message) {
+				showMessage(message === undefined || message === null ? 'Saved.' : message);
 			}, function() {
 				alert('Encountered a problem saving your Song. Please copy your song to another program until this issue is resolved.');
 			})
@@ -110,11 +136,6 @@ ugsEditorPlus.updateSong = (function() {
 				hideMessage();
 				_isUpdating = false;
 			});
-	};
-
-	var doAjaxOk = function(data) {
-		//if (data.HasErrors)
-		showMessage(data.Message);
 	};
 
 	// ---------------------------------------
