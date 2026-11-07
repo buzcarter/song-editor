@@ -60,8 +60,11 @@
     }
 
     return {
-      /** @return {string} the ChordPro text in the Edit Song box */
-      getSong: () => (document.getElementById('chordProSource') as HTMLTextAreaElement).value,
+      /** @return {string} the ChordPro text: the Fullscreen editor's while it's open, else the Edit Song box's */
+      getSong: () => {
+        const fullscreenText = ugsEditorPlus.resize.getText();
+        return fullscreenText !== null ? fullscreenText : (document.getElementById('chordProSource') as HTMLTextAreaElement).value;
+      },
     };
   };
 })();

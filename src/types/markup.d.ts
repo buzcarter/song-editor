@@ -23,7 +23,8 @@ export interface EditorHtmlOptions {
 }
 
 /**
- * The editor's HTML. Every value is HTML-escaped; existing entities such as `&amp;` are kept.
+ * The editor's HTML. Every value is HTML-escaped. The songsheet keeps existing entities such as
+ * `&amp;`; the Edit Song box gets the song's exact text, entities and all.
  */
 export declare function editorHtml(options?: EditorHtmlOptions): string;
 

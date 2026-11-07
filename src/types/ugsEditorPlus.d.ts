@@ -66,7 +66,7 @@ declare namespace UgsEditorPlus {
 
   /** What `mount()` returns */
   interface Editor {
-    /** The ChordPro text in the Edit Song box */
+    /** The ChordPro text being edited: the Fullscreen editor's while it's open, else the Edit Song box's */
     getSong(): string;
   }
 

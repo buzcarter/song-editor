@@ -103,3 +103,51 @@ test('legacy pages: markup on the page, init() and updateSong.init() post to the
   assert.equal(document.getElementById('sourceFeedback').textContent, 'Song updated.');
   assert.deepEqual(errors, []);
 });
+
+test('a song with HTML entities comes back from getSong() unchanged', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const song = '{title: Rock &amp; Roll}\n{subtitle: Lyrics &amp; Music &copy; 1933}\n[C]Tom & Jerry &lt;3\n';
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song });
+  assert.equal(editor.getSong(), song);
+  // the songsheet still shows the entities as characters
+  assert.equal(document.getElementById('songTitle').textContent, 'Rock & Roll');
+  assert.deepEqual(errors, []);
+});
+
+test('getSong() returns the Fullscreen editor text while it is open', async () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  // stand-ins for loading Ace (jsdom loads no scripts from URLs)
+  let aceText = '';
+  window.LazyLoad.js = (url, callback) => callback();
+  window.ace = {
+    edit: () => ({
+      setTheme() {}, getSession: () => ({ setMode() {} }), setOptions() {}, gotoLine() {},
+      setValue(text) { aceText = text; },
+      getValue: () => aceText,
+    }),
+  };
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
+
+  document.querySelector('.resizeBtn').click(); // open Fullscreen
+  assert.equal(aceText, SAMPLE_SONG, 'Ace gets the song');
+  aceText = SAMPLE_SONG + '[G]typed in Fullscreen\n';
+  assert.equal(editor.getSong(), aceText);
+  assert.equal(document.getElementById('chordProSource').value, SAMPLE_SONG, 'the Edit Song box is not updated yet');
+
+  document.querySelector('#aceHeader a').click(); // Exit fullscreen
+  assert.equal(document.getElementById('chordProSource').value, aceText);
+  assert.equal(editor.getSong(), aceText);
+  assert.deepEqual(errors, []);
+});
+
+test("a theme colors a muted string's X like its fret numbers", () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: '{define: Zx frets x 2 3 4}\n[Zx]muted\n',
+    theme: 'reversed',
+  });
+  const x = document.querySelector('#ukeChordsCanvas svg g#X');
+  assert.ok(x, 'the muted string has an X');
+  assert.match(x.getAttribute('style'), /stroke:#999999;/); // "reversed" fretText; it was black before
+  assert.deepEqual(errors, []);
+});

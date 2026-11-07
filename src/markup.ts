@@ -36,6 +36,14 @@
     ? ''
     : String(value).replace(BARE_AMP_OR_SPECIAL, (c) => ESCAPES[c]));
 
+  // The Edit Song box gets every "&" escaped, so it holds the song's exact text: a song with
+  // "&amp;" shows (and saves) "&amp;", not "&". (Song Formatter keeps entities when it draws the song.)
+  const ALL_SPECIAL = /[&<>"']/g;
+
+  const escText = (value: unknown) => (value === null || value === undefined || value === false
+    ? ''
+    : String(value).replace(ALL_SPECIAL, (c) => ESCAPES[c]));
+
   const displayStyle = (value: string | undefined) => (value && value.length > 0 ? 'block' : 'none');
 
   /**
@@ -91,7 +99,7 @@
       ${o.canSave ? `<input type="button" id="saveBtn" class="baseBtn orange" value="Save" title="Save" style="margin-right:1.6em;" />` : ''}
       <a href="#chordBuilder" id="cdBldOpenBtn" data-dialog="cdBldDlg" class="alternateBtn" title="Add custom &amp; alternate chord diagrams">Chord Builder</a>
     </p>
-    <textarea id="chordProSource" wrap="off">${esc(o.body)}</textarea>
+    <textarea id="chordProSource" wrap="off">${escText(o.body)}</textarea>
   </div>
 </section>
 <!-- APP TOOLBAR -->

@@ -6,7 +6,7 @@ declare namespace UgsEditorPlus {
 		selectText: string;
 		description: string;
 		/** Song Formatter's `settings.colors` */
-		song: { fretLines: string, dots: string, dotText: string, text: string, fretText: string };
+		song: { fretLines: string, dots: string, dotText: string, text: string, fretText: string, xStroke: string };
 		tabs: { lines: string, dots: string, text: string };
 	}
 	interface Themes {
@@ -51,7 +51,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#ff0000',
 				dotText: '#ffffff',
 				text: '#000000',
-				fretText: '#4a4a4a'
+				fretText: '#4a4a4a',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#4a4a4a'
 			},
 			tabs: {
 				lines: '#999999',
@@ -69,7 +71,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#FDD96F',
 				dotText: '#000000',
 				text: '#FF6040',
-				fretText: '#999999'
+				fretText: '#999999',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#999999'
 			},
 			tabs: {
 				lines: '#365F70',
@@ -87,7 +91,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#332335',
 				dotText: '#9FE1F9',
 				text: '#0896FE',
-				fretText: '#E3D8BA'
+				fretText: '#E3D8BA',
+				/* a muted string's X: the lyrics' blue (the light fret-number color is too faint) */
+				xStroke: '#0896FE'
 			},
 			tabs: {
 				lines: '#6699FF',
@@ -105,7 +111,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#FF9417',
 				dotText: '#FCF49F',
 				text: '#D20070',
-				fretText: '#4a4a4a'
+				fretText: '#4a4a4a',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#4a4a4a'
 			},
 			tabs: {
 				lines: '#6699FF',
@@ -123,7 +131,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#000000',
 				dotText: '#ffffff',
 				text: '#000000',
-				fretText: '#000000'
+				fretText: '#000000',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#000000'
 			},
 			tabs: {
 				lines: '#cccccc',
@@ -141,7 +151,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#A22C27',
 				dotText: '#EBD592',
 				text: '#4F2621',
-				fretText: '#4a4a4a'
+				fretText: '#4a4a4a',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#4a4a4a'
 			},
 			tabs: {
 				lines: '#B69C01',
@@ -159,7 +171,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#CF8300',
 				dotText: '#ffffff',
 				text: '#386571',
-				fretText: '#4a4a4a'
+				fretText: '#4a4a4a',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#4a4a4a'
 			},
 			tabs: {
 				lines: '#697665',
@@ -177,7 +191,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#DA6328',
 				dotText: '#FFEE4A',
 				text: '#68391D',
-				fretText: '#B14623'
+				fretText: '#B14623',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#B14623'
 			},
 			tabs: {
 				lines: '#BED379',
@@ -195,7 +211,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#1C0866',
 				dotText: '#ffffff',
 				text: '#B22000',
-				fretText: '#A4A0B2'
+				fretText: '#A4A0B2',
+				/* a muted string's X: the fret lines' color (the light fret-number color is too faint) */
+				xStroke: '#747CAD'
 			},
 			tabs: {
 				lines: '#A4A0B2',
@@ -214,7 +232,9 @@ ugsEditorPlus.themes = (function() {
 				dots: '#E52501',
 				dotText: '#FEDA79',
 				text: '#798666',
-				fretText: '#B14623'
+				fretText: '#B14623',
+				/* a muted string's X: drawn on the page, so the fret numbers' color */
+				xStroke: '#B14623'
 			},
 			tabs: {
 				lines: '#602749',
@@ -281,8 +301,7 @@ ugsEditorPlus.themes = (function() {
 		setBody(themeName);
 
 		var c = _colorSchemes[themeName];
-		// NOTE: the themes have no `xStroke` (muted-string X) color, which Song Formatter's ChordColors has
-		ukeGeeks.settings.colors = c.song as typeof ukeGeeks.settings.colors;
+		ukeGeeks.settings.colors = c.song;
 		ukeGeeks.settings.tabs.lineColor = c.tabs.lines;
 		ukeGeeks.settings.tabs.dotColor = c.tabs.dots;
 		ukeGeeks.settings.tabs.textColor = c.tabs.text;

@@ -2,6 +2,8 @@ declare namespace UgsEditorPlus {
 	interface Resize {
 		/** Opens the Fullscreen (Ace) editor for this dialog, or closes it */
 		toggle(dlgElement: HTMLElement): boolean;
+		/** The text in the Fullscreen editor while it's open; null when it's closed (or Ace is still loading) */
+		getText(): string | null;
 	}
 }
 interface UgsEditorPlus {
@@ -181,6 +183,15 @@ ugsEditorPlus.resize = (function(){
 	 * @param  {DOM-element} dlgElement handle to Overlay/dialog being resized
 	 * @return {void}
 	 */
+	/**
+	 * The song being edited in Fullscreen. (The Edit Song box only gets it when Fullscreen closes.)
+	 * @method getText
+	 * @return {string|null} null when Fullscreen is closed, or Ace hasn't loaded yet
+	 */
+	_public.getText = function(){
+		return (isBig && editor !== null) ? editor.getValue() : null;
+	};
+
 	_public.toggle = function(dlgElement: HTMLElement){
 		if (dlg === null) {
 		setup(dlgElement);

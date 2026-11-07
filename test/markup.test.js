@@ -33,6 +33,11 @@ test('escapes song text but keeps entities', () => {
   assert.ok(!out.includes('<i>x</i>'));
 });
 
+test('the Edit Song box holds the exact song text, entities and all', () => {
+  const out = editorHtml({ body: 'Lyrics &amp; Music &copy; 1933 & <b>' });
+  assert.ok(out.includes('<textarea id="chordProSource" wrap="off">Lyrics &amp;amp; Music &amp;copy; 1933 &amp; &lt;b&gt;</textarea>'));
+});
+
 test('defaults: no Save button, relative image folder, empty song', () => {
   const out = editorHtml();
   assert.ok(!out.includes('id="saveBtn"'));
