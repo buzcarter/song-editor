@@ -25,6 +25,11 @@ describe('reformat', () => {
     assert.equal(reformat.run('C    G7\nHi'), '[C]Hi   [G7]  \n');
   });
 
+  test('lines up chords and lyrics written with tabs (tab stops every 8 columns)', () => {
+    assert.equal(reformat.run('C\tG\nHi\tthere\tyou'), '[C]Hi      [G]there   you\n');
+    assert.equal(reformat.run('\tAm\tF\nOne\ttwo\tthree'), 'One     [Am]two     [F]three\n');
+  });
+
   test('brackets a chord line with no lyrics under it', () => {
     assert.equal(reformat.run('C G\n\nla la'), '[C] [G] \n\nla la\n');
   });

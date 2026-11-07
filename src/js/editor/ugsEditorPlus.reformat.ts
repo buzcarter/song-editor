@@ -122,8 +122,7 @@ ugsEditorPlus.reformat = (function() {
 	 */
 	var read = function(text: string){
 		var lineAry: UgsEditorPlus.ReformatLine[] = [];
-		text = text.replace('	', '    ');
-		var lines = text.split('\n');
+		var lines = text.split('\n').map(expandTabs);
 		for (var i = 0; i < lines.length; i++) {
 			var words = lines[i].match(_re.words);
 			var l = new LineObj();
@@ -141,6 +140,34 @@ ugsEditorPlus.reformat = (function() {
 			lineAry.push(l);
 		}
 		return lineAry;
+	};
+
+	/**
+	 * Columns between tab stops: 8, as the Edit Song box shows a tab (the browser's default
+	 * `tab-size`), so chords line up over the lyrics the way they look there.
+	 * @property TAB_SIZE
+	 * @final
+	 */
+	var TAB_SIZE = 8;
+
+	/**
+	 * Replaces each tab with the spaces up to the next tab stop
+	 * @method expandTabs
+	 * @param line {string}
+	 * @return {string}
+	 */
+	var expandTabs = function(line: string){
+		var out = '';
+		for (var i = 0; i < line.length; i++) {
+			if (line[i] != '\t') {
+				out += line[i];
+				continue;
+			}
+			do {
+				out += ' ';
+			} while (out.length % TAB_SIZE != 0);
+		}
+		return out;
 	};
 
 	/**
