@@ -1,3 +1,15 @@
+declare namespace UgsEditorPlus {
+  /** dom's checked lookups: the editor's own, so they're not in the shipped Dom type */
+  interface Dom {
+    /** The element with this id. Throws if the page doesn't have it or it isn't a `type`. */
+    byId<T extends Element>(id: string, type: new () => T): T;
+    /** The first element matching the selector (within `context`). Throws like byId(). */
+    find<T extends Element>(selector: string, type: new () => T, context?: ParentNode): T;
+    /** The nearest ancestor of `ele` (or `ele` itself) matching the selector. Throws like byId(). */
+    closest<T extends Element>(ele: Element, selector: string, type: new () => T): T;
+  }
+}
+
 /**
  * Tiny DOM helpers for the editor (replaces what the editor used to get from jQuery):
  * element lookup, show/hide, CSS-transition fades & slides, draggable dialogs, and
@@ -31,11 +43,16 @@ ugsEditorPlus.dom = (function() {
   // (animations of different properties -- say a fade and a slide -- run side by side)
   var _running = new WeakMap<HTMLElement, UgsEditorPlus.DomAnimation[]>();
 
+  // a CSS property you can read and set by name on `element.style`, such as 'opacity' or 'height'
+  type CssProperty = {
+    [K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string ? K : never;
+  }[keyof CSSStyleDeclaration] & string;
+
   var toMs = function(speed?: UgsEditorPlus.Speed) {
     if (typeof speed === 'number') {
       return speed;
     }
-    return SPEEDS[speed as string] || SPEEDS.normal;
+    return (speed && SPEEDS[speed]) || SPEEDS.normal;
   };
 
   /**
@@ -45,8 +62,8 @@ ugsEditorPlus.dom = (function() {
    * @param context {DOM-element} (optional) defaults to document
    * @return {DOM-element|null}
    */
-  _public.one = function(selector: string, context?: ParentNode | null) {
-    return (context || document).querySelector(selector) as any;
+  _public.one = function<E extends HTMLElement = HTMLElement>(selector: string, context?: ParentNode | null) {
+    return (context || document).querySelector<E>(selector);
   };
 
   /**
@@ -58,6 +75,58 @@ ugsEditorPlus.dom = (function() {
    */
   _public.all = function(selector: string, context?: ParentNode | null) {
     return Array.prototype.slice.call((context || document).querySelectorAll(selector));
+  };
+
+  /**
+   * Returns ele if it's a `type`; throws otherwise. The editor's markup always has the elements
+   * it looks up, so a missing one is a broken page: say which, rather than fail later on null.
+   * @method checked
+   * @private
+   * @param ele {DOM-element|null} what the lookup found
+   * @param what {string} the lookup, for the error message
+   * @param type {function} constructor, e.g. HTMLInputElement
+   * @return {DOM-element}
+   */
+  var checked = function<T extends Element>(ele: Element | null, what: string, type: new () => T): T {
+    if (!(ele instanceof type)) {
+      throw new Error('ugsEditorPlus: ' + what + (ele ? ' is not a ' + type.name : ' not found'));
+    }
+    return ele;
+  };
+
+  /**
+   * The element with this id; throws if the page doesn't have it or it isn't a `type`
+   * @method byId
+   * @param id {string}
+   * @param type {function} constructor, e.g. HTMLInputElement
+   * @return {DOM-element}
+   */
+  _public.byId = function(id, type) {
+    return checked(document.getElementById(id), '#' + id, type);
+  };
+
+  /**
+   * First element matching the CSS selector (within optional context); throws like byId()
+   * @method find
+   * @param selector {string}
+   * @param type {function} constructor, e.g. HTMLElement
+   * @param context {DOM-element} (optional) defaults to document
+   * @return {DOM-element}
+   */
+  _public.find = function(selector, type, context) {
+    return checked((context || document).querySelector(selector), '"' + selector + '"', type);
+  };
+
+  /**
+   * Nearest ancestor of ele (or ele itself) matching the CSS selector; throws like byId()
+   * @method closest
+   * @param ele {DOM-element}
+   * @param selector {string}
+   * @param type {function} constructor, e.g. HTMLElement
+   * @return {DOM-element}
+   */
+  _public.closest = function(ele, selector, type) {
+    return checked(ele.closest(selector), '"' + selector + '" around ' + ele.tagName, type);
   };
 
   /**
@@ -143,18 +212,19 @@ ugsEditorPlus.dom = (function() {
   _public.animate = function(ele, props, speed, onDone) {
     var ms = toMs(speed);
     var computed = window.getComputedStyle(ele);
-    var names = Object.keys(props);
+    // (Object.keys can't type its result: props' keys are CSS property names, as `animate` documents)
+    var names = Object.keys(props) as CssProperty[];
     var ends: Record<string, [string, string]> = {};
 
     // snapshot the starting values BEFORE dropping any running transition
     names.forEach(function(name) {
       var value = props[name];
-      ends[name] = Array.isArray(value) ? value : [computed[name as any] as string, value];
+      ends[name] = Array.isArray(value) ? value : [computed[name], value];
     });
     // drop running transitions of these properties, jump to the start values
     stop(ele, names);
     names.forEach(function(name) {
-      ele.style[name as any] = ends[name][0];
+      ele.style[name] = ends[name][0];
     });
     // force a reflow so the browser "sees" the start values before transitioning
     void ele.offsetWidth;
@@ -168,7 +238,7 @@ ugsEditorPlus.dom = (function() {
     _running.set(ele, running(ele).concat(anim));
     setTransition(ele);
     names.forEach(function(name) {
-      ele.style[name as any] = ends[name][1];
+      ele.style[name] = ends[name][1];
     });
 
     anim.id = setTimeout(function() {
@@ -299,17 +369,18 @@ ugsEditorPlus.dom = (function() {
    * @param handleSelector {string} (optional) CSS selector of the "grab" area inside ele; default: ele itself
    */
   _public.draggable = function(ele, handleSelector) {
-    var handle = handleSelector ? ele.querySelector(handleSelector) as HTMLElement | null : ele;
-    if (!handle) {
+    var found = handleSelector ? ele.querySelector(handleSelector) : ele;
+    if (!(found instanceof HTMLElement)) {
       return;
     }
+    var handle = found;
     var drag: { id: number, dx: number, dy: number } | null = null;
 
     handle.style.cursor = 'move';
     handle.style.touchAction = 'none';
 
     handle.addEventListener('pointerdown', function(e) {
-      if (e.button !== 0 || (e.target as Element).closest('a, button, input, select, textarea')) {
+      if (e.button !== 0 || (e.target instanceof Element && e.target.closest('a, button, input, select, textarea'))) {
         return;
       }
       var rect = ele.getBoundingClientRect();
@@ -322,9 +393,9 @@ ugsEditorPlus.dom = (function() {
       ele.style.width = window.getComputedStyle(ele).width;
       ele.style.right = 'auto';
       ele.style.bottom = 'auto';
-      ele.style.zIndex = 1000 as any;
+      ele.style.zIndex = '1000';
       ele.classList.add('draggable');
-      handle!.setPointerCapture(e.pointerId);
+      handle.setPointerCapture(e.pointerId);
       e.preventDefault();
     });
 

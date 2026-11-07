@@ -23,7 +23,9 @@ interface UgsEditorPlus {
 var ugsEditorPlus: UgsEditorPlus = window.ugsEditorPlus || ({} as UgsEditorPlus);
 
 /**
- * TK
+ * Converts a song pasted the way most websites show it -- a line of chord names above each
+ * line of lyrics -- into ChordPro, with each chord in [brackets] at its place in the lyrics.
+ * Four lines of tablature in a row become a {start_of_tab} block.
  * @class reformat
  * @namespace ugsEditorPlus
  * @singleton
@@ -252,16 +254,17 @@ ugsEditorPlus.reformat = (function() {
 			lyricsLine += ' ';
 		}
 		var s = '';
-		var blocks = chordLine.match(_re.chrdBlock);
+		// (only called for chord lines, which have chord blocks)
+		var blocks = chordLine.match(_re.chrdBlock) || [];
 		var lead = chordLine.match(_re.leadingSpace);
 		var offset = 0;
 		if (lead){
 			s += lyricsLine.substr(offset, lead[0].length);
 			offset = lead[0].length;
 		}
-		for (var j = 0; j < blocks!.length; j++) {
-			s += '[' + blocks![j].replace(_re.spaces, '') + ']' + lyricsLine.substr(offset, blocks![j].length);
-			offset += blocks![j].length;
+		for (var j = 0; j < blocks.length; j++) {
+			s += '[' + blocks[j].replace(_re.spaces, '') + ']' + lyricsLine.substr(offset, blocks[j].length);
+			offset += blocks[j].length;
 		}
 		if (offset < lyricsLine.length){
 			s += lyricsLine.substr(offset, lyricsLine.length);

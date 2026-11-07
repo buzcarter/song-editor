@@ -45,14 +45,14 @@ ugsEditorPlus.songUi = (function() {
 	 * @param song {Song(Object)}
 	 */
 	_public.update = function(song){
-		var h = document.getElementById('songTitle')!;
+		var h = ugsEditorPlus.dom.byId('songTitle', HTMLElement);
 		h.innerHTML = (song.title.length > 0) ? song.title : 'Untitled-Song';
 
 		trySet('songArtist', song.artist);
 		trySet('songAlbum', song.album);
 		trySet('songSubtitle', song.st);
 
-		h = document.getElementById('songMeta')!;
+		h = ugsEditorPlus.dom.byId('songMeta', HTMLElement);
 		if (!song.ugsMeta || (song.ugsMeta.length < 1)){
 			h.style.display = 'none';
 		}

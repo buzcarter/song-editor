@@ -274,7 +274,7 @@ ugsEditorPlus.themes = (function() {
 	 * @param {string} selectedValue value that should be "checked"
 	 */
 	_public.loadList = function(selector, selectedValue) {
-		var ul = document.querySelector(selector)!;
+		var ul = ugsEditorPlus.dom.find(selector, HTMLElement);
 		ul.textContent = '';
 		for (var key in _colorSchemes) {
 			if (_colorSchemes.hasOwnProperty(key)) {

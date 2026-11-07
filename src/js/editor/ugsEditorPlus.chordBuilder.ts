@@ -9,7 +9,8 @@ interface UgsEditorPlus {
 }
 
 /**
- *
+ * Connects the Chord Builder (the `ugsChordBuilder` global) to the editor: makes the builder
+ * and opens its dialog from the toolbar button, reloading the song's chords each time.
  * Dependencies: ugsChordBuilder classes
  * @class chordBuilder
  * @namespace ugsEditorPlus
@@ -30,12 +31,13 @@ ugsEditorPlus.chordBuilder = (function() {
 	 * @method  init
 	 */
 	_public.init = function() {
-		var fingerToolImage = window.getComputedStyle(document.querySelector('.fingerToolImage')!).backgroundImage;
+		var dom = ugsEditorPlus.dom;
+		var fingerToolImage = window.getComputedStyle(dom.find('.fingerToolImage', HTMLElement)).backgroundImage;
 		ugsChordBuilder.settings.cursor.imageUri = fingerToolImage.replace(/url\("(.*)hand.png"\)/i, '$1hand-cursor.png');
 		_builder = new ugsChordBuilder.editorUi();
 		_builder.init();
 
-		document.getElementById('cdBldOpenBtn')!.addEventListener('click', onShowDlgBtnClick);
+		dom.byId('cdBldOpenBtn', HTMLElement).addEventListener('click', onShowDlgBtnClick);
 	};
 
 	/**
@@ -45,9 +47,11 @@ ugsEditorPlus.chordBuilder = (function() {
 	 */
 	var onShowDlgBtnClick = function(this: HTMLElement, evt: Event){
 		evt.preventDefault();
-		_builder!.reload();
-		var id = this.getAttribute('data-dialog')!;
-		ugsEditorPlus.dom.fadeIn(document.getElementById(id));
+		// (init() makes the builder before it listens for this click)
+		if (_builder) {
+			_builder.reload();
+		}
+		ugsEditorPlus.dom.fadeIn(document.getElementById(this.getAttribute('data-dialog') || ''));
 	};
 
 	// ---------------------------------------

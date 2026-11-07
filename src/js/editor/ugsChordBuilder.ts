@@ -521,7 +521,7 @@ ugsChordBuilder.fretDots = (function() {
 		context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
 		context.textAlign = 'center';
 		context.fillStyle = opts_dot.fontColor;
-		context.fillText(text as unknown as string, pos.x, pos.y + 0.3 * opts_dot.fontSize);
+		context.fillText(String(text), pos.x, pos.y + 0.3 * opts_dot.fontSize);
 	};
 
 	_public.draw = function(context) {
@@ -560,6 +560,8 @@ ugsChordBuilder.cursorCanvas = (function() {
 	 */
 	var _public = {} as UgsChordBuilder.CursorCanvas;
 
+	// set by init(), which editorUi calls before anything draws. (Typing these honestly means passing the
+	// context to each draw function: a rewrite, for when the Chord Builder becomes a module.)
 	var _context: CanvasRenderingContext2D = null!;
 
 	var _handImage: HTMLImageElement = null!;
@@ -597,7 +599,7 @@ ugsChordBuilder.cursorCanvas = (function() {
 		_context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
 		_context.textAlign = 'left';
 		_context.fillStyle = 'black'; //opts_dot.fontColor;
-		_context.fillText(_finger as unknown as string, pos.x + 0.8 * _handImage.width, pos.y + _handImage.height);
+		_context.fillText(String(_finger), pos.x + 0.8 * _handImage.width, pos.y + _handImage.height);
 		// not centering pos.x - 0.5 * _handImage.width, pos.y - 0.5 * _handImage.height);
 	};
 
@@ -666,6 +668,7 @@ ugsChordBuilder.chordCanvas = (function() {
 	 */
 	var _public = {} as UgsChordBuilder.ChordCanvas;
 
+	// set by init() (see cursorCanvas above)
 	var _context: CanvasRenderingContext2D = null!,
 		_canvas: HTMLCanvasElement = null!;
 
@@ -683,7 +686,7 @@ ugsChordBuilder.chordCanvas = (function() {
 		_context.font = opt_fLabel.fontSize + 'px ' + opt_fLabel.fontFamily;
 		_context.textAlign = 'right';
 		_context.fillStyle = color;
-		_context.fillText(text as unknown as string, pos.x, pos.y);
+		_context.fillText(String(text), pos.x, pos.y);
 	};
 
 	var addLabels = function(startingFret: number) {
@@ -766,7 +769,9 @@ ugsChordBuilder.chordCanvas = (function() {
 }());
 
 /**
- *
+ * Turns the dots on the fretboard into a ChordPro chord definition,
+ * `{define: Name frets 0 2 3 2 fingers 0 1 2 3}`, plus an `add: string 0 fret 1 finger 1` for each
+ * string with a second dot. The chooser list saves it into the song.
  * @class export
  * @namespace ugsChordBuilder
  * @static
@@ -784,7 +789,8 @@ ugsChordBuilder.export = (function() {
 	 */
 	var _public = {} as UgsChordBuilder.Export;
 
-	var _fretOffset: number = null!;
+	// set by getDefinition() before anything reads it
+	var _fretOffset = 0;
 
 	/**
 	 * Class for "reorganized" dots, think of this as a necklace where the

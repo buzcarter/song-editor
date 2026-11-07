@@ -2,7 +2,8 @@ declare namespace UgsEditorPlus {
 	/** The song's elements on the page */
 	interface SongElements {
 		songText: HTMLElement;
-		songContainer: HTMLDivElement;
+		/** an <article> */
+		songContainer: HTMLElement;
 		/** the Edit Song box */
 		cpmSource: HTMLTextAreaElement;
 		scalableArea: HTMLElement;
@@ -13,6 +14,30 @@ declare namespace UgsEditorPlus {
 		/** Redraws the song from the Edit Song box; `isDoBackup` makes it the new "original" for transposing */
 		run(isDoBackup?: boolean): void;
 	}
+	/**
+	 * The settings an "ugs:option" event can change, and each one's value. Menus send the
+	 * clicked item's value (its href without the "#"); the Options dialog's checkboxes send booleans.
+	 */
+	interface OptionValues {
+		zoomFonts: string;
+		zoomDiagrams: string;
+		layout: string;
+		placement: string;
+		tuning: string;
+		colors: string;
+		transpose: string;
+		paper: string;
+		update: string;
+		showEnclosures: boolean;
+		hideCommonChords: boolean;
+		sortAlphabetical: boolean;
+		setCommonChords: string | string[];
+	}
+	/** An "ugs:option" event's detail: a menu or the Options dialog changed a setting */
+	type OptionChange = { [A in keyof OptionValues]: { action: A; value: OptionValues[A] } }[keyof OptionValues];
+}
+interface DocumentEventMap {
+	'ugs:option': CustomEvent<UgsEditorPlus.OptionChange>;
 }
 interface UgsEditorPlus {
 	actions: UgsEditorPlus.Actions;
@@ -70,15 +95,16 @@ ugsEditorPlus.actions = (function() {
 	 * @public
 	 */
 	_public.init = function() {
+		var dom = ugsEditorPlus.dom;
 		_ele = {
-			songText : document.getElementById('ukeSongText')!,
-			songContainer : document.getElementById('ukeSongContainer') as HTMLDivElement,
-			cpmSource : document.getElementById('chordProSource') as HTMLTextAreaElement,
-			scalableArea : document.getElementById('scalablePrintArea')!
+			songText : dom.byId('ukeSongText', HTMLElement),
+			songContainer : dom.byId('ukeSongContainer', HTMLElement),
+			cpmSource : dom.byId('chordProSource', HTMLTextAreaElement),
+			scalableArea : dom.byId('scalablePrintArea', HTMLElement)
 		};
 
-		document.addEventListener('ugs:option', function(e: any) {
-			doAction(e.detail.action, e.detail.value);
+		document.addEventListener('ugs:option', function(e) {
+			doAction(e.detail);
 		});
 
 		syncOptions(ugsEditorPlus.options);
@@ -92,54 +118,56 @@ ugsEditorPlus.actions = (function() {
 	 * Executes the requested Action using passed in Value
 	 * @method doAction
 	 * @private
-	 * @param action {string} Action's name; must match one of those defined in the switch below
-	 * @param value {string} Value used by Action (OK, a couple methods assume this is boolean/falsy)
+	 * @param change {OptionChange} the event's detail: the Action's name (one of those in the switch below)
+	 *   and its value (a string from a menu, a boolean from a checkbox)
 	 */
-	var doAction = function(action: string, value: any) {
+	var doAction = function(change: UgsEditorPlus.OptionChange) {
 		// actions that modify song's HTML or reference diagrams require rerunning Scriptasaurus
 		var runRequired = false;
+		// (for the log below: events come from the page, so an unknown action can still arrive)
+		var action: string = change.action, value: unknown = change.value;
 
-		switch (action){
+		switch (change.action){
 			case 'zoomFonts':
-				doSetFontSize(value);
+				doSetFontSize(change.value);
 				break;
 			case 'zoomDiagrams':
-				doSetDiagramSize(value);
+				doSetDiagramSize(change.value);
 				break;
 			case 'layout':
-				doLayout(value);
+				doLayout(change.value);
 				break;
 			case 'placement':
-				runRequired = doPlacement(value);
+				runRequired = doPlacement(change.value);
 				break;
 			case 'tuning':
-				doTuning(value);
+				doTuning(change.value);
 				runRequired = true;
 				break;
 			case 'colors':
-				doSetTheme(value);
+				doSetTheme(change.value);
 				runRequired = true;
 				break;
 			case 'transpose':
-				doTranspose(value);
+				doTranspose(change.value);
 				break;
 			case 'paper':
-				doSetPageWidth(value);
+				doSetPageWidth(change.value);
 				break;
 			case 'showEnclosures':
-				setEnclosureVisible(value);
+				setEnclosureVisible(change.value);
 				runRequired = true;
 				break;
 			case 'hideCommonChords':
-				setIgnoreCommon(value);
+				setIgnoreCommon(change.value);
 				runRequired = true;
 				break;
 			case 'sortAlphabetical':
-				setSortAlphabetical(value);
+				setSortAlphabetical(change.value);
 				runRequired = true;
 				break;
 			case 'setCommonChords':
-				setCommonChordsList(value);
+				setCommonChordsList(change.value);
 				runRequired = ukeGeeks.settings.opts.ignoreCommonChords;
 				break;
 			case 'update':
@@ -229,19 +257,27 @@ ugsEditorPlus.actions = (function() {
 	 * @param value {string} percentage, integer between 0 and, well, 100?; value of the clicked value item
 	 */
 	var doSetDiagramSize = function(value: string | number) {
-		var prct = parseInt(value as string, 10) / 100;
+		var prct = parseInt(String(value), 10) / 100;
 		// apologies for the magic number...
 		var columnWidth = Math.round(prct * 225);
 
 		var s = ugsEditorPlus.styles.getSheet('ugsEditorCss');
-		var m = s.find('.scalablePrintArea .ugs-diagrams-wrap svg')!;
+		// the editor's stylesheet has these rules; without them (or without title="ugsEditorCss"), say so
+		var rule = function(selector: string) {
+			var found = s.find(selector);
+			if (!found) {
+				throw new Error('ugsEditorPlus: no "' + selector + '" rule in the stylesheet titled "ugsEditorCss"');
+			}
+			return found;
+		};
+		var m = rule('.scalablePrintArea .ugs-diagrams-wrap svg');
 		m.style.width = Math.round(prct * ukeGeeks.settings.fretBox.width) +'px';
 		m.style.height = Math.round(prct * ukeGeeks.settings.fretBox.height) +'px';
 
-		m = s.find('.scalablePrintArea .ugs-diagrams-wrap')!;
+		m = rule('.scalablePrintArea .ugs-diagrams-wrap');
 		m.style.width = columnWidth +'px';
 
-		m = s.find('.scalablePrintArea .ugs-source-wrap')!;
+		m = rule('.scalablePrintArea .ugs-source-wrap');
 		m.style.marginLeft = (25 + columnWidth) +'px';
 	};
 
@@ -356,7 +392,7 @@ ugsEditorPlus.actions = (function() {
 			msg = '<strong>ADF#B</strong> alternate tuning';
 		}
 
-		document.getElementById('footTuningInfo')!.innerHTML = msg;
+		ugsEditorPlus.dom.byId('footTuningInfo', HTMLElement).innerHTML = msg;
 		ukeGeeks.scriptasaurus.setTuningOffset(tuning);
 	};
 
@@ -398,8 +434,12 @@ ugsEditorPlus.actions = (function() {
 			}
 		}
 
+		// (run() keeps the original song before anything can transpose)
+		if (_originalSource === null) {
+			return;
+		}
 		var newChords = ukeGeeks.transpose.shiftChords(safeChords, steps);
-		var s = _originalSource as string;
+		var s = _originalSource;
 		var rEx;
 
 		// "safe" (temp) rename chords (prepend noise "ugsxx_" so a renamed G will be distinguisable from a new G)
@@ -416,11 +456,13 @@ ugsEditorPlus.actions = (function() {
 
 		// find & replace {key} command (if present)
 		rEx = /^\s*\{\s*(key|k)\s*:\s*(\S*?)\s*\}\s*$/im;
-		if (rEx.test(s)) {
-			var m = s.match(rEx)!;
+		var m = s.match(rEx);
+		if (m) {
 			var key = m[2];
-			if ((key !== '') && _regEx.safe.test(key)) {
-				s = s.replace(rEx, m[0].replace(key, ukeGeeks.transpose.shift(key, steps) as string));
+			// (shift() knows every "safe" chord)
+			var newKey = (key !== '') && _regEx.safe.test(key) ? ukeGeeks.transpose.shift(key, steps) : null;
+			if (newKey !== null) {
+				s = s.replace(rEx, m[0].replace(key, newKey));
 			}
 		}
 
@@ -437,7 +479,7 @@ ugsEditorPlus.actions = (function() {
 	 * @param keyChord {string}
 	 */
 	var resetTranspose = function(keyChord: string) {
-		var ul = document.getElementById('transposeOptions')!;
+		var ul = ugsEditorPlus.dom.byId('transposeOptions', HTMLElement);
 		var items = ul.getElementsByTagName('li');
 		var sample;
 		var steps = -6;
@@ -449,7 +491,8 @@ ugsEditorPlus.actions = (function() {
 		for (var i = 0; i < items.length; i++) {
 			ukeGeeks.toolsLite.removeClass(items[i], 'checked');
 			sample = (keyChord.length < 1) ? '' : ukeGeeks.transpose.shift(keyChord, steps);
-			items[i].getElementsByTagName('em')[0].innerHTML = sample as string;
+			// (shift() returns null for a chord it doesn't know; innerHTML treated that as '')
+			items[i].getElementsByTagName('em')[0].innerHTML = sample || '';
 			if (steps === 0) {
 				ukeGeeks.toolsLite.addClass(items[i], 'checked');
 			}
