@@ -52,7 +52,7 @@ ugsEditorPlus.dom = (function() {
     if (typeof speed === 'number') {
       return speed;
     }
-    return SPEEDS[speed as string] || SPEEDS.normal;
+    return (speed && SPEEDS[speed]) || SPEEDS.normal;
   };
 
   /**
@@ -369,17 +369,18 @@ ugsEditorPlus.dom = (function() {
    * @param handleSelector {string} (optional) CSS selector of the "grab" area inside ele; default: ele itself
    */
   _public.draggable = function(ele, handleSelector) {
-    var handle = handleSelector ? ele.querySelector(handleSelector) as HTMLElement | null : ele;
-    if (!handle) {
+    var found = handleSelector ? ele.querySelector(handleSelector) : ele;
+    if (!(found instanceof HTMLElement)) {
       return;
     }
+    var handle = found;
     var drag: { id: number, dx: number, dy: number } | null = null;
 
     handle.style.cursor = 'move';
     handle.style.touchAction = 'none';
 
     handle.addEventListener('pointerdown', function(e) {
-      if (e.button !== 0 || (e.target as Element).closest('a, button, input, select, textarea')) {
+      if (e.button !== 0 || (e.target instanceof Element && e.target.closest('a, button, input, select, textarea'))) {
         return;
       }
       var rect = ele.getBoundingClientRect();
@@ -394,7 +395,7 @@ ugsEditorPlus.dom = (function() {
       ele.style.bottom = 'auto';
       ele.style.zIndex = '1000';
       ele.classList.add('draggable');
-      handle!.setPointerCapture(e.pointerId);
+      handle.setPointerCapture(e.pointerId);
       e.preventDefault();
     });
 

@@ -1,7 +1,7 @@
 declare namespace UgsEditorPlus {
 	interface Styles {
-		/** the rules of the sheet from the last getSheet() */
-		Rules: ArrayLike<CSSStyleRule>;
+		/** the rules of the sheet from the last getSheet() (empty until then) */
+		Rules: ArrayLike<CSSRule>;
 		/** Picks the stylesheet with this title (`<link title="...">`). */
 		getSheet(title: string): Styles;
 		/** The rule with exactly this selector, in the sheet from getSheet() */
@@ -24,15 +24,14 @@ ugsEditorPlus.styles = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {
-		Rules: null as unknown as ArrayLike<CSSStyleRule>
-	} as UgsEditorPlus.Styles;
+	var _public = {} as UgsEditorPlus.Styles;
+	_public.Rules = [];
 
 	var _sheet: CSSStyleSheet | null = null;
-	
+
 	_public.getSheet = function(title) {
 		_sheet = _getSheet(title);
-		_public.Rules = _getRules() as ArrayLike<CSSStyleRule>;
+		_public.Rules = _getRules();
 		return this;
 	};
 	
@@ -55,11 +54,13 @@ ugsEditorPlus.styles = (function() {
 	_public.find = function(selector) {
 		selector = selector.toLowerCase();
 		for (var i = 0; i < _public.Rules.length; i++) {
-			if (!_public.Rules[i].selectorText) {
+			var rule = _public.Rules[i];
+			// style rules only (an @media rule has no selector)
+			if (!(rule instanceof CSSStyleRule) || !rule.selectorText) {
 				continue;
 			}
-			if (_public.Rules[i].selectorText.toLowerCase() == selector) {
-				return _public.Rules[i];
+			if (rule.selectorText.toLowerCase() == selector) {
+				return rule;
 			}
 		}
 		return null;

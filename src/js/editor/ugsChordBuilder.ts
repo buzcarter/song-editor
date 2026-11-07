@@ -560,6 +560,8 @@ ugsChordBuilder.cursorCanvas = (function() {
 	 */
 	var _public = {} as UgsChordBuilder.CursorCanvas;
 
+	// set by init(), which editorUi calls before anything draws. (Typing these honestly means passing the
+	// context to each draw function: a rewrite, for when the Chord Builder becomes a module.)
 	var _context: CanvasRenderingContext2D = null!;
 
 	var _handImage: HTMLImageElement = null!;
@@ -666,6 +668,7 @@ ugsChordBuilder.chordCanvas = (function() {
 	 */
 	var _public = {} as UgsChordBuilder.ChordCanvas;
 
+	// set by init() (see cursorCanvas above)
 	var _context: CanvasRenderingContext2D = null!,
 		_canvas: HTMLCanvasElement = null!;
 
@@ -784,7 +787,8 @@ ugsChordBuilder.export = (function() {
 	 */
 	var _public = {} as UgsChordBuilder.Export;
 
-	var _fretOffset: number = null!;
+	// set by getDefinition() before anything reads it
+	var _fretOffset = 0;
 
 	/**
 	 * Class for "reorganized" dots, think of this as a necklace where the

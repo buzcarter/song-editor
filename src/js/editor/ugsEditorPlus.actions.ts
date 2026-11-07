@@ -257,19 +257,27 @@ ugsEditorPlus.actions = (function() {
 	 * @param value {string} percentage, integer between 0 and, well, 100?; value of the clicked value item
 	 */
 	var doSetDiagramSize = function(value: string | number) {
-		var prct = parseInt(value as string, 10) / 100;
+		var prct = parseInt(String(value), 10) / 100;
 		// apologies for the magic number...
 		var columnWidth = Math.round(prct * 225);
 
 		var s = ugsEditorPlus.styles.getSheet('ugsEditorCss');
-		var m = s.find('.scalablePrintArea .ugs-diagrams-wrap svg')!;
+		// the editor's stylesheet has these rules; without them (or without title="ugsEditorCss"), say so
+		var rule = function(selector: string) {
+			var found = s.find(selector);
+			if (!found) {
+				throw new Error('ugsEditorPlus: no "' + selector + '" rule in the stylesheet titled "ugsEditorCss"');
+			}
+			return found;
+		};
+		var m = rule('.scalablePrintArea .ugs-diagrams-wrap svg');
 		m.style.width = Math.round(prct * ukeGeeks.settings.fretBox.width) +'px';
 		m.style.height = Math.round(prct * ukeGeeks.settings.fretBox.height) +'px';
 
-		m = s.find('.scalablePrintArea .ugs-diagrams-wrap')!;
+		m = rule('.scalablePrintArea .ugs-diagrams-wrap');
 		m.style.width = columnWidth +'px';
 
-		m = s.find('.scalablePrintArea .ugs-source-wrap')!;
+		m = rule('.scalablePrintArea .ugs-source-wrap');
 		m.style.marginLeft = (25 + columnWidth) +'px';
 	};
 
@@ -426,8 +434,12 @@ ugsEditorPlus.actions = (function() {
 			}
 		}
 
+		// (run() keeps the original song before anything can transpose)
+		if (_originalSource === null) {
+			return;
+		}
 		var newChords = ukeGeeks.transpose.shiftChords(safeChords, steps);
-		var s = _originalSource as string;
+		var s = _originalSource;
 		var rEx;
 
 		// "safe" (temp) rename chords (prepend noise "ugsxx_" so a renamed G will be distinguisable from a new G)
@@ -444,11 +456,13 @@ ugsEditorPlus.actions = (function() {
 
 		// find & replace {key} command (if present)
 		rEx = /^\s*\{\s*(key|k)\s*:\s*(\S*?)\s*\}\s*$/im;
-		if (rEx.test(s)) {
-			var m = s.match(rEx)!;
+		var m = s.match(rEx);
+		if (m) {
 			var key = m[2];
-			if ((key !== '') && _regEx.safe.test(key)) {
-				s = s.replace(rEx, m[0].replace(key, ukeGeeks.transpose.shift(key, steps) as string));
+			// (shift() knows every "safe" chord)
+			var newKey = (key !== '') && _regEx.safe.test(key) ? ukeGeeks.transpose.shift(key, steps) : null;
+			if (newKey !== null) {
+				s = s.replace(rEx, m[0].replace(key, newKey));
 			}
 		}
 
@@ -477,7 +491,8 @@ ugsEditorPlus.actions = (function() {
 		for (var i = 0; i < items.length; i++) {
 			ukeGeeks.toolsLite.removeClass(items[i], 'checked');
 			sample = (keyChord.length < 1) ? '' : ukeGeeks.transpose.shift(keyChord, steps);
-			items[i].getElementsByTagName('em')[0].innerHTML = sample as string;
+			// (shift() returns null for a chord it doesn't know; innerHTML treated that as '')
+			items[i].getElementsByTagName('em')[0].innerHTML = sample || '';
 			if (steps === 0) {
 				ukeGeeks.toolsLite.addClass(items[i], 'checked');
 			}

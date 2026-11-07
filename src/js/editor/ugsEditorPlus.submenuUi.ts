@@ -164,7 +164,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {bool} false to kill event bubbling
 	 */
 	var onLabelClick = function(this: HTMLElement, e: Event){
-		var id = this.getAttribute('for')!;
+		var id = this.getAttribute('for') || '';
 		setActiveLabel(this);
 		ugsEditorPlus.dom.show(document.getElementById(id));
 		onListActive(this, true);
@@ -230,7 +230,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return bool
 	 */
 	var doCollapseAllLists = function(this: HTMLElement, e: Event){
-		if ((e.target as Element).matches('a')){
+		if (e.target instanceof Element && e.target.matches('a')){
 			return;
 		}
 		ugsEditorPlus.dom.all('dd', this).forEach(ugsEditorPlus.dom.hide);
