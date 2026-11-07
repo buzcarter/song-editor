@@ -2,7 +2,8 @@ declare namespace UgsEditorPlus {
 	/** The song's elements plus the Reformat dialog's */
 	interface ReformatElements extends SongElements {
 		reformatTextBox: HTMLTextAreaElement;
-		reformatDlg: HTMLDivElement;
+		/** a <section> */
+		reformatDlg: HTMLElement;
 	}
 	interface AutoReformat {
 		/** Offers to convert the song to ChordPro when it has no chords (the Reformat dialog) */
@@ -40,24 +41,27 @@ ugsEditorPlus.autoReformat = (function() {
 		if (_isDisabled){
 			return;
 		}
-		_ele = elements as UgsEditorPlus.ReformatElements;
-		_ele.reformatTextBox = document.getElementById('reformatSource') as HTMLTextAreaElement;
-		_ele.reformatDlg = document.getElementById('reformatDlg') as HTMLDivElement;
+		var dom = ugsEditorPlus.dom;
+		// adds the dialog's elements to the ones passed in (the same object, as before)
+		_ele = Object.assign(elements, {
+			reformatTextBox: dom.byId('reformatSource', HTMLTextAreaElement),
+			reformatDlg: dom.byId('reformatDlg', HTMLElement)
+		});
 
-		document.getElementById('reformatYesBtn')!.onclick = function() {
+		dom.byId('reformatYesBtn', HTMLElement).onclick = function() {
 			doOk();
 			return false;
 		};
-		document.getElementById('reformatNoBtn')!.onclick = function() {
+		dom.byId('reformatNoBtn', HTMLElement).onclick = function() {
 			doClose();
 			return false;
 		};
 
 		// need to reset on reload
-		var chk = document.getElementById('reformatDisable') as HTMLInputElement;
+		var chk = dom.byId('reformatDisable', HTMLInputElement);
 		chk.checked = false;
 		chk.onclick = function() {
-			doDisable((this as HTMLInputElement).checked);
+			doDisable(chk.checked);
 		};
 
 		runNow();

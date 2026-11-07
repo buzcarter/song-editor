@@ -1,3 +1,15 @@
+declare namespace UgsEditorPlus {
+  /** dom's checked lookups: the editor's own, so they're not in the shipped Dom type */
+  interface Dom {
+    /** The element with this id. Throws if the page doesn't have it or it isn't a `type`. */
+    byId<T extends Element>(id: string, type: new () => T): T;
+    /** The first element matching the selector (within `context`). Throws like byId(). */
+    find<T extends Element>(selector: string, type: new () => T, context?: ParentNode): T;
+    /** The nearest ancestor of `ele` (or `ele` itself) matching the selector. Throws like byId(). */
+    closest<T extends Element>(ele: Element, selector: string, type: new () => T): T;
+  }
+}
+
 /**
  * Tiny DOM helpers for the editor (replaces what the editor used to get from jQuery):
  * element lookup, show/hide, CSS-transition fades & slides, draggable dialogs, and
@@ -63,6 +75,58 @@ ugsEditorPlus.dom = (function() {
    */
   _public.all = function(selector: string, context?: ParentNode | null) {
     return Array.prototype.slice.call((context || document).querySelectorAll(selector));
+  };
+
+  /**
+   * Returns ele if it's a `type`; throws otherwise. The editor's markup always has the elements
+   * it looks up, so a missing one is a broken page: say which, rather than fail later on null.
+   * @method checked
+   * @private
+   * @param ele {DOM-element|null} what the lookup found
+   * @param what {string} the lookup, for the error message
+   * @param type {function} constructor, e.g. HTMLInputElement
+   * @return {DOM-element}
+   */
+  var checked = function<T extends Element>(ele: Element | null, what: string, type: new () => T): T {
+    if (!(ele instanceof type)) {
+      throw new Error('ugsEditorPlus: ' + what + (ele ? ' is not a ' + type.name : ' not found'));
+    }
+    return ele;
+  };
+
+  /**
+   * The element with this id; throws if the page doesn't have it or it isn't a `type`
+   * @method byId
+   * @param id {string}
+   * @param type {function} constructor, e.g. HTMLInputElement
+   * @return {DOM-element}
+   */
+  _public.byId = function(id, type) {
+    return checked(document.getElementById(id), '#' + id, type);
+  };
+
+  /**
+   * First element matching the CSS selector (within optional context); throws like byId()
+   * @method find
+   * @param selector {string}
+   * @param type {function} constructor, e.g. HTMLElement
+   * @param context {DOM-element} (optional) defaults to document
+   * @return {DOM-element}
+   */
+  _public.find = function(selector, type, context) {
+    return checked((context || document).querySelector(selector), '"' + selector + '"', type);
+  };
+
+  /**
+   * Nearest ancestor of ele (or ele itself) matching the CSS selector; throws like byId()
+   * @method closest
+   * @param ele {DOM-element}
+   * @param selector {string}
+   * @param type {function} constructor, e.g. HTMLElement
+   * @return {DOM-element}
+   */
+  _public.closest = function(ele, selector, type) {
+    return checked(ele.closest(selector), '"' + selector + '" around ' + ele.tagName, type);
   };
 
   /**

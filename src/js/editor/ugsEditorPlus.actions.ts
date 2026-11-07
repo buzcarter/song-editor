@@ -2,7 +2,8 @@ declare namespace UgsEditorPlus {
 	/** The song's elements on the page */
 	interface SongElements {
 		songText: HTMLElement;
-		songContainer: HTMLDivElement;
+		/** an <article> */
+		songContainer: HTMLElement;
 		/** the Edit Song box */
 		cpmSource: HTMLTextAreaElement;
 		scalableArea: HTMLElement;
@@ -94,11 +95,12 @@ ugsEditorPlus.actions = (function() {
 	 * @public
 	 */
 	_public.init = function() {
+		var dom = ugsEditorPlus.dom;
 		_ele = {
-			songText : document.getElementById('ukeSongText')!,
-			songContainer : document.getElementById('ukeSongContainer') as HTMLDivElement,
-			cpmSource : document.getElementById('chordProSource') as HTMLTextAreaElement,
-			scalableArea : document.getElementById('scalablePrintArea')!
+			songText : dom.byId('ukeSongText', HTMLElement),
+			songContainer : dom.byId('ukeSongContainer', HTMLElement),
+			cpmSource : dom.byId('chordProSource', HTMLTextAreaElement),
+			scalableArea : dom.byId('scalablePrintArea', HTMLElement)
 		};
 
 		document.addEventListener('ugs:option', function(e) {
@@ -382,7 +384,7 @@ ugsEditorPlus.actions = (function() {
 			msg = '<strong>ADF#B</strong> alternate tuning';
 		}
 
-		document.getElementById('footTuningInfo')!.innerHTML = msg;
+		ugsEditorPlus.dom.byId('footTuningInfo', HTMLElement).innerHTML = msg;
 		ukeGeeks.scriptasaurus.setTuningOffset(tuning);
 	};
 
@@ -463,7 +465,7 @@ ugsEditorPlus.actions = (function() {
 	 * @param keyChord {string}
 	 */
 	var resetTranspose = function(keyChord: string) {
-		var ul = document.getElementById('transposeOptions')!;
+		var ul = ugsEditorPlus.dom.byId('transposeOptions', HTMLElement);
 		var items = ul.getElementsByTagName('li');
 		var sample;
 		var steps = -6;

@@ -42,7 +42,10 @@ ugsEditorPlus.topMenus = (function() {
 	 */
 	var _onMenuItemClick = function(this: HTMLElement) {
 		// the clicked anchor tag
-		var parent = this.parentNode as HTMLElement;
+		var parent = this.parentElement;
+		if (!parent) {
+			return;
+		}
 		var isOpen = parent.classList.contains('active');
 		_makeAllInactive();
 		if (isOpen) {
@@ -88,8 +91,7 @@ ugsEditorPlus.topMenus = (function() {
 		_closeAll();
 
 		// now show dialog associated with the clicked button
-		var id = this.getAttribute('data-dialog')!;
-		ugsEditorPlus.dom.fadeIn(document.getElementById(id));
+		ugsEditorPlus.dom.fadeIn(document.getElementById(this.getAttribute('data-dialog') || ''));
 
 		// prevent event bubbling
 		e.preventDefault();
@@ -113,7 +115,7 @@ ugsEditorPlus.topMenus = (function() {
 
 	var _onResizeBtnClick = function(this: HTMLElement, e: Event) {
 		_closeAll();
-		ugsEditorPlus.resize.toggle(this.closest<HTMLElement>('.overlay')!);
+		ugsEditorPlus.resize.toggle(ugsEditorPlus.dom.closest(this, '.overlay', HTMLElement));
 		e.preventDefault();
 		e.stopPropagation();
 	};
@@ -127,7 +129,7 @@ ugsEditorPlus.topMenus = (function() {
 	 */
 	var _onShowOptionsClick = function(this: HTMLElement, e: Event) {
 		var dom = ugsEditorPlus.dom;
-		var dlg = document.getElementById(this.getAttribute('href')!.replace(/^#/, ''))!;
+		var dlg = dom.byId((this.getAttribute('href') || '').replace(/^#/, ''), HTMLElement);
 
 		dom.all('.arrowBox').forEach(function(box) {
 			if (box !== dlg) {

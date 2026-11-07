@@ -82,7 +82,7 @@ ugsEditorPlus.updateSong = (function() {
 	 * @property _hideTimer
 	 * @type {Number}
 	 */
-	var _hideTimer: number | null = null;
+	var _hideTimer: number | undefined;
 
 	var ele = function(name: keyof typeof _selectors) {
 		return ugsEditorPlus.dom.one(_selectors[name]);
@@ -90,7 +90,7 @@ ugsEditorPlus.updateSong = (function() {
 
 	var showBusy = function(){
 		var dom = ugsEditorPlus.dom;
-		clearTimeout(_hideTimer as number);
+		clearTimeout(_hideTimer);
 		dom.hide(ele('message'));
 		if (dom.isVisible(ele('messageBox'))) {
 			// still showing (or fading out) the last message
@@ -103,14 +103,14 @@ ugsEditorPlus.updateSong = (function() {
 	};
 
 	var showMessage = function(message: string){
-		var msg = ele('message')!;
+		var msg = ugsEditorPlus.dom.find(_selectors.message, HTMLElement);
 		ugsEditorPlus.dom.hide(ele('spinner'));
 		msg.textContent = message;
 		ugsEditorPlus.dom.show(msg);
 	};
 
 	var hideMessage = function(){
-		clearTimeout(_hideTimer as number);
+		clearTimeout(_hideTimer);
 		_hideTimer = setTimeout(function() {
 			ugsEditorPlus.dom.fadeOut(ele('messageBox'), 'slow');
 		}, 3000);
@@ -125,10 +125,11 @@ ugsEditorPlus.updateSong = (function() {
 		showBusy();
 		Promise.resolve()
 			.then(function() {
-				return _save!((ele('song') as HTMLTextAreaElement).value);
+				// (setSaveHandler() sets _save before it wires the button)
+				return _save ? _save(ugsEditorPlus.dom.find(_selectors.song, HTMLTextAreaElement).value) : undefined;
 			})
 			.then(function(message) {
-				showMessage(message === undefined || message === null ? 'Saved.' : message as string);
+				showMessage(message === undefined || message === null ? 'Saved.' : String(message));
 			}, function() {
 				alert('Encountered a problem saving your Song. Please copy your song to another program until this issue is resolved.');
 			})

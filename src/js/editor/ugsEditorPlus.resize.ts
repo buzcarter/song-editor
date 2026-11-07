@@ -65,16 +65,16 @@ ugsEditorPlus.resize = (function(){
 		// static markup only
 		document.body.insertAdjacentHTML('beforeend', '<div id="aceHeader"><button class="aceSideBtn" title="Show options &amp; help"><span></span><span></span><span></span></button><strong>Edit Song</strong><a href="#exit-fullscreen">Exit fullscreen</a></div><div id="aceEditor"></div><div id="aceHelp"></div>');
 
-		aceLayer = document.getElementById('aceEditor');
+		aceLayer = dom.byId('aceEditor', HTMLElement);
 		dom.hide(aceLayer);
 
-		help = document.getElementById('aceHelp');
+		help = dom.byId('aceHelp', HTMLElement);
 
-		dom.one('#aceHeader a')!.addEventListener('click', function(e) {
+		dom.find('#aceHeader a', HTMLElement).addEventListener('click', function(e) {
 			e.preventDefault();
 			hideAce();
 		});
-		dom.one('#aceHeader button')!.addEventListener('click', onShowHelpClicked);
+		dom.find('#aceHeader button', HTMLElement).addEventListener('click', onShowHelpClicked);
 	};
 
 	var onShowHelpClicked = function(e: Event) {
@@ -84,11 +84,15 @@ ugsEditorPlus.resize = (function(){
 
 	var showHelp = function(isShow: boolean) {
 		isHelpOpen = isShow;
+		// (setup() makes them; only its buttons call this)
+		if (!help || !aceLayer) {
+			return;
+		}
 
-		dom.animate(help!, {
+		dom.animate(help, {
 			left: isShow ? '0px' : '-350px'
 		}, SLIDE_SPEED);
-		dom.animate(aceLayer!, {
+		dom.animate(aceLayer, {
 			left: isShow ? '350px' : '0px'
 		}, SLIDE_SPEED);
 	};
@@ -146,14 +150,20 @@ ugsEditorPlus.resize = (function(){
 				});
 				copySongToAce();
 
-				help!.innerHTML = ugsEditorPlus.aceHelpHtml;
+				if (help) {
+					help.innerHTML = ugsEditorPlus.aceHelpHtml;
+				}
 			});
 	};
 
 	var copySongToAce = function() {
+		// (called once Ace is loaded)
+		if (editor === null) {
+			return;
+		}
 		dom.fadeIn(aceLayer, FADE_SPEED);
-		editor!.setValue((document.getElementById('chordProSource') as HTMLTextAreaElement).value);
-		editor!.gotoLine(1);
+		editor.setValue(dom.byId('chordProSource', HTMLTextAreaElement).value);
+		editor.gotoLine(1);
 		dom.show(help);
 	};
 
@@ -170,7 +180,7 @@ ugsEditorPlus.resize = (function(){
 		dom.fadeOut(aceLayer, FADE_SPEED);
 		dom.fadeOut(help, FADE_SPEED);
 		if (editor !== null) {
-			(document.getElementById('chordProSource') as HTMLTextAreaElement).value = editor.getValue();
+			dom.byId('chordProSource', HTMLTextAreaElement).value = editor.getValue();
 		}
 
 		document.documentElement.classList.remove('aceEditorActive');

@@ -54,13 +54,14 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {bool} false to kill event bubbling
 	 */
 	var onOptionClick = function(this: HTMLElement, e: Event){
+		var dom = ugsEditorPlus.dom;
 		var optionItem = this;
-		var value = stripHash(optionItem.querySelector('a')!.getAttribute('href')!);
+		var value = stripHash(dom.find('a', HTMLAnchorElement, optionItem).getAttribute('href') || '');
 
 		// the element holding the "pseudo-select"
-		var select = optionItem.closest('dd')!;
+		var select = dom.closest(optionItem, 'dd', HTMLElement);
 		var id = select.id;
-		var actionName = select.getAttribute('data-action')!;
+		var actionName = select.getAttribute('data-action') || '';
 
 		// a selection's been made so we hide the (sub) select list
 		ugsEditorPlus.dom.hide(select);
@@ -72,8 +73,8 @@ ugsEditorPlus.submenuUi = (function(){
 
 		// now bubble out the info -- update display to show selected value ...
 		var label = getLabel(id);
-		label.querySelector('span')!.textContent = getLabelText(actionName, value, optionItem);
-		label.closest('dt')!.classList.remove('active');
+		dom.find('span', HTMLElement, label).textContent = getLabelText(actionName, value, optionItem);
+		dom.closest(label, 'dt', HTMLElement).classList.remove('active');
 
 		// lastly, execute the action
 		ugsEditorPlus.dom.trigger('ugs:option', {
@@ -91,7 +92,8 @@ ugsEditorPlus.submenuUi = (function(){
 			//console.log('item for option not found');
 			return;
 		}
-		Array.prototype.forEach.call(item.parentNode!.children, function(sibling: Element) {
+		var siblings = item.parentElement ? item.parentElement.children : [];
+		Array.prototype.forEach.call(siblings, function(sibling: Element) {
 			sibling.classList.remove('checked');
 		});
 		item.classList.add('checked');
@@ -104,7 +106,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {DOM-element}
 	 */
 	var getLabel = function(id: string) {
-		return document.querySelector('label[for="' + id + '"]')!;
+		return ugsEditorPlus.dom.find('label[for="' + cssString(id) + '"]', HTMLLabelElement);
 	};
 
 	/**
@@ -147,10 +149,10 @@ ugsEditorPlus.submenuUi = (function(){
 			if (!item) {
 				continue;
 			}
-			item = item.closest('li')!;
-			id = item.closest('dd')!.id;
+			item = ugsEditorPlus.dom.closest(item, 'li', HTMLElement);
+			id = ugsEditorPlus.dom.closest(item, 'dd', HTMLElement).id;
 			setChecked(item);
-			getLabel(id).querySelector('span')!.textContent = getLabelText(map[i].action, map[i].value, item);
+			ugsEditorPlus.dom.find('span', HTMLElement, getLabel(id)).textContent = getLabelText(map[i].action, map[i].value, item);
 		}
 	};
 
@@ -198,12 +200,13 @@ ugsEditorPlus.submenuUi = (function(){
 	};
 
 	var setActiveLabel = function(label: HTMLElement){
-		Array.prototype.forEach.call(label.closest('dl')!.children, function(child: Element) {
+		var dom = ugsEditorPlus.dom;
+		Array.prototype.forEach.call(dom.closest(label, 'dl', HTMLElement).children, function(child: Element) {
 			if (child.tagName == 'DT') {
 				child.classList.remove('active');
 			}
 		});
-		label.closest('dt')!.classList.add('active');
+		dom.closest(label, 'dt', HTMLElement).classList.add('active');
 	};
 
 	/**
@@ -278,7 +281,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {string}
 	 */
 	var getLabelText = function(action: string, value: string | number, ele: Element){
-		var index = Array.prototype.indexOf.call(ele.parentNode!.children, ele);
+		var index = ele.parentElement ? Array.prototype.indexOf.call(ele.parentElement.children, ele) : -1;
 
 		switch (action){
 			case 'paper':
@@ -293,7 +296,7 @@ ugsEditorPlus.submenuUi = (function(){
 				if (value == 'up_0'){
 					return 'Original key';
 				}
-				var txt = ele.textContent!;
+				var txt = ele.textContent || '';
 				return txt.replace(' ', ' steps - "') + '"';
 			default:
 			 return _desriptions[action][index];
@@ -301,7 +304,7 @@ ugsEditorPlus.submenuUi = (function(){
 	};
 
 	_public.resetTransposeLabel = function(){
-		getLabel('transposePicker').querySelector('span')!.textContent = 'Original key';
+		ugsEditorPlus.dom.find('span', HTMLElement, getLabel('transposePicker')).textContent = 'Original key';
 	};
 
 	// ---------------------------------------

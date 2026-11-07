@@ -29,45 +29,46 @@ ugsEditorPlus.optionsDlg = (function() {
 	 * @public
 	 */
 	_public.init = function() {
-		var ele: HTMLInputElement,
+		var dom = ugsEditorPlus.dom,
 			options = ugsEditorPlus.options;
 
 		// Update Button
-		document.getElementById('updateBtn')!.onclick = function() {
+		dom.byId('updateBtn', HTMLElement).onclick = function() {
 			triggerNotify('update', '');
 			return false;
 		};
 
 		// show/hide square bracket (chord enclosure)
-		ele = document.getElementById('chkEnclosures') as HTMLInputElement;
-		ele.checked = options.hideChordEnclosures;
-		ele.onclick = function() {
+		var chkEnclosures = dom.byId('chkEnclosures', HTMLInputElement);
+		chkEnclosures.checked = options.hideChordEnclosures;
+		chkEnclosures.onclick = function() {
 			// Boolean "isVisible"
-			triggerNotify('showEnclosures', !(this as HTMLInputElement).checked);
+			triggerNotify('showEnclosures', !chkEnclosures.checked);
 		};
 
 		// list of chord names to ignore
-		ele = document.getElementById('commonChordList') as HTMLInputElement;
-		ele.value = (typeof options.commonChords == 'string') ? options.commonChords : options.commonChords.join(", ");
-		ele.onchange = function() {
-			triggerNotify('setCommonChords', (this as HTMLInputElement).value);
+		var commonChordList = dom.byId('commonChordList', HTMLInputElement);
+		commonChordList.value = (typeof options.commonChords == 'string') ? options.commonChords : options.commonChords.join(", ");
+		commonChordList.onchange = function() {
+			triggerNotify('setCommonChords', commonChordList.value);
 		};
 
-		// toggle order of reference diagrams
-		ele = document.getElementById('chkSortAlpha') as HTMLInputElement;
-		if (ele) {
-			ele.checked = options.sortAlphabetical;
-			ele.onclick = function() {
-				triggerNotify('sortAlphabetical', (this as HTMLInputElement).checked);
+		// toggle order of reference diagrams (optional: older pages don't have it)
+		var sortAlphaOrNull = document.getElementById('chkSortAlpha');
+		if (sortAlphaOrNull instanceof HTMLInputElement) {
+			var chkSortAlpha = sortAlphaOrNull;
+			chkSortAlpha.checked = options.sortAlphabetical;
+			chkSortAlpha.onclick = function() {
+				triggerNotify('sortAlphabetical', chkSortAlpha.checked);
 			};
 		}
 
 		// toggle ignore common chords
-		ele = document.getElementById('chkIgnoreCommon') as HTMLInputElement;
-		ele.checked = options.ignoreCommonChords;
-		ele.onclick = function() {
+		var chkIgnoreCommon = dom.byId('chkIgnoreCommon', HTMLInputElement);
+		chkIgnoreCommon.checked = options.ignoreCommonChords;
+		chkIgnoreCommon.onclick = function() {
 			// Boolean for "isIgnore"
-			triggerNotify('hideCommonChords', (this as HTMLInputElement).checked);
+			triggerNotify('hideCommonChords', chkIgnoreCommon.checked);
 		};
 
 		// ugh! Event bubbling!
