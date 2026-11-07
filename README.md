@@ -20,6 +20,7 @@ npm install @ukegeeks/ace-chordpro-extension   # optional: the Fullscreen editor
 | `dist/css/ugsEditorPlus.print.css` | Print styles. |
 | `dist/img/editor/` | Images the CSS uses. `dist/` is laid out like a web page's `js/`, `css/` and `img/` folders: copy them side by side, since the CSS and `mount()` look for images at `../img/editor/`. |
 | `dist/markup.js` | The editor's HTML, for server-rendered pages (Node: `require('@ukegeeks/song-editor')`). |
+| `dist/ugsEditorPlus.d.ts`, `dist/markup.d.ts` | TypeScript declarations. `editorHtml()`'s come with `require` or `import`; for the browser globals, add `/// <reference types="@ukegeeks/song-editor/browser" />`. |
 
 The editor doesn't bundle its two dependencies, so a page never gets a second copy:
 
@@ -62,7 +63,7 @@ Writes the editor into `container` (an empty element), renders the song and retu
 | `save` | none | `(text) => message`, or a promise of one. Called by the Save button; the message shows next to it. A rejection shows a "problem saving" alert. **Without `save` there's no Save button**, for read-only pages. |
 | `aceUrl` | `ace/` in the folder `ugsEditorPlus.min.js` was loaded from | Folder (with trailing slash) holding `ace-chordpro.min.js`. |
 | `imgUrl` | `../img/editor/` from the folder `ugsEditorPlus.min.js` was loaded from | Folder holding `busy.gif`. |
-| any of `ugsEditorPlus.options` | | `showEditOnLoad`, `fontSize`, `diagramSize`, `diagramPosition`, `lyricStyle`, `paper`, `theme`, `tuning`, `hideChordEnclosures`, `sortAlphabetical`, `ignoreCommonChords`, `commonChords`. See `src/js/editor/ugsEditorPlus.options.js`. |
+| any of `ugsEditorPlus.options` | | `showEditOnLoad`, `fontSize`, `diagramSize`, `diagramPosition`, `lyricStyle`, `paper`, `theme`, `tuning`, `hideChordEnclosures`, `sortAlphabetical`, `ignoreCommonChords`, `commonChords`. See `src/js/editor/ugsEditorPlus.options.ts`. |
 
 `editor.getSong()` returns the text in the Edit Song box.
 
@@ -98,9 +99,12 @@ Pages built for the UkeGeeks Songbook 1.5 keep working: the markup copied into t
 
 ```
 npm install
-npm run build   # dist/
-npm test        # needs a build first
+npm run typecheck   # tsc
+npm run build       # dist/
+npm test            # needs a build first
 ```
+
+The sources are TypeScript (`src/`), written as plain scripts rather than modules: no `import`/`export`, one shared global scope, joined into one bundle in the order `scripts/build.js` lists them. The build only strips the types from each file (`npm run typecheck` checks them), so the bundle is the same JavaScript as before the move to TypeScript. Each part of the editor declares its interface at the top of its file; the shipped declarations are hand-written in `src/types/` and the sources are checked against them.
 
 ### Demo
 

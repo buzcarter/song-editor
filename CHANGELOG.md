@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+The editor's sources are TypeScript now. The bundle is the same JavaScript (`ugsEditorPlus.min.js` is byte-identical), so pages need no change.
+
+- Type declarations ship in `dist/`: `markup.d.ts` for `editorHtml()` (package.json `types`), and `ugsEditorPlus.d.ts` for the browser globals: `mount()` and its options, `init()`, `updateSong`, `markup` and `dom`. Use them with `/// <reference types="@ukegeeks/song-editor/browser" />`.
+- `npm run typecheck` checks the sources; it runs in CI and before publishing.
+
 ## 1.0.0-beta.1 (2026-11-06)
 
 The Song-a-Matic editor moves out of the [UkeGeeks Songbook](https://github.com/buzcarter/UkeGeeks) (1.5.1) into its own package. Same code, same look.
