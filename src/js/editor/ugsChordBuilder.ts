@@ -942,9 +942,13 @@ ugsChordBuilder.export = (function() {
 		html = html.replace(/\b(\d+)\b/g, '<span class="chordPro-X07MX001number">$1</span>');
 		html = html.replace(/\b(frets?|fingers?|string)\b/g, '<span class="chordPro-X07MX001attribute">$1</span>');
 		html = html.replace(/\b(define|add)\b/g, '<span class="chordPro-X07MX001keyword">$1</span>');
-		// the name can come from the song's {define}: escape it (the rest is numbers and keywords)
+		// the name can come from the song's {define}: escape it (the rest is numbers and keywords).
+		// A function, not a string, puts it in: replace() would read a "$&" or "$$" in the name as a pattern.
+		var nameHtml = '<span class="chordPro-string">' + ukeGeeks.toolsLite.escapeHtml(chordName) + '</span>';
 		return html
-			.replace('X07Myq791wso01', '<span class="chordPro-string">' + ukeGeeks.toolsLite.escapeHtml(chordName) + '</span>')
+			.replace('X07Myq791wso01', function() {
+				return nameHtml;
+			})
 			.replace(/X07MX001/g, '')
 			.replace(/ +/g, ' ');
 	};

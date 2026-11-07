@@ -25,6 +25,11 @@ describe('reformat', () => {
     assert.equal(reformat.run('C    G7\nHi'), '[C]Hi   [G7]  \n');
   });
 
+  test('lines up chords and lyrics written with tabs (tab stops every 8 columns)', () => {
+    assert.equal(reformat.run('C\tG\nHi\tthere\tyou'), '[C]Hi      [G]there   you\n');
+    assert.equal(reformat.run('\tAm\tF\nOne\ttwo\tthree'), 'One     [Am]two     [F]three\n');
+  });
+
   test('brackets a chord line with no lyrics under it', () => {
     assert.equal(reformat.run('C G\n\nla la'), '[C] [G] \n\nla la\n');
   });
@@ -38,6 +43,16 @@ describe('reformat', () => {
   test('makes four lines of tablature a tab block', () => {
     const tab = 'A|--0--|\nE|--2--|\nC|--1--|\nG|--0--|';
     assert.equal(reformat.run(tab + '\nla la'), '{start_of_tab}\n' + tab + '\n{end_of_tab}\nla la\n');
+  });
+
+  test('makes a tab block at the very end of the text', () => {
+    const tab = 'A|--0--|\nE|--2--|\nC|--1--|\nG|--0--|';
+    assert.equal(reformat.run(tab), '{start_of_tab}\n' + tab + '\n{end_of_tab}\n');
+  });
+
+  test('leaves three lines of tablature alone', () => {
+    const tab = 'A|--0--|\nE|--2--|\nC|--1--|';
+    assert.equal(reformat.run(tab), tab + '\n');
   });
 });
 
@@ -145,6 +160,15 @@ describe('Chord Builder export', () => {
     div.innerHTML = exporter.getDefinitionHtml('C', 1);
     assert.equal(div.textContent, exporter.getDefinition('C', 1));
     assert.equal(div.querySelector('.chordPro-string').textContent, 'C');
+  });
+
+  test('getDefinitionHtml shows a name with $ or quotes as it is', () => {
+    place([3, 3, 3]);
+    const div = window.document.createElement('div');
+    for (const name of ['A$&B', "A'B", 'Q$$', 'R$`', '&']) {
+      div.innerHTML = exporter.getDefinitionHtml(name, 1);
+      assert.equal(div.textContent, exporter.getDefinition(name, 1), name);
+    }
   });
 
   test('sliding stops at the ends of the diagram', () => {

@@ -122,8 +122,7 @@ ugsEditorPlus.reformat = (function() {
 	 */
 	var read = function(text: string){
 		var lineAry: UgsEditorPlus.ReformatLine[] = [];
-		text = text.replace('	', '    ');
-		var lines = text.split('\n');
+		var lines = text.split('\n').map(expandTabs);
 		for (var i = 0; i < lines.length; i++) {
 			var words = lines[i].match(_re.words);
 			var l = new LineObj();
@@ -141,6 +140,34 @@ ugsEditorPlus.reformat = (function() {
 			lineAry.push(l);
 		}
 		return lineAry;
+	};
+
+	/**
+	 * Columns between tab stops: 8, as the Edit Song box shows a tab (the browser's default
+	 * `tab-size`), so chords line up over the lyrics the way they look there.
+	 * @property TAB_SIZE
+	 * @final
+	 */
+	var TAB_SIZE = 8;
+
+	/**
+	 * Replaces each tab with the spaces up to the next tab stop
+	 * @method expandTabs
+	 * @param line {string}
+	 * @return {string}
+	 */
+	var expandTabs = function(line: string){
+		var out = '';
+		for (var i = 0; i < line.length; i++) {
+			if (line[i] != '\t') {
+				out += line[i];
+				continue;
+			}
+			do {
+				out += ' ';
+			} while (out.length % TAB_SIZE != 0);
+		}
+		return out;
 	};
 
 	/**
@@ -224,14 +251,16 @@ ugsEditorPlus.reformat = (function() {
 	};
 
 	/**
-	 * TRUE if we can make a Tab block using this and the following 3 linrd (we need a set of four tab lines followed by a non-tab line)
+	 * TRUE if the three lines from index on are tab lines too, making a block of four with the
+	 * line before them (merge() has already moved past that one)
 	 * @method isTabBlock
 	 * @param lines {array of Lines}
-	 * @param index {int} current line's index within line array
+	 * @param index {int} index of the line after the first tab line
 	 * @return [bool]
 	 */
 	var isTabBlock = function(lines: UgsEditorPlus.ReformatLine[], index: number){
-		if (index + 3 >= lines.length){
+		// (the block can end the song: the last of the three is lines[index + 2])
+		if (index + 2 >= lines.length){
 			return false;
 		}
 		for (var i = index; i < index + 3; i++){
