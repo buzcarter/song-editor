@@ -14,6 +14,9 @@ declare namespace UgsEditorPlus {
 		run(isDoBackup?: boolean): void;
 	}
 }
+interface UgsEditorPlus {
+	actions: UgsEditorPlus.Actions;
+}
 
 /**
  * Does the work by providing "doAction" method to respond to events (does not

@@ -4,6 +4,9 @@ declare namespace UgsEditorPlus {
 		init(): void;
 	}
 }
+interface UgsEditorPlus {
+	chordBuilder: UgsEditorPlus.ChordBuilderBridge;
+}
 
 /**
  *

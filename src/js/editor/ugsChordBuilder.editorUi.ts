@@ -1,3 +1,16 @@
+declare namespace UgsChordBuilder {
+	/** The builder's UI: canvases, toolbox, name and fret fields, Add/Cancel */
+	interface EditorUi {
+		/** false when the browser has no canvas */
+		init(): boolean;
+		/** Back to a new chord, showing the chooser */
+		reload(): void;
+	}
+}
+interface UgsChordBuilder {
+	editorUi: new () => UgsChordBuilder.EditorUi;
+}
+
 
 /**
  * Doing
@@ -5,7 +18,7 @@
  * @constructor
  * @namespace ugsChordBuilder
  */
-ugsChordBuilder.editorUi = function() {
+ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 
 	var _ids = {
 		// top-most container, the "master drawing surface"
@@ -36,9 +49,9 @@ ugsChordBuilder.editorUi = function() {
 		// 		openBtn: 'cdBldOpenBtn'
 	};
 
-	var _cursorCanvas = null,
-		_eleDotsBtn = null,
-		_eleFingerBtn = null;
+	var _cursorCanvas: HTMLCanvasElement = null!,
+		_eleDotsBtn: HTMLElement = null!,
+		_eleFingerBtn: HTMLElement = null!;
 
 	var _startingFret = 1;
 	var _currentName = '';
@@ -51,7 +64,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @attribute _fingerNames
 	 * @type {JSON}
 	 */
-	var _fingerNames = {
+	var _fingerNames: Record<number, string> = {
 		0: 'None',
 		1: 'Index finger',
 		2: 'Middle finger',
@@ -65,35 +78,35 @@ ugsChordBuilder.editorUi = function() {
 	 * @return {bool}
 	 */
 	this.init = function() {
-		_cursorCanvas = document.getElementById(_ids.cursorCanvas);
+		_cursorCanvas = document.getElementById(_ids.cursorCanvas) as HTMLCanvasElement;
 		if (!_cursorCanvas.getContext) {
 			return false;
 		}
 
-		var cursorContext = _cursorCanvas.getContext('2d');
-		var diagramContext = document.getElementById(_ids.diagramCanvas).getContext('2d');
+		var cursorContext = _cursorCanvas.getContext('2d')!;
+		var diagramContext = (document.getElementById(_ids.diagramCanvas) as HTMLCanvasElement).getContext('2d')!;
 
-		var ele = document.getElementById(_ids.startingFret);
+		var ele = document.getElementById(_ids.startingFret)!;
 		addStartingFretOptions(ele);
 		ele.addEventListener('change', onFretChange, false);
 
-		document.getElementById(_ids.chordName).addEventListener('keyup', onNameChange, false);
+		document.getElementById(_ids.chordName)!.addEventListener('keyup', onNameChange, false);
 
-		_eleDotsBtn = document.getElementById(_ids.dotsBtn);
-		_eleFingerBtn = document.getElementById(_ids.fingersBtn);
+		_eleDotsBtn = document.getElementById(_ids.dotsBtn)!;
+		_eleFingerBtn = document.getElementById(_ids.fingersBtn)!;
 		_eleDotsBtn.addEventListener('click', toggleTool, false);
 		_eleFingerBtn.addEventListener('click', toggleTool, false);
 
-		document.getElementById(_ids.showOutputBtn).addEventListener('click', showOutputBox, false);
-		document.getElementById(_ids.cancelBtn).addEventListener('click', onCancelClick, false);
-		document.getElementById(_ids.saveBtn).addEventListener('click', onSaveClick, false);
+		document.getElementById(_ids.showOutputBtn)!.addEventListener('click', showOutputBox, false);
+		document.getElementById(_ids.cancelBtn)!.addEventListener('click', onCancelClick, false);
+		document.getElementById(_ids.saveBtn)!.addEventListener('click', onSaveClick, false);
 
-		document.getElementById(_ids.slideUpBtn).addEventListener('click', slide, false);
-		document.getElementById(_ids.slideDownBtn).addEventListener('click', slide, false);
+		document.getElementById(_ids.slideUpBtn)!.addEventListener('click', slide, false);
+		document.getElementById(_ids.slideDownBtn)!.addEventListener('click', slide, false);
 
 		updateFinger();
 
-		document.getElementById(_ids.container).addEventListener('mousemove', onMouseMove, false);
+		document.getElementById(_ids.container)!.addEventListener('mousemove', onMouseMove, false);
 		_cursorCanvas.addEventListener('click', onMouseClick, false);
 
 		ugsChordBuilder.chordCanvas.init(diagramContext, _cursorCanvas);
@@ -121,8 +134,8 @@ ugsChordBuilder.editorUi = function() {
 		if (_finger > 4) {
 			_finger = 0;
 		}
-		document.getElementById(_ids.btnFingerName).innerHTML = _fingerNames[_finger] + ' (' + _finger + ')';
-		document.getElementById(_ids.btnHandPic).className = 'fingerToolImage finger' + _finger;
+		document.getElementById(_ids.btnFingerName)!.innerHTML = _fingerNames[_finger] + ' (' + _finger + ')';
+		document.getElementById(_ids.btnHandPic)!.className = 'fingerToolImage finger' + _finger;
 	};
 
 	/**
@@ -130,15 +143,15 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var showOutputBox = function(evt) {
-		setClass(document.getElementById(_ids.outputBox), 'collapseOutput', !evt.target.checked);
+	var showOutputBox = function(evt: Event) {
+		setClass(document.getElementById(_ids.outputBox)!, 'collapseOutput', !(evt.target as HTMLInputElement).checked);
 	};
 
 	/**
 	 * Cancel button's click event handler
 	 * @method onCancelClick
 	 */
-	var onCancelClick = function(evt) {
+	var onCancelClick = function(evt: Event) {
 		evt.preventDefault();
 		reset();
 		ugsChordBuilder.chooserList.show(true);
@@ -148,7 +161,7 @@ ugsChordBuilder.editorUi = function() {
 	 * Save button's click event handler
 	 * @method onSaveClick
 	 */
-	var onSaveClick = function(evt) {
+	var onSaveClick = function(evt: Event) {
 		evt.preventDefault();
 		var d = {
 			name: _currentName,
@@ -157,7 +170,7 @@ ugsChordBuilder.editorUi = function() {
 			definition: ugsChordBuilder.export.getDefinition(_currentName, _startingFret)
 		};
 		if (!ugsChordBuilder.chooserList.save(d)){
-			var e = document.getElementById(_ids.chordName);
+			var e = document.getElementById(_ids.chordName) as HTMLInputElement;
 			e.focus();
 			e.select();
 		}
@@ -169,16 +182,16 @@ ugsChordBuilder.editorUi = function() {
 	 * @method setChord
 	 * @param {Chord} chord
 	 */
-	var setChord = function(chord) {
+	var setChord = function(chord: UgsChordBuilder.Chord | null) {
 		var isNew = chord == null;
 		if (isNew) {
 			reset();
 			return;
 		}
 
-		var maxFret = findMaxFret(chord.dots);
+		var maxFret = findMaxFret(chord!.dots);
 		var startingFret = (maxFret > ugsChordBuilder.settings.fretBoard.numFrets) ? maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1 : 1;
-		reset(chord.name, startingFret, convertDots(startingFret, chord.dots), false);
+		reset(chord!.name, startingFret, convertDots(startingFret, chord!.dots), false);
 	};
 
 	/**
@@ -188,12 +201,12 @@ ugsChordBuilder.editorUi = function() {
 	 * @param  {array} builderDots
 	 * @return {array}
 	 */
-	var convertDots = function(startingFret, builderDots) {
+	var convertDots = function(startingFret: number, builderDots: UgsChordBuilder.Chord['dots']) {
 		var offset = startingFret - 1;
-		var ugsDots = [];
+		var ugsDots: UgsChordBuilder.Dot[] = [];
 		for (var i = 0; i < builderDots.length; i++) {
-			var fret = builderDots[i].fret - offset;
-			ugsDots.push(new ugsChordBuilder.entities.Dot(builderDots[i].string, (fret < 0 ? 0 : fret), builderDots[i].finger));
+			var fret = builderDots[i].fret! - offset;
+			ugsDots.push(new ugsChordBuilder.entities.Dot(builderDots[i].string!, (fret < 0 ? 0 : fret), builderDots[i].finger!));
 		}
 		return ugsDots;
 	};
@@ -204,11 +217,11 @@ ugsChordBuilder.editorUi = function() {
 	 * @param  {array} dots
 	 * @return {ing}
 	 */
-	var findMaxFret = function(dots) {
+	var findMaxFret = function(dots: UgsChordBuilder.Chord['dots']) {
 		var max = 0;
 		for (var i = 0; i < dots.length; i++) {
-			if (dots[i].fret > max) {
-				max = dots[i].fret;
+			if (dots[i].fret! > max) {
+				max = dots[i].fret!;
 			}
 		}
 		return max;
@@ -222,17 +235,17 @@ ugsChordBuilder.editorUi = function() {
 	 * @param {bool} isNew
 	 * @return {void}
 	 */
-	var resetInputs = function(name, startingFret, isNew) {
+	var resetInputs = function(name: string | undefined, startingFret: number | undefined, isNew: boolean) {
 		_currentName = (name && name.length > 0) ? name : 'CHORDNAME';
-		document.getElementById(_ids.chordName).value = _currentName;
+		(document.getElementById(_ids.chordName) as HTMLInputElement).value = _currentName;
 
 		_startingFret = startingFret ? startingFret : 1;
-		document.getElementById(_ids.startingFret).value = _startingFret;
+		(document.getElementById(_ids.startingFret) as HTMLSelectElement).value = _startingFret as unknown as string;
 
-		document.getElementById(_ids.showOutputBtn).checked = false;
-		setClass(document.getElementById(_ids.outputBox), 'collapseOutput', true);
+		(document.getElementById(_ids.showOutputBtn) as HTMLInputElement).checked = false;
+		setClass(document.getElementById(_ids.outputBox)!, 'collapseOutput', true);
 
-		document.getElementById(_ids.saveBtn).value = isNew ? 'Add' : 'Update';
+		(document.getElementById(_ids.saveBtn) as HTMLInputElement).value = isNew ? 'Add' : 'Update';
 	};
 
 	/**
@@ -247,7 +260,7 @@ ugsChordBuilder.editorUi = function() {
 		updateFinger();
 		setClass(_eleDotsBtn, 'selected', _isDotToolActive);
 		setClass(_eleFingerBtn, 'selected', !_isDotToolActive);
-		setClass(document.getElementById(_ids.toolbox), 'open', !_isDotToolActive);
+		setClass(document.getElementById(_ids.toolbox)!, 'open', !_isDotToolActive);
 		ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
 	};
 
@@ -259,7 +272,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @param {array} dots
 	 * @param {bool} isNew Used to set the button text
 	 */
-	var reset = function(name, startingFret, dots, isNew) {
+	var reset = function(name?: string, startingFret?: number, dots?: UgsChordBuilder.Dot[], isNew?: boolean) {
 		isNew = arguments.length > 3 ? isNew : true;
 		// fire cleanup on other classes...
 		// -----------------------------------------------
@@ -267,7 +280,7 @@ ugsChordBuilder.editorUi = function() {
 
 		// easy elements back to default...
 		// -----------------------------------------------
-		resetInputs(name, startingFret, isNew);
+		resetInputs(name, startingFret, isNew!);
 
 		resetCurrentTool();
 
@@ -288,9 +301,9 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var toggleTool = function(evt) {
+	var toggleTool = function(evt: Event) {
 		evt.preventDefault();
-		var useDotTool = evt.currentTarget.href.indexOf('#dots') >= 0;
+		var useDotTool = (evt.currentTarget as HTMLAnchorElement).href.indexOf('#dots') >= 0;
 		if (useDotTool == _isDotToolActive) {
 			if (!useDotTool) {
 				updateFinger();
@@ -301,7 +314,7 @@ ugsChordBuilder.editorUi = function() {
 
 		setClass(_eleDotsBtn, 'selected', useDotTool);
 		setClass(_eleFingerBtn, 'selected', !useDotTool);
-		setClass(document.getElementById(_ids.toolbox), 'open', !useDotTool);
+		setClass(document.getElementById(_ids.toolbox)!, 'open', !useDotTool);
 
 		_isDotToolActive = useDotTool;
 		ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
@@ -313,7 +326,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var setClass = function(element, className, isSet) {
+	var setClass = function(element: HTMLElement, className: string, isSet: boolean) {
 		var hasClass = element.className.indexOf(className) >= 0;
 		if (isSet && !hasClass) {
 			// add
@@ -330,7 +343,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var addStartingFretOptions = function(ele) {
+	var addStartingFretOptions = function(ele: HTMLElement) {
 		var s = '';
 		var lastValue = ugsChordBuilder.settings.fretBoard.maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1;
 		for (var i = 1; i <= lastValue; i++) {
@@ -344,7 +357,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var onNameChange = function(evt) {
+	var onNameChange = function(this: HTMLInputElement, evt: Event) {
 		_currentName = this.value;
 		exportDefinition();
 	};
@@ -354,7 +367,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var onFretChange = function(evt) {
+	var onFretChange = function(this: HTMLSelectElement, evt: Event) {
 		_startingFret = parseInt(this.value, 10);
 		exportDefinition();
 		redraw();
@@ -366,10 +379,10 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var slide = function(evt) {
+	var slide = function(evt: Event) {
 		evt.preventDefault();
 		var moveAllowed = false;
-		var numSteps = evt.target.getAttribute('data-direction') == 'up' ? -1 : +1;
+		var numSteps = (evt.target as Element).getAttribute('data-direction') == 'up' ? -1 : +1;
 		if (ugsChordBuilder.fretDots.slide(numSteps)) {
 			moveAllowed = true;
 		}
@@ -378,7 +391,7 @@ ugsChordBuilder.editorUi = function() {
 			var lastValue = ugsChordBuilder.settings.fretBoard.maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1;
 			if ((newStart >= 1) && (newStart <= lastValue)) {
 				_startingFret = newStart;
-				document.getElementById(_ids.startingFret).value = newStart;
+				(document.getElementById(_ids.startingFret) as HTMLSelectElement).value = newStart as unknown as string;
 				moveAllowed = true;
 			}
 		}
@@ -394,7 +407,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var onMouseMove = function(evt) {
+	var onMouseMove = function(this: HTMLElement, evt: MouseEvent) {
 		ugsChordBuilder.cursorCanvas.draw(getPosition(this, evt));
 	};
 
@@ -403,7 +416,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var onMouseClick = function(evt) {
+	var onMouseClick = function(evt: MouseEvent) {
 		var pos = getPosition(_cursorCanvas, evt);
 		var dot = ugsChordBuilder.tracking.toDot(pos);
 		if (!dot) {
@@ -426,7 +439,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var getPosition = function(canvas, evt) {
+	var getPosition = function(canvas: HTMLElement, evt: MouseEvent) {
 		var rect = canvas.getBoundingClientRect();
 		return new ugsChordBuilder.entities.Position(
 			evt.clientX - rect.left,
@@ -439,7 +452,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @private
 	 * @return {void}
 	 */
-	var redraw = function(pos) {
+	var redraw = function(pos?: UgsChordBuilder.Position) {
 		pos = pos || new ugsChordBuilder.entities.Position(0, 0);
 		ugsChordBuilder.chordCanvas.draw(pos, _startingFret);
 	};
@@ -450,7 +463,7 @@ ugsChordBuilder.editorUi = function() {
 	 * @return {void}
 	 */
 	var exportDefinition = function() {
-		document.getElementById(_ids.output).innerHTML = ugsChordBuilder.export.getDefinitionHtml(_currentName, _startingFret);
+		document.getElementById(_ids.output)!.innerHTML = ugsChordBuilder.export.getDefinitionHtml(_currentName, _startingFret);
 	};
 
 	this.reload = function(){
@@ -459,4 +472,4 @@ ugsChordBuilder.editorUi = function() {
 		ugsChordBuilder.chooserList.show(true);
 	};
 
-};
+} as unknown as new () => UgsChordBuilder.EditorUi;

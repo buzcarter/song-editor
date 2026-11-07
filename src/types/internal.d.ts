@@ -25,31 +25,10 @@ declare var LazyLoad: {
 declare var module: { exports: unknown } | undefined;
 
 /**
- * The editor's internal parts, on the same global as the public API (src/types/ugsEditorPlus.d.ts).
- * Each source file assigns one of these: `ugsEditorPlus.actions = (function() {...})();`
+ * The editor's internal parts are on the same global as the public API (src/types/ugsEditorPlus.d.ts).
+ * Each source file declares its part at the top, then assigns it: `ugsEditorPlus.actions = (function() {...})();`
  */
-interface UgsEditorPlus {
-  actions: UgsEditorPlus.Actions;
-  topMenus: UgsEditorPlus.TopMenus;
-  submenuUi: UgsEditorPlus.SubmenuUi;
-  optionsDlg: UgsEditorPlus.OptionsDlg;
-  chordBuilder: UgsEditorPlus.ChordBuilderBridge;
-}
-
 declare namespace UgsEditorPlus {
   /** A song read by Song Formatter */
   type Song = import('@ukegeeks/song-formatter').Song;
-
-}
-
-/** The Chord Builder's parts (placeholders until its sources are TypeScript) */
-interface UgsChordBuilder {
-  settings: { cursor: { imageUri: string } };
-  editorUi: new () => UgsChordBuilder.EditorUi;
-}
-declare namespace UgsChordBuilder {
-  interface EditorUi {
-    init(): void;
-    reload(): void;
-  }
 }

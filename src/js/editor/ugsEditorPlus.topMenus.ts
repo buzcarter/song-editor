@@ -6,6 +6,9 @@ declare namespace UgsEditorPlus {
 		makeAllInactive(): void;
 	}
 }
+interface UgsEditorPlus {
+	topMenus: UgsEditorPlus.TopMenus;
+}
 
 /**
  * Handles Top Menu UI -- includes the show/hide dialogs (why? cuz they're attached to top menu buttons)

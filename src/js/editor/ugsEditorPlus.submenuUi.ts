@@ -8,6 +8,9 @@ declare namespace UgsEditorPlus {
 		resetTransposeLabel(): void;
 	}
 }
+interface UgsEditorPlus {
+	submenuUi: UgsEditorPlus.SubmenuUi;
+}
 
 
 /**

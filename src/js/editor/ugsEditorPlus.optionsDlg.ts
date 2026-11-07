@@ -4,6 +4,9 @@ declare namespace UgsEditorPlus {
 		init(): void;
 	}
 }
+interface UgsEditorPlus {
+	optionsDlg: UgsEditorPlus.OptionsDlg;
+}
 
 /**
  * UI mechanics of the Other Options "dialog"'s checkboxes and input
