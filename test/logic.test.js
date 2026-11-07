@@ -162,6 +162,15 @@ describe('Chord Builder export', () => {
     assert.equal(div.querySelector('.chordPro-string').textContent, 'C');
   });
 
+  test('getDefinitionHtml shows a name with $ or quotes as it is', () => {
+    place([3, 3, 3]);
+    const div = window.document.createElement('div');
+    for (const name of ['A$&B', "A'B", 'Q$$', 'R$`', '&']) {
+      div.innerHTML = exporter.getDefinitionHtml(name, 1);
+      assert.equal(div.textContent, exporter.getDefinition(name, 1), name);
+    }
+  });
+
   test('sliding stops at the ends of the diagram', () => {
     place([0, 1, 1], [1, 4, 2]);
     assert.equal(fretDots.slide(-1), false, 'fret 1 can\'t go lower');
