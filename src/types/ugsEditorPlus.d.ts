@@ -89,13 +89,24 @@ declare namespace UgsEditorPlus {
   /** "fast" (200ms), "normal" (400ms), "slow" (600ms), or milliseconds */
   type Speed = number | string;
 
+  /** A running CSS transition, from `dom.animate()` */
+  interface DomAnimation {
+    /** the CSS properties it changes */
+    props: string[];
+    /** its CSS `transition` value */
+    css: string;
+    /** its timer */
+    id?: number;
+    fade?: 'in' | 'out';
+  }
+
   /** Tiny DOM helpers; the Songbook's song list page uses them too. */
   interface Dom {
     one<E extends HTMLElement = HTMLElement>(selector: string, context?: ParentNode | null): E | null;
     all<E extends HTMLElement = HTMLElement>(selector: string, context?: ParentNode | null): E[];
     on(target: string | EventTarget | null | (EventTarget | null)[], eventName: string, handler: (e: any) => void): void;
     isVisible(ele: Element | null | undefined): boolean;
-    animate(ele: HTMLElement, props: Record<string, string | [string, string]>, speed?: Speed, onDone?: () => void): object;
+    animate(ele: HTMLElement, props: Record<string, string | [string, string]>, speed?: Speed, onDone?: () => void): DomAnimation;
     show(ele: HTMLElement | null | undefined): void;
     hide(ele: HTMLElement | null | undefined): void;
     toggle(ele: HTMLElement | null | undefined, isShow: unknown): void;

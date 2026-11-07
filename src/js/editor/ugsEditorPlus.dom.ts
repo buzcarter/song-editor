@@ -14,14 +14,14 @@ ugsEditorPlus.dom = (function() {
    * @property _public
    * @type JsonObject
    */
-  var _public = {};
+  var _public = {} as UgsEditorPlus.Dom;
 
   /**
    * named speeds, in milliseconds (same as jQuery's)
    * @property SPEEDS
    * @private
    */
-  var SPEEDS = {
+  var SPEEDS: Record<string, number> = {
     fast: 200,
     normal: 400,
     slow: 600
@@ -29,13 +29,13 @@ ugsEditorPlus.dom = (function() {
 
   // running animations, per element: [{ props: [names], css: 'opacity 400ms ease', id: timer, fade: 'in'|'out' }]
   // (animations of different properties -- say a fade and a slide -- run side by side)
-  var _running = new WeakMap();
+  var _running = new WeakMap<HTMLElement, UgsEditorPlus.DomAnimation[]>();
 
-  var toMs = function(speed) {
+  var toMs = function(speed?: UgsEditorPlus.Speed) {
     if (typeof speed === 'number') {
       return speed;
     }
-    return SPEEDS[speed] || SPEEDS.normal;
+    return SPEEDS[speed as string] || SPEEDS.normal;
   };
 
   /**
@@ -45,8 +45,8 @@ ugsEditorPlus.dom = (function() {
    * @param context {DOM-element} (optional) defaults to document
    * @return {DOM-element|null}
    */
-  _public.one = function(selector, context) {
-    return (context || document).querySelector(selector);
+  _public.one = function(selector: string, context?: ParentNode | null) {
+    return (context || document).querySelector(selector) as any;
   };
 
   /**
@@ -56,7 +56,7 @@ ugsEditorPlus.dom = (function() {
    * @param context {DOM-element} (optional) defaults to document
    * @return {Array}
    */
-  _public.all = function(selector, context) {
+  _public.all = function(selector: string, context?: ParentNode | null) {
     return Array.prototype.slice.call((context || document).querySelectorAll(selector));
   };
 
@@ -69,7 +69,7 @@ ugsEditorPlus.dom = (function() {
    */
   _public.on = function(target, eventName, handler) {
     var list = (typeof target === 'string') ? _public.all(target) : (Array.isArray(target) ? target : [target]);
-    list.forEach(function(ele) {
+    list.forEach(function(ele: EventTarget | null) {
       if (ele) {
         ele.addEventListener(eventName, handler);
       }
@@ -86,11 +86,11 @@ ugsEditorPlus.dom = (function() {
     return !!(ele && ele.getClientRects().length);
   };
 
-  var running = function(ele) {
+  var running = function(ele: HTMLElement) {
     return _running.get(ele) || [];
   };
 
-  var setTransition = function(ele) {
+  var setTransition = function(ele: HTMLElement) {
     ele.style.transition = running(ele).map(function(anim) {
       return anim.css;
     }).join(', ');
@@ -98,7 +98,7 @@ ugsEditorPlus.dom = (function() {
 
   // cancel running animations on ele (all of them, or just those touching propNames);
   // leaves the current inline values in place
-  var stop = function(ele, propNames) {
+  var stop = function(ele: HTMLElement, propNames?: string[]) {
     var keep = running(ele).filter(function(anim) {
       var isHit = !propNames || anim.props.some(function(name) {
         return propNames.indexOf(name) >= 0;
@@ -112,19 +112,19 @@ ugsEditorPlus.dom = (function() {
     setTransition(ele);
   };
 
-  var fadeDirection = function(ele) {
+  var fadeDirection = function(ele: HTMLElement) {
     var fades = running(ele).filter(function(anim) {
       return !!anim.fade;
     });
     return fades.length ? fades[0].fade : null;
   };
 
-  var isHidden = function(ele) {
+  var isHidden = function(ele: HTMLElement) {
     return window.getComputedStyle(ele).display === 'none';
   };
 
   // display the element; when a stylesheet (or class) hides it fall back to "block"
-  var display = function(ele) {
+  var display = function(ele: HTMLElement) {
     ele.style.display = '';
     if (isHidden(ele)) {
       ele.style.display = 'block';
@@ -144,22 +144,22 @@ ugsEditorPlus.dom = (function() {
     var ms = toMs(speed);
     var computed = window.getComputedStyle(ele);
     var names = Object.keys(props);
-    var ends = {};
+    var ends: Record<string, [string, string]> = {};
 
     // snapshot the starting values BEFORE dropping any running transition
     names.forEach(function(name) {
       var value = props[name];
-      ends[name] = Array.isArray(value) ? value : [computed[name], value];
+      ends[name] = Array.isArray(value) ? value : [computed[name as any] as string, value];
     });
     // drop running transitions of these properties, jump to the start values
     stop(ele, names);
     names.forEach(function(name) {
-      ele.style[name] = ends[name][0];
+      ele.style[name as any] = ends[name][0];
     });
     // force a reflow so the browser "sees" the start values before transitioning
     void ele.offsetWidth;
 
-    var anim = {
+    var anim: UgsEditorPlus.DomAnimation = {
       props: names,
       css: names.map(function(name) {
         return name.replace(/[A-Z]/g, '-$&').toLowerCase() + ' ' + ms + 'ms ease';
@@ -168,7 +168,7 @@ ugsEditorPlus.dom = (function() {
     _running.set(ele, running(ele).concat(anim));
     setTransition(ele);
     names.forEach(function(name) {
-      ele.style[name] = ends[name][1];
+      ele.style[name as any] = ends[name][1];
     });
 
     anim.id = setTimeout(function() {
@@ -299,17 +299,17 @@ ugsEditorPlus.dom = (function() {
    * @param handleSelector {string} (optional) CSS selector of the "grab" area inside ele; default: ele itself
    */
   _public.draggable = function(ele, handleSelector) {
-    var handle = handleSelector ? ele.querySelector(handleSelector) : ele;
+    var handle = handleSelector ? ele.querySelector(handleSelector) as HTMLElement | null : ele;
     if (!handle) {
       return;
     }
-    var drag = null;
+    var drag: { id: number, dx: number, dy: number } | null = null;
 
     handle.style.cursor = 'move';
     handle.style.touchAction = 'none';
 
     handle.addEventListener('pointerdown', function(e) {
-      if (e.button !== 0 || e.target.closest('a, button, input, select, textarea')) {
+      if (e.button !== 0 || (e.target as Element).closest('a, button, input, select, textarea')) {
         return;
       }
       var rect = ele.getBoundingClientRect();
@@ -322,9 +322,9 @@ ugsEditorPlus.dom = (function() {
       ele.style.width = window.getComputedStyle(ele).width;
       ele.style.right = 'auto';
       ele.style.bottom = 'auto';
-      ele.style.zIndex = 1000;
+      ele.style.zIndex = 1000 as any;
       ele.classList.add('draggable');
-      handle.setPointerCapture(e.pointerId);
+      handle!.setPointerCapture(e.pointerId);
       e.preventDefault();
     });
 
@@ -339,7 +339,7 @@ ugsEditorPlus.dom = (function() {
       ele.style.top = top + 'px';
     });
 
-    var endDrag = function(e) {
+    var endDrag = function(e: PointerEvent) {
       if (!drag || e.pointerId !== drag.id) {
         return;
       }

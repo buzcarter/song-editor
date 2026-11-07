@@ -34,18 +34,22 @@ interface UgsEditorPlus {
   submenuUi: UgsEditorPlus.SubmenuUi;
   optionsDlg: UgsEditorPlus.OptionsDlg;
   chordBuilder: UgsEditorPlus.ChordBuilderBridge;
+  autoReformat: UgsEditorPlus.AutoReformat;
 }
 
 declare namespace UgsEditorPlus {
-  interface Actions {
-    init(): void;
-    run(): void;
-  }
+  /** A song read by Song Formatter */
+  type Song = import('@ukegeeks/song-formatter').Song;
+
   interface TopMenus {
     init(): void;
   }
   interface SubmenuUi {
     init(): void;
+    resetTransposeLabel(): void;
+  }
+  interface AutoReformat {
+    run(ele: SongElements): void;
   }
   interface OptionsDlg {
     init(): void;

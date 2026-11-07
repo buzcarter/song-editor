@@ -1,3 +1,17 @@
+declare namespace UgsEditorPlus {
+	interface Styles {
+		/** the rules of the sheet from the last getSheet() */
+		Rules: ArrayLike<CSSStyleRule>;
+		/** Picks the stylesheet with this title (`<link title="...">`). */
+		getSheet(title: string): Styles;
+		/** The rule with exactly this selector, in the sheet from getSheet() */
+		find(selector: string): CSSStyleRule | null;
+	}
+}
+interface UgsEditorPlus {
+	styles: UgsEditorPlus.Styles;
+}
+
 /**
  * from: http://www.javascriptkit.com/dhtmltutors/externalcss.shtml
  * @class styles
@@ -11,18 +25,18 @@ ugsEditorPlus.styles = (function() {
 	 * @type JsonObject
 	 */
 	var _public = {
-		Rules: null
-	};
+		Rules: null as unknown as ArrayLike<CSSStyleRule>
+	} as UgsEditorPlus.Styles;
 
-	var _sheet = null;
+	var _sheet: CSSStyleSheet | null = null;
 	
 	_public.getSheet = function(title) {
 		_sheet = _getSheet(title);
-		_public.Rules = _getRules();
+		_public.Rules = _getRules() as ArrayLike<CSSStyleRule>;
 		return this;
 	};
 	
-	var _getSheet = function(title){
+	var _getSheet = function(title: string){
 		for (var i = 0; i < document.styleSheets.length; i++){
 			if (document.styleSheets[i].title == title){
 				return document.styleSheets[i];

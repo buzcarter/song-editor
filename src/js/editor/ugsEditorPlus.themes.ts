@@ -1,3 +1,26 @@
+declare namespace UgsEditorPlus {
+	interface ColorScheme {
+		/** for the theme menu */
+		name: string;
+		/** shown when the theme is picked */
+		selectText: string;
+		description: string;
+		/** Song Formatter's `settings.colors` */
+		song: { fretLines: string, dots: string, dotText: string, text: string, fretText: string };
+		tabs: { lines: string, dots: string, text: string };
+	}
+	interface Themes {
+		getDescription(themeName: string): string;
+		/** Fills the list (CSS selector) with the themes, checking `selectedValue` */
+		loadList(selector: string, selectedValue: string): void;
+		/** Sets the body class and Song Formatter's colors */
+		set(themeName: string): void;
+	}
+}
+interface UgsEditorPlus {
+	themes: UgsEditorPlus.Themes;
+}
+
 /**
  * Changes the song's color scheme ("theme") by changing both the applied body class
  * and the UkeGeek settings used to draw the diagrams.
@@ -11,14 +34,14 @@ ugsEditorPlus.themes = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.Themes;
 
 	/**
 	 * available color schemes (see UkeGeeks.settings)
 	 * @property _colorSchemes
 	 * @type {JSON-Object}
 	 */
-	var _colorSchemes = {
+	var _colorSchemes: Record<string, UgsEditorPlus.ColorScheme> = {
 		'normal': {
 			name: 'Normal (white paper)',
 			selectText: 'Normal colors (white paper)',
@@ -202,7 +225,7 @@ ugsEditorPlus.themes = (function() {
 
 	};
 
-	var setBody = function(themeName) {
+	var setBody = function(themeName: string) {
 		var classes = document.body.classList;
 		// see: http://stackoverflow.com/questions/921789/how-to-loop-through-javascript-object-literal-with-objects-as-members
 		for (var key in _colorSchemes) {
@@ -231,7 +254,7 @@ ugsEditorPlus.themes = (function() {
 	 * @param {string} selectedValue value that should be "checked"
 	 */
 	_public.loadList = function(selector, selectedValue) {
-		var ul = document.querySelector(selector);
+		var ul = document.querySelector(selector)!;
 		ul.textContent = '';
 		for (var key in _colorSchemes) {
 			if (_colorSchemes.hasOwnProperty(key)) {
@@ -258,7 +281,8 @@ ugsEditorPlus.themes = (function() {
 		setBody(themeName);
 
 		var c = _colorSchemes[themeName];
-		ukeGeeks.settings.colors = c.song;
+		// NOTE: the themes have no `xStroke` (muted-string X) color, which Song Formatter's ChordColors has
+		ukeGeeks.settings.colors = c.song as typeof ukeGeeks.settings.colors;
 		ukeGeeks.settings.tabs.lineColor = c.tabs.lines;
 		ukeGeeks.settings.tabs.dotColor = c.tabs.dots;
 		ukeGeeks.settings.tabs.textColor = c.tabs.text;
