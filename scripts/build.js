@@ -3,7 +3,8 @@
  * Builds the Song-a-Matic editor into dist/:
  *
  *   src/js/**                          -> dist/js/ugsEditorPlus.merged.js + .min.js (browser bundle)
- *   src/markup.js                      -> dist/markup.js (Node; also inside the bundle)
+ *   src/markup.ts                      -> dist/markup.js (Node; also inside the bundle)
+ *   src/types/ugsEditorPlus.d.ts       -> dist/ugsEditorPlus.d.ts, dist/markup.d.ts (type declarations)
  *   src/less/ugsEditorPlus_merged.less -> dist/css/ugsEditorPlus.merged.css + .min.css
  *   src/css/ugsEditorPlus.print.css    -> dist/css/ (hand-written, copied)
  *   img/editor/*                       -> dist/img/editor/
@@ -15,10 +16,17 @@
  *
  * File ORDER matters: each file assumes the ones before it already exist
  * (namespace first). Keep the list in sync when adding source files.
+ *
+ * The sources are plain scripts (no import/export) sharing one global scope, written in
+ * TypeScript or JavaScript. List them without an extension: "x" is x.ts, or else x.js.
+ * TypeScript files only lose their types (ts.transpileModule, ES2020: nothing is
+ * rewritten for older browsers), then everything is joined and minified as before.
+ * `npm run typecheck` checks the types; the build does not.
  */
 'use strict';
 
 const fs = require('node:fs/promises');
+const { existsSync } = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.resolve(__dirname, '..');
@@ -28,42 +36,75 @@ const BUNDLE = {
   name: 'ugsEditorPlus',
   dir: 'src/js',
   files: [
-    'editor/ugsEditorPlus.namespace.js',
-    'editor/ugsEditorPlus.dom.js',
+    'editor/ugsEditorPlus.namespace',
+    'editor/ugsEditorPlus.dom',
 
-    'editor/ugsEditorPlus.options.js',
-    'editor/ugsEditorPlus.actions.js',
-    'editor/ugsEditorPlus.songUi.js',
-    'editor/ugsEditorPlus.styles.js',
-    'editor/ugsEditorPlus.themes.js',
-    'editor/ugsEditorPlus.optionsDlg.js',
-    'editor/ugsEditorPlus.reformat.js',
-    'editor/ugsEditorPlus.autoReformat.js',
-    'editor/ugsEditorPlus.topMenus.js',
-    'editor/ugsEditorPlus.submenuUi.js',
-    'editor/ugsEditorPlus.updateSong.js',
-    'editor/ugsEditorPlus.aceHelp.js',
-    'editor/ugsEditorPlus.resize.js',
-    'editor/ugsEditorPlus.chordBuilder.js',
-    '../markup.js',
-    'editor/ugsEditorPlus.songAmatic.js',
-    'mount.js',
-    'editor/ugsChordBuilder.js',
-    'editor/ugsChordBuilder.chooserList.js',
-    'editor/ugsChordBuilder.editorUi.js',
+    'editor/ugsEditorPlus.options',
+    'editor/ugsEditorPlus.actions',
+    'editor/ugsEditorPlus.songUi',
+    'editor/ugsEditorPlus.styles',
+    'editor/ugsEditorPlus.themes',
+    'editor/ugsEditorPlus.optionsDlg',
+    'editor/ugsEditorPlus.reformat',
+    'editor/ugsEditorPlus.autoReformat',
+    'editor/ugsEditorPlus.topMenus',
+    'editor/ugsEditorPlus.submenuUi',
+    'editor/ugsEditorPlus.updateSong',
+    'editor/ugsEditorPlus.aceHelp',
+    'editor/ugsEditorPlus.resize',
+    'editor/ugsEditorPlus.chordBuilder',
+    '../markup',
+    'editor/ugsEditorPlus.songAmatic',
+    'mount',
+    'editor/ugsChordBuilder',
+    'editor/ugsChordBuilder.chooserList',
+    'editor/ugsChordBuilder.editorUi',
     // used by ugsEditorPlus.resize to load the ACE editor on demand ("Fullscreen" button)
-    'libs/lazyload.js',
+    'libs/lazyload',
   ],
 };
 
 const LESS_ENTRY = 'src/less/ugsEditorPlus_merged.less';
 const COPIES = {
-  js: [['src/markup.js', 'markup.js']],
+  js: [['src/markup', 'markup.js']],
   css: [['src/css/ugsEditorPlus.print.css', 'css/ugsEditorPlus.print.css']],
 };
 const IMG_DIR = 'img/editor';
 
 const rel = (p) => path.relative(ROOT, p);
+
+/** "src/js/x" -> the path of x.ts or x.js (exactly one must exist) */
+const sourceFile = (name) => {
+  const found = ['.ts', '.js'].map((ext) => path.join(ROOT, name + ext)).filter((f) => existsSync(f));
+  if (found.length !== 1) {
+    throw new Error(`${name}: expected one of .ts or .js, found ${found.length}`);
+  }
+  return found[0];
+};
+
+/** Reads a source file as JavaScript: a .ts file loses its types, nothing else. */
+const readSource = async (file) => {
+  const text = await fs.readFile(file, 'utf8');
+  if (!file.endsWith('.ts')) {
+    return text;
+  }
+  const ts = require('typescript');
+  const { outputText, diagnostics } = ts.transpileModule(text, {
+    fileName: file,
+    reportDiagnostics: true,
+    compilerOptions: {
+      target: ts.ScriptTarget.ES2020,
+      // the sources are sloppy-mode scripts; a "use strict" at the top of one would make the whole bundle strict
+      alwaysStrict: false,
+      removeComments: false,
+      newLine: ts.NewLineKind.LineFeed,
+    },
+  });
+  if (diagnostics.length) {
+    throw new Error(ts.formatDiagnostics(diagnostics, { getCanonicalFileName: (f) => f, getCurrentDirectory: () => ROOT, getNewLine: () => '\n' }));
+  }
+  return outputText;
+};
 
 const write = async (file, content) => {
   await fs.mkdir(path.dirname(file), { recursive: true });
@@ -81,7 +122,7 @@ async function buildJs() {
   const { minify } = require('terser');
   const { name, dir, files } = BUNDLE;
 
-  const sources = await Promise.all(files.map((f) => fs.readFile(path.join(ROOT, dir, f), 'utf8')));
+  const sources = await Promise.all(files.map((f) => readSource(sourceFile(path.join(dir, f)))));
 
   // Normalize line endings; a leading ";" guards against a file missing its trailing semicolon.
   const merged = sources.map((s) => s.replace(/\r\n?/g, '\n').trimEnd()).join('\n;') + '\n';
@@ -98,7 +139,7 @@ async function buildJs() {
   await write(path.join(DIST, `js/${name}.merged.js`), merged);
   await write(path.join(DIST, `js/${name}.min.js`), result.code + '\n');
   for (const [from, to] of COPIES.js) {
-    await copy(path.join(ROOT, from), path.join(DIST, to));
+    await write(path.join(DIST, to), await readSource(sourceFile(from)));
   }
 }
 
