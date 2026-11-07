@@ -103,3 +103,13 @@ test('legacy pages: markup on the page, init() and updateSong.init() post to the
   assert.equal(document.getElementById('sourceFeedback').textContent, 'Song updated.');
   assert.deepEqual(errors, []);
 });
+
+test('a song with HTML entities comes back from getSong() unchanged', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const song = '{title: Rock &amp; Roll}\n{subtitle: Lyrics &amp; Music &copy; 1933}\n[C]Tom & Jerry &lt;3\n';
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song });
+  assert.equal(editor.getSong(), song);
+  // the songsheet still shows the entities as characters
+  assert.equal(document.getElementById('songTitle').textContent, 'Rock & Roll');
+  assert.deepEqual(errors, []);
+});

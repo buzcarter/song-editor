@@ -6,6 +6,7 @@ The editor's sources are TypeScript now. The bundle is the same JavaScript (`ugs
 
 - Type declarations ship in `dist/`: `markup.d.ts` for `editorHtml()` (package.json `types`), and `ugsEditorPlus.d.ts` for the browser globals: `mount()` and its options, `init()`, `updateSong`, `markup` and `dom`. Use them with `/// <reference types="@ukegeeks/song-editor/browser" />`.
 - `npm run typecheck` checks the sources; it runs in CI and before publishing.
+- Fixed: the Edit Song box decoded HTML entities in the song, so a file with `&amp;` or `&copy;` showed `&` or ©, and saving wrote them that way. It now holds the song's exact text. (Also in `editorHtml()` for server-rendered pages.)
 - Node ESM: `import { editorHtml } from '@ukegeeks/song-editor'` works now (it used to throw "Named export not found"; only the default import worked).
 
 ## 1.0.0-beta.1 (2026-11-06)

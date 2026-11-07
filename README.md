@@ -89,7 +89,7 @@ const html = editorHtml({
 </script>
 ```
 
-Every value is HTML-escaped; existing entities such as `&amp;` are kept.
+Every value is HTML-escaped. The songsheet keeps existing entities such as `&amp;` (so `&copy;` shows ©); the Edit Song box gets the song's exact text, entities and all.
 
 ### Older pages
 
