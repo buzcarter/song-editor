@@ -113,3 +113,29 @@ test('a song with HTML entities comes back from getSong() unchanged', () => {
   assert.equal(document.getElementById('songTitle').textContent, 'Rock & Roll');
   assert.deepEqual(errors, []);
 });
+
+test('getSong() returns the Fullscreen editor text while it is open', async () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  // stand-ins for loading Ace (jsdom loads no scripts from URLs)
+  let aceText = '';
+  window.LazyLoad.js = (url, callback) => callback();
+  window.ace = {
+    edit: () => ({
+      setTheme() {}, getSession: () => ({ setMode() {} }), setOptions() {}, gotoLine() {},
+      setValue(text) { aceText = text; },
+      getValue: () => aceText,
+    }),
+  };
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
+
+  document.querySelector('.resizeBtn').click(); // open Fullscreen
+  assert.equal(aceText, SAMPLE_SONG, 'Ace gets the song');
+  aceText = SAMPLE_SONG + '[G]typed in Fullscreen\n';
+  assert.equal(editor.getSong(), aceText);
+  assert.equal(document.getElementById('chordProSource').value, SAMPLE_SONG, 'the Edit Song box is not updated yet');
+
+  document.querySelector('#aceHeader a').click(); // Exit fullscreen
+  assert.equal(document.getElementById('chordProSource').value, aceText);
+  assert.equal(editor.getSong(), aceText);
+  assert.deepEqual(errors, []);
+});
