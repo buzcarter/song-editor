@@ -277,7 +277,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {DOM-element} ele the selected list item (LI)
 	 * @return {string}
 	 */
-	var getLabelText = function(action: string, value: any, ele: Element){
+	var getLabelText = function(action: string, value: string | number, ele: Element){
 		var index = Array.prototype.indexOf.call(ele.parentNode!.children, ele);
 
 		switch (action){
@@ -288,7 +288,7 @@ ugsEditorPlus.submenuUi = (function(){
 			case 'zoomDiagrams':
 				return _desriptions.zoomDiagrams[index] + ' diagrams';
 			case 'colors':
-				return ugsEditorPlus.themes.getDescription(value);
+				return ugsEditorPlus.themes.getDescription(String(value));
 			case 'transpose':
 				if (value == 'up_0'){
 					return 'Original key';

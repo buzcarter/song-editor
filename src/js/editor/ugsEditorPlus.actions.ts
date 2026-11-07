@@ -102,7 +102,7 @@ ugsEditorPlus.actions = (function() {
 		};
 
 		document.addEventListener('ugs:option', function(e) {
-			doAction(e.detail.action, e.detail.value);
+			doAction(e.detail);
 		});
 
 		syncOptions(ugsEditorPlus.options);
@@ -116,54 +116,56 @@ ugsEditorPlus.actions = (function() {
 	 * Executes the requested Action using passed in Value
 	 * @method doAction
 	 * @private
-	 * @param action {string} Action's name; must match one of those defined in the switch below
-	 * @param value {string} Value used by Action (OK, a couple methods assume this is boolean/falsy)
+	 * @param change {OptionChange} the event's detail: the Action's name (one of those in the switch below)
+	 *   and its value (a string from a menu, a boolean from a checkbox)
 	 */
-	var doAction = function(action: string, value: any) {
+	var doAction = function(change: UgsEditorPlus.OptionChange) {
 		// actions that modify song's HTML or reference diagrams require rerunning Scriptasaurus
 		var runRequired = false;
+		// (for the log below: events come from the page, so an unknown action can still arrive)
+		var action: string = change.action, value: unknown = change.value;
 
-		switch (action){
+		switch (change.action){
 			case 'zoomFonts':
-				doSetFontSize(value);
+				doSetFontSize(change.value);
 				break;
 			case 'zoomDiagrams':
-				doSetDiagramSize(value);
+				doSetDiagramSize(change.value);
 				break;
 			case 'layout':
-				doLayout(value);
+				doLayout(change.value);
 				break;
 			case 'placement':
-				runRequired = doPlacement(value);
+				runRequired = doPlacement(change.value);
 				break;
 			case 'tuning':
-				doTuning(value);
+				doTuning(change.value);
 				runRequired = true;
 				break;
 			case 'colors':
-				doSetTheme(value);
+				doSetTheme(change.value);
 				runRequired = true;
 				break;
 			case 'transpose':
-				doTranspose(value);
+				doTranspose(change.value);
 				break;
 			case 'paper':
-				doSetPageWidth(value);
+				doSetPageWidth(change.value);
 				break;
 			case 'showEnclosures':
-				setEnclosureVisible(value);
+				setEnclosureVisible(change.value);
 				runRequired = true;
 				break;
 			case 'hideCommonChords':
-				setIgnoreCommon(value);
+				setIgnoreCommon(change.value);
 				runRequired = true;
 				break;
 			case 'sortAlphabetical':
-				setSortAlphabetical(value);
+				setSortAlphabetical(change.value);
 				runRequired = true;
 				break;
 			case 'setCommonChords':
-				setCommonChordsList(value);
+				setCommonChordsList(change.value);
 				runRequired = ukeGeeks.settings.opts.ignoreCommonChords;
 				break;
 			case 'update':

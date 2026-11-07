@@ -240,7 +240,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		(document.getElementById(_ids.chordName) as HTMLInputElement).value = _currentName;
 
 		_startingFret = startingFret ? startingFret : 1;
-		(document.getElementById(_ids.startingFret) as HTMLSelectElement).value = _startingFret as unknown as string;
+		(document.getElementById(_ids.startingFret) as HTMLSelectElement).value = String(_startingFret);
 
 		(document.getElementById(_ids.showOutputBtn) as HTMLInputElement).checked = false;
 		setClass(document.getElementById(_ids.outputBox)!, 'collapseOutput', true);
@@ -391,7 +391,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 			var lastValue = ugsChordBuilder.settings.fretBoard.maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1;
 			if ((newStart >= 1) && (newStart <= lastValue)) {
 				_startingFret = newStart;
-				(document.getElementById(_ids.startingFret) as HTMLSelectElement).value = newStart as unknown as string;
+				(document.getElementById(_ids.startingFret) as HTMLSelectElement).value = String(newStart);
 				moveAllowed = true;
 			}
 		}

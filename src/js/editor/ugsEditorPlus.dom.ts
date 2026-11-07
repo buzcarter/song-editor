@@ -328,7 +328,7 @@ ugsEditorPlus.dom = (function() {
       ele.style.width = window.getComputedStyle(ele).width;
       ele.style.right = 'auto';
       ele.style.bottom = 'auto';
-      ele.style.zIndex = 1000 as any;
+      ele.style.zIndex = '1000';
       ele.classList.add('draggable');
       handle!.setPointerCapture(e.pointerId);
       e.preventDefault();

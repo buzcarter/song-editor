@@ -521,7 +521,7 @@ ugsChordBuilder.fretDots = (function() {
 		context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
 		context.textAlign = 'center';
 		context.fillStyle = opts_dot.fontColor;
-		context.fillText(text as unknown as string, pos.x, pos.y + 0.3 * opts_dot.fontSize);
+		context.fillText(String(text), pos.x, pos.y + 0.3 * opts_dot.fontSize);
 	};
 
 	_public.draw = function(context) {
@@ -597,7 +597,7 @@ ugsChordBuilder.cursorCanvas = (function() {
 		_context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
 		_context.textAlign = 'left';
 		_context.fillStyle = 'black'; //opts_dot.fontColor;
-		_context.fillText(_finger as unknown as string, pos.x + 0.8 * _handImage.width, pos.y + _handImage.height);
+		_context.fillText(String(_finger), pos.x + 0.8 * _handImage.width, pos.y + _handImage.height);
 		// not centering pos.x - 0.5 * _handImage.width, pos.y - 0.5 * _handImage.height);
 	};
 
@@ -683,7 +683,7 @@ ugsChordBuilder.chordCanvas = (function() {
 		_context.font = opt_fLabel.fontSize + 'px ' + opt_fLabel.fontFamily;
 		_context.textAlign = 'right';
 		_context.fillStyle = color;
-		_context.fillText(text as unknown as string, pos.x, pos.y);
+		_context.fillText(String(text), pos.x, pos.y);
 	};
 
 	var addLabels = function(startingFret: number) {
