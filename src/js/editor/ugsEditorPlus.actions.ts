@@ -215,11 +215,10 @@ ugsEditorPlus.actions = (function() {
 	 * Zooms (scales) fonts
 	 * @method doSetFontSize
 	 * @private
-	 * @param value {string} point-size; value of the clicked value item
+	 * @param value {string|number} point-size: the clicked menu item's value (string) or options.fontSize (number)
 	 */
 	var doSetFontSize = function(value: string | number) {
-		// @ts-expect-error parseFloat takes one argument (the 10 is ignored)
-		var pt = parseFloat(value, 10);
+		var pt = parseFloat(String(value));
 		_ele.scalableArea.style.fontSize = pt + 'pt';
 	};
 
@@ -448,12 +447,11 @@ ugsEditorPlus.actions = (function() {
 		ugsEditorPlus.submenuUi.resetTransposeLabel();
 
 		for (var i = 0; i < items.length; i++) {
-			// (Song Formatter's toolsLite types ask for a div; any element works)
-			ukeGeeks.toolsLite.removeClass(items[i] as HTMLElement as HTMLDivElement, 'checked');
+			ukeGeeks.toolsLite.removeClass(items[i], 'checked');
 			sample = (keyChord.length < 1) ? '' : ukeGeeks.transpose.shift(keyChord, steps);
 			items[i].getElementsByTagName('em')[0].innerHTML = sample as string;
 			if (steps === 0) {
-				ukeGeeks.toolsLite.addClass(items[i] as HTMLElement as HTMLDivElement, 'checked');
+				ukeGeeks.toolsLite.addClass(items[i], 'checked');
 			}
 			steps++;
 		}

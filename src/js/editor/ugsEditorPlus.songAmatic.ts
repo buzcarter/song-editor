@@ -26,8 +26,9 @@ ugsEditorPlus.songAmatic = (function() {
 		ukeGeeks.settings.opts.retainBrackets = !opts.hideChordEnclosures;
 		ugsEditorPlus.dom.toggle(document.getElementById('songSourceDlg'), opts.showEditOnLoad);
 
-		// Song Formatter's init() takes an options object and ignores this flag (the old library's "isIeFamily")
-		ukeGeeks.scriptasaurus.init(opts.useLegacyIe as any);
+		// Song Formatter's init(options?) only reads options.definitions. The editor used to pass
+		// opts.useLegacyIe here (the old library's "isIeFamily" flag), which init() ignored.
+		ukeGeeks.scriptasaurus.init();
 
 		ugsEditorPlus.actions.init();
 		ugsEditorPlus.topMenus.init();

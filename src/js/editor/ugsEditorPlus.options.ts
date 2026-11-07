@@ -14,6 +14,7 @@ ugsEditorPlus.options = {
 	 * @property useLegacyIe
 	 * @type Boolean
 	 * @default false
+	 * @deprecated Does nothing: Song Formatter ignores it. Kept so pages that set it still work.
 	 */
 	useLegacyIe: false,
 
