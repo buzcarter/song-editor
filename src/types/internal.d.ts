@@ -3,8 +3,49 @@
  * scripts on the page provide, and the editor's internal parts.
  */
 
-/** Song Formatter's browser bundle (@ukegeeks/song-formatter/browser) */
-declare var ukeGeeks: typeof import('@ukegeeks/song-formatter').ukeGeeks;
+/**
+ * Song Formatter's browser bundle (@ukegeeks/song-formatter/browser), with two of its declarations
+ * corrected (see SongFormatterFixes below). Types only: the running code is Song Formatter's.
+ */
+declare var ukeGeeks: SongFormatterFixes.UkeGeeks;
+
+/**
+ * Corrections to @ukegeeks/song-formatter 1.0.0-beta.1's declarations, where they're narrower than
+ * what its code accepts. Each one should move into Song Formatter's own .d.ts; then delete it here.
+ */
+declare namespace SongFormatterFixes {
+  type Original = typeof import('@ukegeeks/song-formatter').ukeGeeks;
+  type PlotArgs = Parameters<InstanceType<Original['chordBrush']>['plot']>;
+
+  /**
+   * toolsLite's class helpers ask for an HTMLDivElement, but they only call `ele.classList`,
+   * so any element works.
+   */
+  interface ToolsLite extends Omit<Original['toolsLite'], 'addClass' | 'removeClass' | 'setClass'> {
+    addClass(ele: Element, className: string): void;
+    removeClass(ele: Element, className: string): void;
+    setClass(ele: Element, className: string, toggle: boolean): void;
+  }
+
+  /**
+   * ChordBrush.plot() takes the fonts as their own argument, so the FretBox it's given
+   * doesn't need `fonts` (FretBox's type requires it).
+   */
+  interface ChordBrush extends Omit<InstanceType<Original['chordBrush']>, 'plot'> {
+    plot(
+      chordBox: PlotArgs[0],
+      chord: PlotArgs[1],
+      fretBox: Omit<PlotArgs[2], 'fonts'>,
+      fontSettings?: PlotArgs[3],
+      colorSettings?: PlotArgs[4]
+    ): void;
+  }
+
+  interface UkeGeeks extends Omit<Original, 'toolsLite' | 'chordBrush'> {
+    toolsLite: ToolsLite;
+    chordBrush: new () => ChordBrush;
+  }
+}
 
 /** The Ace editor, from @ukegeeks/ace-chordpro-extension's ace-chordpro.min.js (loaded by Fullscreen) */
 declare var ace: {

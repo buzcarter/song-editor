@@ -448,12 +448,11 @@ ugsEditorPlus.actions = (function() {
 		ugsEditorPlus.submenuUi.resetTransposeLabel();
 
 		for (var i = 0; i < items.length; i++) {
-			// (Song Formatter's toolsLite types ask for a div; any element works)
-			ukeGeeks.toolsLite.removeClass(items[i] as HTMLElement as HTMLDivElement, 'checked');
+			ukeGeeks.toolsLite.removeClass(items[i], 'checked');
 			sample = (keyChord.length < 1) ? '' : ukeGeeks.transpose.shift(keyChord, steps);
 			items[i].getElementsByTagName('em')[0].innerHTML = sample as string;
 			if (steps === 0) {
-				ukeGeeks.toolsLite.addClass(items[i] as HTMLElement as HTMLDivElement, 'checked');
+				ukeGeeks.toolsLite.addClass(items[i], 'checked');
 			}
 			steps++;
 		}

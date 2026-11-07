@@ -366,8 +366,7 @@ ugsChordBuilder.chooserList = (function() {
 		if (_ugsBrushTool == null) {
 			_ugsBrushTool = new ukeGeeks.chordBrush();
 		}
-		// (the FretBox type also has `fonts`; they're passed on their own here)
-		_ugsBrushTool.plot(element, chord, _diagramSettings.dimensions as typeof ukeGeeks.settings.fretBox, _diagramSettings.fonts, _diagramSettings.colors);
+		_ugsBrushTool.plot(element, chord, _diagramSettings.dimensions, _diagramSettings.fonts, _diagramSettings.colors);
 	};
 
 	/**
