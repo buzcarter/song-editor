@@ -16,6 +16,10 @@
   const api = factory();
   if (typeof module === 'object' && module.exports) {
     module.exports = api;
+    // Named again so Node's `import { editorHtml } from '@ukegeeks/song-editor'` works: Node finds a
+    // CommonJS file's names by reading its source for `module.exports.name =`, not by running it.
+    module.exports.editorHtml = api.editorHtml;
+    module.exports.escapeHtml = api.escapeHtml;
   } else {
     root.ugsEditorPlus = root.ugsEditorPlus || ({} as UgsEditorPlus);
     root.ugsEditorPlus.markup = api;

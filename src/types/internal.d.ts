@@ -22,7 +22,7 @@ declare var LazyLoad: {
 };
 
 /** CommonJS, for src/markup.ts's UMD wrapper (Node) */
-declare var module: { exports: unknown } | undefined;
+declare var module: { exports: any } | undefined;
 
 /**
  * The editor's internal parts are on the same global as the public API (src/types/ugsEditorPlus.d.ts).
