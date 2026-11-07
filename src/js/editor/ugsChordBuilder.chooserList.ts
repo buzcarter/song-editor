@@ -309,13 +309,13 @@ ugsChordBuilder.chooserList = (function() {
 	 * Returns HTML snippet for an LI
 	 * @method listHtmlString
 	 * @param  {int} id
-	 * @param  {string} name
+	 * @param  {string} name chord name, straight from the song's {define}: HTML-escaped here
 	 * @param  {bool} isInner (optional) if TRUE only reutrns the inner HTML part, otherwise returns complete LI tag
 	 * @return {string}
 	 */
 	var listHtmlString = function(id: number, name: string, isInner?: boolean) {
 		isInner = (arguments.length > 2) ? isInner : false;
-		var innerHtml = '<span class="deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + name;
+		var innerHtml = '<span class="deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + ukeGeeks.toolsLite.escapeHtml(name);
 		return isInner ? innerHtml : '<li data-id="' + id + '" title="Edit this definition" class="ugs-grouped">' + innerHtml + '</li>';
 	};
 
