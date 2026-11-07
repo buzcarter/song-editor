@@ -46,8 +46,10 @@ ugsChordBuilder.chooserList = (function() {
 
 	// array of custom chords defined in this song
 	var _chordDictionary: UgsChordBuilder.ChordDefinition[] = [];
-	// handle to HTML UL element
-	var _eleChordList: HTMLElement = null!;
+	// the HTML UL element (the editor's checked lookup: ugsEditorPlus.dom loads before the Chord Builder)
+	var chordListEle = function() {
+		return ugsEditorPlus.dom.byId(_ids.chordList, HTMLElement);
+	};
 
 	/**
 	 * magic value for start a new chord (constant)
@@ -144,20 +146,19 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	_public.init = function(setChordFunction) {
 		_setChordMethod = setChordFunction;
-		_eleChordList = document.getElementById(_ids.chordList)!;
 		// attach click handler to the UL avoids need to attach to individual LI items (these get added & deleted frequently)
-		_eleChordList.addEventListener('click', onClick, false);
+		chordListEle().addEventListener('click', onClick, false);
 		_start();
 	};
 
 	var _start = function() {
-		songGetDefinitions((document.getElementById(_ids.source) as HTMLTextAreaElement).value);
-		listLoad(_eleChordList, _chordDictionary);
+		songGetDefinitions(ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement).value);
+		listLoad(chordListEle(), _chordDictionary);
 	};
 
 	_public.reset = function() {
 		_chordDictionary = [];
-		document.getElementById(_ids.chordList)!.innerHTML = '';
+		chordListEle().innerHTML = '';
 		_nextId = 0;
 		_currentChord = null;
 		_start();
@@ -170,9 +171,11 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {bool} isChooserPanel
 	 */
 	_public.show = function(isChooserPanel) {
-		document.getElementById(_ids.chooserPanel)!.style.display = isChooserPanel ? 'block' : 'none';
-		document.getElementById(_ids.builderPanel)!.style.display = !isChooserPanel ? 'block' : 'none';
-		document.getElementById(_ids.chooserPanel)!.closest('.overlay')!.classList.toggle('chordBuilderNarrow', isChooserPanel);
+		var dom = ugsEditorPlus.dom;
+		var chooserPanel = dom.byId(_ids.chooserPanel, HTMLElement);
+		chooserPanel.style.display = isChooserPanel ? 'block' : 'none';
+		dom.byId(_ids.builderPanel, HTMLElement).style.display = !isChooserPanel ? 'block' : 'none';
+		dom.closest(chooserPanel, '.overlay', HTMLElement).classList.toggle('chordBuilderNarrow', isChooserPanel);
 	};
 
 	/**
@@ -223,7 +226,7 @@ ugsChordBuilder.chooserList = (function() {
 		if (!item) {
 			return;
 		}
-		_eleChordList.removeChild(item);
+		chordListEle().removeChild(item);
 		songReplace(chord.definition, '');
 
 	};
@@ -236,16 +239,22 @@ ugsChordBuilder.chooserList = (function() {
 	var onClick = function(evt: MouseEvent) {
 		evt.preventDefault();
 		// the click lands on an item (or its delete button) in the chord list
-		_currentChord = dictionaryFind((evt.target as Element).getAttribute('data-id'));
-		if ((evt.target as Element).getAttribute('data-action') == 'delete') {
-			doDelete(_currentChord!);
+		var target = evt.target;
+		if (!(target instanceof Element)) {
+			return;
+		}
+		_currentChord = dictionaryFind(target.getAttribute('data-id'));
+		if (target.getAttribute('data-action') == 'delete') {
+			if (_currentChord) {
+				doDelete(_currentChord);
+			}
 			return;
 		}
 
 		var chord = null;
 		if (_currentChord != null) {
 			chord = ukeGeeks.chordImport.runLine(_currentChord.definition);
-			if (hasMutedStrings(chord!)) {
+			if (chord && hasMutedStrings(chord)) {
 				alert('Uh-oh! This chord uses muted strings!\nCurrently the Chord Builder does not support muted strings -- \nsaving edits will result in mutes being lost.');
 			}
 		}
@@ -278,7 +287,11 @@ ugsChordBuilder.chooserList = (function() {
 	 * @return {DOM_LI}
 	 */
 	var listUpdate = function(id: number) {
-		var def = dictionaryFind(id)!;
+		var def = dictionaryFind(id);
+		if (!def) {
+			// (save() passes the id it just added or updated)
+			return null;
+		}
 		var item: HTMLLIElement | null | void = listGetItem(id);
 		if (!item) {
 			item = listAddItem(id, def.name);
@@ -297,7 +310,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * @return {DOM_LI}
 	 */
 	var listGetItem = function(id: number | string | null) {
-		var items = _eleChordList.getElementsByTagName('li');
+		var items = chordListEle().getElementsByTagName('li');
 		for (var i = 0; i < items.length; i++) {
 			if (items[i].getAttribute('data-id') == ('' + id)) {
 				return items[i];
@@ -351,7 +364,7 @@ ugsChordBuilder.chooserList = (function() {
 	var listAddItem = function(id: number, name: string) {
 		var temp = document.createElement('ul');
 		temp.innerHTML = listHtmlString(id, name);
-		_eleChordList.appendChild(temp.childNodes[0]);
+		chordListEle().appendChild(temp.childNodes[0]);
 	};
 
 	/**
@@ -359,9 +372,17 @@ ugsChordBuilder.chooserList = (function() {
 	 * @method listAddDiagram
 	 */
 	var listAddDiagram = function(id: number | string | null) {
-		var element = listGetItem(id)!;
-		var defintion = dictionaryFind(id)!;
-		var chord = ukeGeeks.chordImport.runLine(defintion.definition)!;
+		var element = listGetItem(id);
+		var defintion = dictionaryFind(id);
+		// (the list holds an item for each definition)
+		if (!element || !defintion) {
+			return;
+		}
+		var chord = ukeGeeks.chordImport.runLine(defintion.definition);
+		if (!chord) {
+			// Song Formatter can't read this {define}: no mini-diagram
+			return;
+		}
 		//var fretBox = ukeGeeks.settings.inlineFretBox;
 		//var fontSettings = ukeGeeks.settings.inlineFretBox.fonts;
 		if (_ugsBrushTool == null) {
@@ -394,7 +415,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * @return {void}
 	 */
 	var songReplace = function(oldDefinition: string, newDefinition: string) {
-		var e = document.getElementById(_ids.source) as HTMLTextAreaElement;
+		var e = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
 		e.value = replaceAll(e.value, oldDefinition, newDefinition);
 		ugsEditorPlus.actions.run();
 	};
@@ -423,7 +444,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {string} definition
 	 */
 	var songAddDefinition = function(definition: string) {
-		var choProText = document.getElementById(_ids.source) as HTMLTextAreaElement;
+		var choProText = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
 		var instructionRegEx = /\s*\{\s*(title|t|artist|subtitle|st|album|define):.*?\}/im;
 		var lines = choProText.value.split('\n');
 		var html = '';
