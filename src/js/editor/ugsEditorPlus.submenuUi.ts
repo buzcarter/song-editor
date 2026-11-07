@@ -1,3 +1,14 @@
+declare namespace UgsEditorPlus {
+	interface SubmenuUi {
+		/** Wires the menus' pseudo-selects and shows the current options */
+		init(): void;
+		/** Clears the "active" and "in use" states in a menu dialog */
+		reset(dlg: HTMLElement): void;
+		/** The Transpose label back to "Original key" */
+		resetTransposeLabel(): void;
+	}
+}
+
 
 /**
  * Wires up all the "pseudo-selects" (aka "dropdownlists") on a Tooltip-Dialog boxes on
@@ -12,9 +23,9 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.SubmenuUi;
 
-	var _open = null;
+	var _open: { id: string } | null = null;
 
 	/**
 	 * attaches event handlers
@@ -39,14 +50,14 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return {bool} false to kill event bubbling
 	 */
-	var onOptionClick = function(e){
+	var onOptionClick = function(this: HTMLElement, e: Event){
 		var optionItem = this;
-		var value = stripHash(optionItem.querySelector('a').getAttribute('href'));
+		var value = stripHash(optionItem.querySelector('a')!.getAttribute('href')!);
 
 		// the element holding the "pseudo-select"
-		var select = optionItem.closest('dd');
+		var select = optionItem.closest('dd')!;
 		var id = select.id;
-		var actionName = select.getAttribute('data-action');
+		var actionName = select.getAttribute('data-action')!;
 
 		// a selection's been made so we hide the (sub) select list
 		ugsEditorPlus.dom.hide(select);
@@ -58,8 +69,8 @@ ugsEditorPlus.submenuUi = (function(){
 
 		// now bubble out the info -- update display to show selected value ...
 		var label = getLabel(id);
-		label.querySelector('span').textContent = getLabelText(actionName, value, optionItem);
-		label.closest('dt').classList.remove('active');
+		label.querySelector('span')!.textContent = getLabelText(actionName, value, optionItem);
+		label.closest('dt')!.classList.remove('active');
 
 		// lastly, execute the action
 		ugsEditorPlus.dom.trigger('ugs:option', {
@@ -72,12 +83,12 @@ ugsEditorPlus.submenuUi = (function(){
 		e.stopPropagation();
 	};
 
-	var setChecked = function(item) {
+	var setChecked = function(item: Element | null) {
 		if (!item) {
 			//console.log('item for option not found');
 			return;
 		}
-		Array.prototype.forEach.call(item.parentNode.children, function(sibling) {
+		Array.prototype.forEach.call(item.parentNode!.children, function(sibling: Element) {
 			sibling.classList.remove('checked');
 		});
 		item.classList.add('checked');
@@ -89,8 +100,8 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {string} id
 	 * @return {DOM-element}
 	 */
-	var getLabel = function(id) {
-		return document.querySelector('label[for="' + id + '"]');
+	var getLabel = function(id: string) {
+		return document.querySelector('label[for="' + id + '"]')!;
 	};
 
 	/**
@@ -99,12 +110,12 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {string} value
 	 * @return {string}
 	 */
-	var cssString = function(value) {
+	var cssString = function(value: unknown) {
 		return String(value).replace(/["\\]/g, '\\$&');
 	};
 
-	var syncOptions = function(options) {
-		var item, id,
+	var syncOptions = function(options: UgsEditorPlus.Options) {
+		var item: Element | null, id: string,
 			map = [{
 				action: 'zoomFonts',
 				value: options.fontSize
@@ -133,10 +144,10 @@ ugsEditorPlus.submenuUi = (function(){
 			if (!item) {
 				continue;
 			}
-			item = item.closest('li');
-			id = item.closest('dd').id;
+			item = item.closest('li')!;
+			id = item.closest('dd')!.id;
 			setChecked(item);
-			getLabel(id).querySelector('span').textContent = getLabelText(map[i].action, map[i].value, item);
+			getLabel(id).querySelector('span')!.textContent = getLabelText(map[i].action, map[i].value, item);
 		}
 	};
 
@@ -147,8 +158,8 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return {bool} false to kill event bubbling
 	 */
-	var onLabelClick = function(e){
-		var id = this.getAttribute('for');
+	var onLabelClick = function(this: HTMLElement, e: Event){
+		var id = this.getAttribute('for')!;
 		setActiveLabel(this);
 		ugsEditorPlus.dom.show(document.getElementById(id));
 		onListActive(this, true);
@@ -183,13 +194,13 @@ ugsEditorPlus.submenuUi = (function(){
 		});
 	};
 
-	var setActiveLabel = function(label){
-		Array.prototype.forEach.call(label.closest('dl').children, function(child) {
+	var setActiveLabel = function(label: HTMLElement){
+		Array.prototype.forEach.call(label.closest('dl')!.children, function(child: Element) {
 			if (child.tagName == 'DT') {
 				child.classList.remove('active');
 			}
 		});
-		label.closest('dt').classList.add('active');
+		label.closest('dt')!.classList.add('active');
 	};
 
 	/**
@@ -200,7 +211,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {Boolean} isInUse [description]
 	 * @return void
 	 */
-	var onListActive = function(ele, isInUse){
+	var onListActive = function(ele: Element, isInUse: boolean){
 		var wrap = ele.closest('.enablePseudoSelects');
 		if (wrap) {
 			wrap.classList.toggle('event-userSelecting', isInUse);
@@ -212,8 +223,8 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return bool
 	 */
-	var doCollapseAllLists = function(e){
-		if (e.target.matches('a')){
+	var doCollapseAllLists = function(this: HTMLElement, e: Event){
+		if ((e.target as Element).matches('a')){
 			return;
 		}
 		ugsEditorPlus.dom.all('dd', this).forEach(ugsEditorPlus.dom.hide);
@@ -227,14 +238,14 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @method closeAll
 	 * @param  {event} e
 	 */
-	var closeAll = function(e){
+	var closeAll = function(e: Event){
 		ugsEditorPlus.dom.all('.arrowBox').forEach(function(box) {
 			ugsEditorPlus.dom.fadeOut(box, 270);
 		});
 		ugsEditorPlus.topMenus.makeAllInactive();
 	};
 
-	var stripHash = function(value){
+	var stripHash = function(value: string){
 		return (value[0] == '#') ? value.substr(1) : value;
 	};
 
@@ -248,7 +259,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @private
 	 * @type {JSON}
 	 */
-	var _desriptions = {
+	var _desriptions: Record<string, string[]> = {
 		'zoomDiagrams' : ['Tiny', 'Small', 'Medium', 'Large', 'Stupid Large'],
 		'layout' : ['Reference diagrams on left', 'Reference diagrams at top', 'No reference diagrams'],
 		'placement' : ['Chord names inline with lyrics', 'Chord names above lyrics', 'Names & diagrams above lyrics'],
@@ -263,8 +274,8 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {DOM-element} ele the selected list item (LI)
 	 * @return {string}
 	 */
-	var getLabelText = function(action, value, ele){
-		var index = Array.prototype.indexOf.call(ele.parentNode.children, ele);
+	var getLabelText = function(action: string, value: any, ele: Element){
+		var index = Array.prototype.indexOf.call(ele.parentNode!.children, ele);
 
 		switch (action){
 			case 'paper':
@@ -279,7 +290,7 @@ ugsEditorPlus.submenuUi = (function(){
 				if (value == 'up_0'){
 					return 'Original key';
 				}
-				var txt = ele.textContent;
+				var txt = ele.textContent!;
 				return txt.replace(' ', ' steps - "') + '"';
 			default:
 			 return _desriptions[action][index];
@@ -287,7 +298,7 @@ ugsEditorPlus.submenuUi = (function(){
 	};
 
 	_public.resetTransposeLabel = function(){
-		getLabel('transposePicker').querySelector('span').textContent = 'Original key';
+		getLabel('transposePicker').querySelector('span')!.textContent = 'Original key';
 	};
 
 	// ---------------------------------------

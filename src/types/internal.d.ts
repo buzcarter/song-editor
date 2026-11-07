@@ -41,20 +41,19 @@ declare namespace UgsEditorPlus {
   /** A song read by Song Formatter */
   type Song = import('@ukegeeks/song-formatter').Song;
 
-  interface TopMenus {
-    init(): void;
-  }
-  interface SubmenuUi {
-    init(): void;
-    resetTransposeLabel(): void;
-  }
   interface AutoReformat {
     run(ele: SongElements): void;
   }
-  interface OptionsDlg {
+}
+
+/** The Chord Builder's parts (placeholders until its sources are TypeScript) */
+interface UgsChordBuilder {
+  settings: { cursor: { imageUri: string } };
+  editorUi: new () => UgsChordBuilder.EditorUi;
+}
+declare namespace UgsChordBuilder {
+  interface EditorUi {
     init(): void;
-  }
-  interface ChordBuilderBridge {
-    init(): void;
+    reload(): void;
   }
 }

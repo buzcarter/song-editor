@@ -1,3 +1,10 @@
+declare namespace UgsEditorPlus {
+	interface ChordBuilderBridge {
+		/** Sets up the Chord Builder and its toolbar button */
+		init(): void;
+	}
+}
+
 /**
  *
  * Dependencies: ugsChordBuilder classes
@@ -10,9 +17,9 @@ ugsEditorPlus.chordBuilder = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.ChordBuilderBridge;
 
-	var _builder = null;
+	var _builder: UgsChordBuilder.EditorUi | null = null;
 
 	/**
 	 * Standard event wire up and prep method. Handles "finding" the Builder's "Hand Cursor" based
@@ -20,12 +27,12 @@ ugsEditorPlus.chordBuilder = (function() {
 	 * @method  init
 	 */
 	_public.init = function() {
-		var fingerToolImage = window.getComputedStyle(document.querySelector('.fingerToolImage')).backgroundImage;
+		var fingerToolImage = window.getComputedStyle(document.querySelector('.fingerToolImage')!).backgroundImage;
 		ugsChordBuilder.settings.cursor.imageUri = fingerToolImage.replace(/url\("(.*)hand.png"\)/i, '$1hand-cursor.png');
 		_builder = new ugsChordBuilder.editorUi();
 		_builder.init();
 
-		document.getElementById('cdBldOpenBtn').addEventListener('click', onShowDlgBtnClick);
+		document.getElementById('cdBldOpenBtn')!.addEventListener('click', onShowDlgBtnClick);
 	};
 
 	/**
@@ -33,10 +40,10 @@ ugsEditorPlus.chordBuilder = (function() {
 	 * @method onShowDlgBtnClick
 	 * @param  {event} evt
 	 */
-	var onShowDlgBtnClick = function(evt){
+	var onShowDlgBtnClick = function(this: HTMLElement, evt: Event){
 		evt.preventDefault();
-		_builder.reload();
-		var id = this.getAttribute('data-dialog');
+		_builder!.reload();
+		var id = this.getAttribute('data-dialog')!;
 		ugsEditorPlus.dom.fadeIn(document.getElementById(id));
 	};
 
