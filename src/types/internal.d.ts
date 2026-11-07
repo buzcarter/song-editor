@@ -23,3 +23,34 @@ declare var LazyLoad: {
 
 /** CommonJS, for src/markup.ts's UMD wrapper (Node) */
 declare var module: { exports: unknown } | undefined;
+
+/**
+ * The editor's internal parts, on the same global as the public API (src/types/ugsEditorPlus.d.ts).
+ * Each source file assigns one of these: `ugsEditorPlus.actions = (function() {...})();`
+ */
+interface UgsEditorPlus {
+  actions: UgsEditorPlus.Actions;
+  topMenus: UgsEditorPlus.TopMenus;
+  submenuUi: UgsEditorPlus.SubmenuUi;
+  optionsDlg: UgsEditorPlus.OptionsDlg;
+  chordBuilder: UgsEditorPlus.ChordBuilderBridge;
+}
+
+declare namespace UgsEditorPlus {
+  interface Actions {
+    init(): void;
+    run(): void;
+  }
+  interface TopMenus {
+    init(): void;
+  }
+  interface SubmenuUi {
+    init(): void;
+  }
+  interface OptionsDlg {
+    init(): void;
+  }
+  interface ChordBuilderBridge {
+    init(): void;
+  }
+}

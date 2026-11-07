@@ -12,7 +12,7 @@ ugsEditorPlus.songAmatic = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.SongAmatic;
 
 	/**
 	 * attaches event handlers, preps variables, and runs UGS
@@ -20,13 +20,14 @@ ugsEditorPlus.songAmatic = (function() {
 	 * @param options {OBJECT} (optional) Object/JSON with any of the ugsEditorPlus.options
 	 * @return {void}
 	 */
-	_public.init = function(options) {
+	_public.init = function(options?: Partial<UgsEditorPlus.Options>) {
 		var opts = mergeOptions(options);
 
 		ukeGeeks.settings.opts.retainBrackets = !opts.hideChordEnclosures;
 		ugsEditorPlus.dom.toggle(document.getElementById('songSourceDlg'), opts.showEditOnLoad);
 
-		ukeGeeks.scriptasaurus.init(opts.useLegacyIe);
+		// Song Formatter's init() takes an options object and ignores this flag (the old library's "isIeFamily")
+		ukeGeeks.scriptasaurus.init(opts.useLegacyIe as any);
 
 		ugsEditorPlus.actions.init();
 		ugsEditorPlus.topMenus.init();
@@ -36,7 +37,7 @@ ugsEditorPlus.songAmatic = (function() {
 		ugsEditorPlus.actions.run();
 	};
 
-	var mergeOptions = function(options) {
+	var mergeOptions = function(options?: Partial<UgsEditorPlus.Options>) {
 		var opts = {
 			hideChordEnclosures: !ukeGeeks.settings.opts.retainBrackets,
 			sortAlphabetical: ukeGeeks.settings.opts.sortAlphabetical,

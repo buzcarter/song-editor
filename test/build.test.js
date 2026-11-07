@@ -15,6 +15,8 @@ test('dist has the bundle, CSS, markup and images', () => {
     'js/ugsEditorPlus.merged.js',
     'js/ugsEditorPlus.min.js',
     'markup.js',
+    'markup.d.ts',
+    'ugsEditorPlus.d.ts',
     'css/ugsEditorPlus.merged.css',
     'css/ugsEditorPlus.min.css',
     'css/ugsEditorPlus.print.css',
@@ -45,7 +47,9 @@ test('the bundle leaves out the Songbook-only song list code', () => {
 
 test('package.json exports point at built files', () => {
   const pkg = require('../package.json');
-  for (const target of Object.values(pkg.exports)) {
+  // an export is a path, or { types, default } paths
+  const targets = Object.values(pkg.exports).flatMap((t) => (typeof t === 'string' ? [t] : Object.values(t)));
+  for (const target of [...targets, pkg.main, pkg.types]) {
     if (!target.includes('*')) {
       assert.ok(fs.existsSync(path.join(DIST, '..', target)), `${target} exists`);
     }

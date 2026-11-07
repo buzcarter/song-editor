@@ -15,4 +15,4 @@
  * @module ugsEditorPlus
  * @main ugsEditorPlus
  **/
-var ugsEditorPlus = window.ugsEditorPlus || {};
+var ugsEditorPlus: UgsEditorPlus = window.ugsEditorPlus || ({} as UgsEditorPlus);

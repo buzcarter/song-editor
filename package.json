@@ -22,10 +22,20 @@
   ],
   "type": "commonjs",
   "main": "./dist/markup.js",
+  "types": "./dist/markup.d.ts",
   "exports": {
-    ".": "./dist/markup.js",
-    "./markup": "./dist/markup.js",
-    "./browser": "./dist/js/ugsEditorPlus.min.js",
+    ".": {
+      "types": "./dist/markup.d.ts",
+      "default": "./dist/markup.js"
+    },
+    "./markup": {
+      "types": "./dist/markup.d.ts",
+      "default": "./dist/markup.js"
+    },
+    "./browser": {
+      "types": "./dist/ugsEditorPlus.d.ts",
+      "default": "./dist/js/ugsEditorPlus.min.js"
+    },
     "./css": "./dist/css/ugsEditorPlus.min.css",
     "./dist/*": "./dist/*",
     "./package.json": "./package.json"

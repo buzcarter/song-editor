@@ -43,7 +43,7 @@
    * @param [options.aceUrl] {string} folder holding ace-chordpro.min.js; default "ace/" in the bundle's folder
    * @return {Object} `{ getSong() }`
    */
-  ugsEditorPlus.songAmatic.mount = (container, options) => {
+  ugsEditorPlus.songAmatic.mount = (container: HTMLElement, options?: UgsEditorPlus.MountOptions) => {
     const { song = '', save, imgUrl, ...editorOptions } = options || {};
     const canSave = typeof save === 'function';
 
@@ -61,7 +61,7 @@
 
     return {
       /** @return {string} the ChordPro text in the Edit Song box */
-      getSong: () => document.getElementById('chordProSource').value,
+      getSong: () => (document.getElementById('chordProSource') as HTMLTextAreaElement).value,
     };
   };
 })();

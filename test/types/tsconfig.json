@@ -1,0 +1,16 @@
+{
+  // test/types.test.js compiles host code against the shipped declarations in dist/
+  // (run `npm run build` first). test/types.test.js copies this folder next to a node_modules/ that
+  // links to this package, so it resolves like an installed one, through package.json "exports".
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM"],
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "noEmit": true,
+    "strict": true,
+    "types": [],
+    "preserveSymlinks": true
+  },
+  "files": ["host-page.ts", "server.cts"]
+}

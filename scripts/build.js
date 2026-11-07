@@ -68,6 +68,11 @@ const LESS_ENTRY = 'src/less/ugsEditorPlus_merged.less';
 const COPIES = {
   js: [['src/markup', 'markup.js']],
   css: [['src/css/ugsEditorPlus.print.css', 'css/ugsEditorPlus.print.css']],
+  // type declarations, hand-written; `npm run typecheck` checks the sources against them
+  types: [
+    ['src/types/ugsEditorPlus.d.ts', 'ugsEditorPlus.d.ts'],
+    ['src/types/markup.d.ts', 'markup.d.ts'],
+  ],
 };
 const IMG_DIR = 'img/editor';
 
@@ -140,6 +145,9 @@ async function buildJs() {
   await write(path.join(DIST, `js/${name}.min.js`), result.code + '\n');
   for (const [from, to] of COPIES.js) {
     await write(path.join(DIST, to), await readSource(sourceFile(from)));
+  }
+  for (const [from, to] of COPIES.types) {
+    await copy(path.join(ROOT, from), path.join(DIST, to));
   }
 }
 
