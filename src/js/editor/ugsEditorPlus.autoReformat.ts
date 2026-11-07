@@ -1,3 +1,18 @@
+declare namespace UgsEditorPlus {
+	/** The song's elements plus the Reformat dialog's */
+	interface ReformatElements extends SongElements {
+		reformatTextBox: HTMLTextAreaElement;
+		reformatDlg: HTMLDivElement;
+	}
+	interface AutoReformat {
+		/** Offers to convert the song to ChordPro when it has no chords (the Reformat dialog) */
+		run(elements: SongElements): void;
+	}
+}
+interface UgsEditorPlus {
+	autoReformat: UgsEditorPlus.AutoReformat;
+}
+
 /**
  *
  * @class autoReformat
@@ -9,40 +24,40 @@ ugsEditorPlus.autoReformat = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.AutoReformat;
 
 	/**
 	 * associative array/JSON handles to key/frequently accessed DOM Elements (see init()
 	 * @property _ele
 	 * @type {JSON}
 	 */
-	var _ele = {};
+	var _ele = {} as UgsEditorPlus.ReformatElements;
 
-	var _formatted;
+	var _formatted: string;
 	var _isDisabled = false;
 
 	_public.run = function(elements){
 		if (_isDisabled){
 			return;
 		}
-		_ele = elements;
-		_ele.reformatTextBox = document.getElementById('reformatSource');
-		_ele.reformatDlg = document.getElementById('reformatDlg');
+		_ele = elements as UgsEditorPlus.ReformatElements;
+		_ele.reformatTextBox = document.getElementById('reformatSource') as HTMLTextAreaElement;
+		_ele.reformatDlg = document.getElementById('reformatDlg') as HTMLDivElement;
 
-		document.getElementById('reformatYesBtn').onclick = function() {
+		document.getElementById('reformatYesBtn')!.onclick = function() {
 			doOk();
 			return false;
 		};
-		document.getElementById('reformatNoBtn').onclick = function() {
+		document.getElementById('reformatNoBtn')!.onclick = function() {
 			doClose();
 			return false;
 		};
 
 		// need to reset on reload
-		var chk = document.getElementById('reformatDisable');
+		var chk = document.getElementById('reformatDisable') as HTMLInputElement;
 		chk.checked = false;
 		chk.onclick = function() {
-			doDisable(this.checked);
+			doDisable((this as HTMLInputElement).checked);
 		};
 
 		runNow();
@@ -58,7 +73,7 @@ ugsEditorPlus.autoReformat = (function() {
 		ukeGeeks.toolsLite.addClass(_ele.reformatDlg, 'isHidden');
 	};
 
-	var doDisable = function(isDisabled){
+	var doDisable = function(isDisabled: boolean){
 		_isDisabled = isDisabled;
 	};
 

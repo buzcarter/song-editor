@@ -34,16 +34,12 @@ interface UgsEditorPlus {
   submenuUi: UgsEditorPlus.SubmenuUi;
   optionsDlg: UgsEditorPlus.OptionsDlg;
   chordBuilder: UgsEditorPlus.ChordBuilderBridge;
-  autoReformat: UgsEditorPlus.AutoReformat;
 }
 
 declare namespace UgsEditorPlus {
   /** A song read by Song Formatter */
   type Song = import('@ukegeeks/song-formatter').Song;
 
-  interface AutoReformat {
-    run(ele: SongElements): void;
-  }
 }
 
 /** The Chord Builder's parts (placeholders until its sources are TypeScript) */
