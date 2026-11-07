@@ -1,3 +1,13 @@
+declare namespace UgsEditorPlus {
+	interface Resize {
+		/** Opens the Fullscreen (Ace) editor for this dialog, or closes it */
+		toggle(dlgElement: HTMLElement): boolean;
+	}
+}
+interface UgsEditorPlus {
+	resize: UgsEditorPlus.Resize;
+}
+
 /**
  * Resizes an overlay to fill the window (this is a 1.0, so "fill" is relative -- it gets much bigger)
  * @class resize
@@ -9,14 +19,14 @@ ugsEditorPlus.resize = (function(){
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.Resize;
 
 	var dom = ugsEditorPlus.dom;
 
-	var dlg = null;
-	var aceLayer = null;
-	var help = null;
-	var editor = null;
+	var dlg: HTMLElement | null = null;
+	var aceLayer: HTMLElement | null = null;
+	var help: HTMLElement | null = null;
+	var editor: AceEditor | null = null;
 
 	/**
 	 * miliseconds to fade in/out editor
@@ -48,7 +58,7 @@ ugsEditorPlus.resize = (function(){
 	 * @private
 	 * @return {void}
 	 */
-	var setup = function(dlgElement){
+	var setup = function(dlgElement: HTMLElement){
 		dlg = dlgElement;
 		// static markup only
 		document.body.insertAdjacentHTML('beforeend', '<div id="aceHeader"><button class="aceSideBtn" title="Show options &amp; help"><span></span><span></span><span></span></button><strong>Edit Song</strong><a href="#exit-fullscreen">Exit fullscreen</a></div><div id="aceEditor"></div><div id="aceHelp"></div>');
@@ -58,25 +68,25 @@ ugsEditorPlus.resize = (function(){
 
 		help = document.getElementById('aceHelp');
 
-		dom.one('#aceHeader a').addEventListener('click', function(e) {
+		dom.one('#aceHeader a')!.addEventListener('click', function(e) {
 			e.preventDefault();
 			hideAce();
 		});
-		dom.one('#aceHeader button').addEventListener('click', onShowHelpClicked);
+		dom.one('#aceHeader button')!.addEventListener('click', onShowHelpClicked);
 	};
 
-	var onShowHelpClicked = function(e) {
+	var onShowHelpClicked = function(e: Event) {
 		e.preventDefault();
 		showHelp(!isHelpOpen);
 	};
 
-	var showHelp = function(isShow) {
+	var showHelp = function(isShow: boolean) {
 		isHelpOpen = isShow;
 
-		dom.animate(help, {
+		dom.animate(help!, {
 			left: isShow ? '0px' : '-350px'
 		}, SLIDE_SPEED);
-		dom.animate(aceLayer, {
+		dom.animate(aceLayer!, {
 			left: isShow ? '350px' : '0px'
 		}, SLIDE_SPEED);
 	};
@@ -87,9 +97,9 @@ ugsEditorPlus.resize = (function(){
 	 * @param  {string} fileName
 	 * @return {string}
 	 */
-	var getPath = function(fileName) {
+	var getPath = function(fileName: string) {
 		var path = '',
-			lower, pos;
+			lower: string, pos: number;
 
 		fileName = fileName.toLowerCase();
 
@@ -134,14 +144,14 @@ ugsEditorPlus.resize = (function(){
 				});
 				copySongToAce();
 
-				help.innerHTML = ugsEditorPlus.aceHelpHtml;
+				help!.innerHTML = ugsEditorPlus.aceHelpHtml;
 			});
 	};
 
 	var copySongToAce = function() {
 		dom.fadeIn(aceLayer, FADE_SPEED);
-		editor.setValue(document.getElementById('chordProSource').value);
-		editor.gotoLine(1);
+		editor!.setValue((document.getElementById('chordProSource') as HTMLTextAreaElement).value);
+		editor!.gotoLine(1);
 		dom.show(help);
 	};
 
@@ -158,7 +168,7 @@ ugsEditorPlus.resize = (function(){
 		dom.fadeOut(aceLayer, FADE_SPEED);
 		dom.fadeOut(help, FADE_SPEED);
 		if (editor !== null) {
-			document.getElementById('chordProSource').value = editor.getValue();
+			(document.getElementById('chordProSource') as HTMLTextAreaElement).value = editor.getValue();
 		}
 
 		document.documentElement.classList.remove('aceEditorActive');
@@ -171,7 +181,7 @@ ugsEditorPlus.resize = (function(){
 	 * @param  {DOM-element} dlgElement handle to Overlay/dialog being resized
 	 * @return {void}
 	 */
-	_public.toggle = function(dlgElement){
+	_public.toggle = function(dlgElement: HTMLElement){
 		if (dlg === null) {
 		setup(dlgElement);
 		}

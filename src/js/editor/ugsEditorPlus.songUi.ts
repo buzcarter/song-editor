@@ -1,3 +1,13 @@
+declare namespace UgsEditorPlus {
+	interface SongUi {
+		/** Shows the song's title, artist, album, subtitle and meta on the page */
+		update(song: Song): void;
+	}
+}
+interface UgsEditorPlus {
+	songUi: UgsEditorPlus.SongUi;
+}
+
 /**
  * Handles transfering the easy text bits of a Song -- title, artist, etc -- to the page.
  * @class songUi
@@ -9,7 +19,7 @@ ugsEditorPlus.songUi = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.SongUi;
 
 	/**
 	 * Sets an element's Inner HTML and sets visibility based on whether the value is empty (or not)
@@ -18,7 +28,7 @@ ugsEditorPlus.songUi = (function() {
 	 * @param id {string} element's Id
 	 * @param value {string} content value
 	 */
-	var trySet = function(id, value){
+	var trySet = function(id: string, value: string){
 		var hasValue = value && (value.length > 0);
 		var h = document.getElementById(id);
 		if (!h){
@@ -35,14 +45,14 @@ ugsEditorPlus.songUi = (function() {
 	 * @param song {Song(Object)}
 	 */
 	_public.update = function(song){
-		var h = document.getElementById('songTitle');
+		var h = document.getElementById('songTitle')!;
 		h.innerHTML = (song.title.length > 0) ? song.title : 'Untitled-Song';
 
 		trySet('songArtist', song.artist);
 		trySet('songAlbum', song.album);
 		trySet('songSubtitle', song.st);
 
-		h = document.getElementById('songMeta');
+		h = document.getElementById('songMeta')!;
 		if (!song.ugsMeta || (song.ugsMeta.length < 1)){
 			h.style.display = 'none';
 		}

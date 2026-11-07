@@ -1,3 +1,8 @@
+interface UgsEditorPlus {
+	/** HTML for the Fullscreen editor's help panel */
+	aceHelpHtml: string;
+}
+
 /**
  * Help shown beside the fullscreen (Ace) editor: keyboard shortcuts and ChordPro snippets.
  * It used to ship inside js/ace/ace.js as `ugsAce.helpHtml`; the Ace ChordPro extension

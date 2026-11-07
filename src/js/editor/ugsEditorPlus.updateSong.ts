@@ -11,14 +11,14 @@ ugsEditorPlus.updateSong = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.UpdateSong;
 
 	/**
 	 * The host's save callback: takes the ChordPro text, returns (a promise of) the message to show.
 	 * @property _save
 	 * @type {Function}
 	 */
-	var _save = null;
+	var _save: UgsEditorPlus.SaveHandler | null = null;
 
 	/**
 	 * Name / Value pairs for CSS selectors of HTML elements to be manipulated
@@ -47,14 +47,14 @@ ugsEditorPlus.updateSong = (function() {
 	 * @param ajaxUri {string}
 	 * @param filename {string}
 	 */
-	_public.init = function(ajaxUri, filename) {
-		_public.setSaveHandler(function(song) {
+	_public.init = function(ajaxUri: string, filename: string) {
+		_public.setSaveHandler(function(song: string) {
 			var data = {
 				'handler': 'ugs_update_81jr',
 				'filename': filename,
 				'song': song
 			};
-			return ugsEditorPlus.dom.postJson(ajaxUri, data).then(function(data) {
+			return ugsEditorPlus.dom.postJson(ajaxUri, data).then(function(data: { HasErrors: boolean, Message: string }) {
 				//if (data.HasErrors)
 				return data.Message;
 			});
@@ -66,10 +66,10 @@ ugsEditorPlus.updateSong = (function() {
 	 * @method setSaveHandler
 	 * @param save {Function} takes the ChordPro text; returns a message, or a promise of one. A rejection shows the "problem saving" alert.
 	 */
-	_public.setSaveHandler = function(save) {
+	_public.setSaveHandler = function(save: UgsEditorPlus.SaveHandler) {
 		_save = save;
 
-		ugsEditorPlus.dom.on(_selectors.button, 'click', function(e) {
+		ugsEditorPlus.dom.on(_selectors.button, 'click', function(e: Event) {
 			e.preventDefault();
 			doUpdate();
 		});
@@ -82,15 +82,15 @@ ugsEditorPlus.updateSong = (function() {
 	 * @property _hideTimer
 	 * @type {Number}
 	 */
-	var _hideTimer = null;
+	var _hideTimer: number | null = null;
 
-	var ele = function(name) {
+	var ele = function(name: keyof typeof _selectors) {
 		return ugsEditorPlus.dom.one(_selectors[name]);
 	};
 
 	var showBusy = function(){
 		var dom = ugsEditorPlus.dom;
-		clearTimeout(_hideTimer);
+		clearTimeout(_hideTimer as number);
 		dom.hide(ele('message'));
 		if (dom.isVisible(ele('messageBox'))) {
 			// still showing (or fading out) the last message
@@ -102,15 +102,15 @@ ugsEditorPlus.updateSong = (function() {
 		dom.show(ele('spinner'));
 	};
 
-	var showMessage = function(message){
-		var msg = ele('message');
+	var showMessage = function(message: string){
+		var msg = ele('message')!;
 		ugsEditorPlus.dom.hide(ele('spinner'));
 		msg.textContent = message;
 		ugsEditorPlus.dom.show(msg);
 	};
 
 	var hideMessage = function(){
-		clearTimeout(_hideTimer);
+		clearTimeout(_hideTimer as number);
 		_hideTimer = setTimeout(function() {
 			ugsEditorPlus.dom.fadeOut(ele('messageBox'), 'slow');
 		}, 3000);
@@ -125,10 +125,10 @@ ugsEditorPlus.updateSong = (function() {
 		showBusy();
 		Promise.resolve()
 			.then(function() {
-				return _save(ele('song').value);
+				return _save!((ele('song') as HTMLTextAreaElement).value);
 			})
 			.then(function(message) {
-				showMessage(message === undefined || message === null ? 'Saved.' : message);
+				showMessage(message === undefined || message === null ? 'Saved.' : message as string);
 			}, function() {
 				alert('Encountered a problem saving your Song. Please copy your song to another program until this issue is resolved.');
 			})

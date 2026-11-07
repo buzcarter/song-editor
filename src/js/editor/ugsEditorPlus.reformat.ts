@@ -1,4 +1,26 @@
-var ugsEditorPlus = window.ugsEditorPlus || {};
+declare namespace UgsEditorPlus {
+	/** One line of the text being converted (see LineObj) */
+	interface ReformatLine {
+		source: string;
+		wordCount: number;
+		spaceCount: number;
+		words: string[];
+		chordCount: number;
+		/** one of _enums.lineTypes */
+		lineType: number;
+	}
+	interface Reformat {
+		/** Converts "chords above the lyrics" text to ChordPro */
+		run(text: string): string;
+		/** Did the last run() find any chord lines? */
+		hasChords(): boolean;
+	}
+}
+interface UgsEditorPlus {
+	reformat: UgsEditorPlus.Reformat;
+}
+
+var ugsEditorPlus: UgsEditorPlus = window.ugsEditorPlus || ({} as UgsEditorPlus);
 
 /**
  * TK
@@ -12,7 +34,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {};
+	var _public = {} as UgsEditorPlus.Reformat;
 
 	var _hasChords = false;
 
@@ -37,14 +59,14 @@ ugsEditorPlus.reformat = (function() {
 	 * @constructor
 	 * @for reformat
 	 */
-	var LineObj = function() {
+	var LineObj = function(this: UgsEditorPlus.ReformatLine) {
 		this.source = '';
 		this.wordCount = 0;
 		this.spaceCount = 0;
 		this.words = [];
 		this.chordCount = 0;
 		this.lineType = _enums.lineTypes.blank;
-	};
+	} as unknown as new () => UgsEditorPlus.ReformatLine;
 
 	var _re = {
 		words : /\b(\S+)\b/gi,
@@ -96,8 +118,8 @@ ugsEditorPlus.reformat = (function() {
 	 * @param text {string} string RAW song
 	 * @return {array of Lines}
 	 */
-	var read = function(text){
-		var lineAry = [];
+	var read = function(text: string){
+		var lineAry: UgsEditorPlus.ReformatLine[] = [];
 		text = text.replace('	', '    ');
 		var lines = text.split('\n');
 		for (var i = 0; i < lines.length; i++) {
@@ -125,7 +147,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param line {line}
 	 * @return {_enums.lineTypes}
 	 */
-	var toLineType = function(line){
+	var toLineType = function(line: UgsEditorPlus.ReformatLine){
 		if ((line.spaceCount + line.wordCount) < 1){
 			return _enums.lineTypes.blank;
 		}
@@ -150,7 +172,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param words {array of words}
 	 * @return [int] number found
 	 */
-	var countChords = function(words){
+	var countChords = function(words: string[]){
 		var count = 0;
 		for (var i = 0; i < words.length; i++) {
 			if (words[i].match(_re.chordNames)) {
@@ -166,7 +188,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param lines {array of Lines}
 	 * @return [string]
 	 */
-	var merge = function(lines){
+	var merge = function(lines: UgsEditorPlus.ReformatLine[]){
 		var s = '';
 		var thisLine, nextLine;
 		for (var i = 0; i < lines.length; ) {
@@ -206,7 +228,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param index {int} current line's index within line array
 	 * @return [bool]
 	 */
-	var isTabBlock = function(lines, index){
+	var isTabBlock = function(lines: UgsEditorPlus.ReformatLine[], index: number){
 		if (index + 3 >= lines.length){
 			return false;
 		}
@@ -225,7 +247,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param lyricsLine {string} the line of lyrics
 	 * @return [string] merged lines
 	 */
-	var mergeLines = function(chordLine, lyricsLine){
+	var mergeLines = function(chordLine: string, lyricsLine: string){
 		while (lyricsLine.length < chordLine.length){
 			lyricsLine += ' ';
 		}
@@ -237,9 +259,9 @@ ugsEditorPlus.reformat = (function() {
 			s += lyricsLine.substr(offset, lead[0].length);
 			offset = lead[0].length;
 		}
-		for (var j = 0; j < blocks.length; j++) {
-			s += '[' + blocks[j].replace(_re.spaces, '') + ']' + lyricsLine.substr(offset, blocks[j].length);
-			offset += blocks[j].length;
+		for (var j = 0; j < blocks!.length; j++) {
+			s += '[' + blocks![j].replace(_re.spaces, '') + ']' + lyricsLine.substr(offset, blocks![j].length);
+			offset += blocks![j].length;
 		}
 		if (offset < lyricsLine.length){
 			s += lyricsLine.substr(offset, lyricsLine.length);
@@ -253,7 +275,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param chordLine {string} the line containing the chord names
 	 * @return [string] each word of input line gets bracketed
 	 */
-	var wrapChords = function(chordLine){
+	var wrapChords = function(chordLine: string){
 		var chords = chordLine.replace(_re.spaces, ' ').split(' ');
 		var s = '';
 		for (var i = 0; i < chords.length; i++) {

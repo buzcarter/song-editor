@@ -40,3 +40,11 @@ test('defaults: no Save button, relative image folder, empty song', () => {
   assert.ok(out.includes('src="img/editor/busy.gif"'));
   assert.ok(out.includes('<textarea id="chordProSource" wrap="off"></textarea>'));
 });
+
+test('Node ESM can import the functions by name', async () => {
+  // Node reads a CommonJS file's names from its source (`module.exports.name =`); the UMD wrapper hides them otherwise
+  const mod = await import('../dist/markup.js');
+  assert.equal(typeof mod.editorHtml, 'function');
+  assert.equal(typeof mod.escapeHtml, 'function');
+  assert.equal(mod.default.editorHtml, mod.editorHtml);
+});

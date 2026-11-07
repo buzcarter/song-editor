@@ -12,25 +12,31 @@
  * htmlspecialchars with double_encode=false), because ChordPro files can
  * contain them ("Lyrics &amp; Music &copy; 1933").
  */
-(function (root, factory) {
+(function (root: typeof globalThis, factory: () => typeof import('./types/markup')) {
   const api = factory();
   if (typeof module === 'object' && module.exports) {
     module.exports = api;
+    // Named again so Node's `import { editorHtml } from '@ukegeeks/song-editor'` works: Node finds a
+    // CommonJS file's names by reading its source for `module.exports.name =`, not by running it.
+    module.exports.editorHtml = api.editorHtml;
+    module.exports.escapeHtml = api.escapeHtml;
   } else {
-    root.ugsEditorPlus = root.ugsEditorPlus || {};
+    root.ugsEditorPlus = root.ugsEditorPlus || ({} as UgsEditorPlus);
     root.ugsEditorPlus.markup = api;
   }
 }(typeof self !== 'undefined' ? self : this, () => {
-  const ESCAPES = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+  type EditorHtmlOptions = import('./types/markup').EditorHtmlOptions;
+
+  const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
 
   // "&" that does NOT already start an entity like &amp; &copy; &#39; &#x2665;
   const BARE_AMP_OR_SPECIAL = /&(?!#\d+;|#x[0-9a-f]+;|[a-z][a-z0-9]*;)|[<>"']/gi;
 
-  const esc = (value) => (value === null || value === undefined || value === false
+  const esc = (value: unknown) => (value === null || value === undefined || value === false
     ? ''
     : String(value).replace(BARE_AMP_OR_SPECIAL, (c) => ESCAPES[c]));
 
-  const displayStyle = (value) => (value && value.length > 0 ? 'block' : 'none');
+  const displayStyle = (value: string | undefined) => (value && value.length > 0 ? 'block' : 'none');
 
   /**
    * @param {object} [options]
@@ -43,7 +49,7 @@
    * @param {string} [options.body] the ChordPro text
    * @return {string} HTML
    */
-  const editorHtml = (options) => {
+  const editorHtml = (options?: EditorHtmlOptions) => {
     const o = Object.assign({ canSave: false, imgUrl: 'img/editor/' }, options);
     return `
 <section id="scalablePrintArea" class="scalablePrintArea">

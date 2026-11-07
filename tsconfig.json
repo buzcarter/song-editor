@@ -1,0 +1,23 @@
+{
+  // Type-checks src/ (`npm run typecheck`). The build doesn't use this file: scripts/build.js
+  // only strips the types from each file (see readSource there).
+  //
+  // The sources are plain scripts, not modules: no import/export, one shared global scope,
+  // joined into one bundle in the order scripts/build.js lists them.
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["ES2020", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "noEmit": true,
+    "strict": true,
+    // The scripts run in sloppy mode today; TypeScript must not add "use strict"
+    "alwaysStrict": false,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    // only the declarations in src/types, no @types packages
+    "types": []
+  },
+  "include": ["src/**/*.ts"]
+}
