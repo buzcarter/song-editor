@@ -15,7 +15,9 @@ interface UgsEditorPlus {
 }
 
 /**
- *
+ * When a song has no [chords] (actions.run() calls this), tries reformat.run() on it. If that
+ * finds chord lines, shows the Reformat dialog: "Yes" puts the converted song in the Edit Song box.
+ * The dialog's checkbox stops it asking again until the page reloads.
  * @class autoReformat
  * @namespace ugsEditorPlus
  */

@@ -9,7 +9,8 @@ interface UgsEditorPlus {
 }
 
 /**
- *
+ * Connects the Chord Builder (the `ugsChordBuilder` global) to the editor: makes the builder
+ * and opens its dialog from the toolbar button, reloading the song's chords each time.
  * Dependencies: ugsChordBuilder classes
  * @class chordBuilder
  * @namespace ugsEditorPlus

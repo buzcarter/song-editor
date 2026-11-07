@@ -23,7 +23,9 @@ interface UgsEditorPlus {
 var ugsEditorPlus: UgsEditorPlus = window.ugsEditorPlus || ({} as UgsEditorPlus);
 
 /**
- * TK
+ * Converts a song pasted the way most websites show it -- a line of chord names above each
+ * line of lyrics -- into ChordPro, with each chord in [brackets] at its place in the lyrics.
+ * Four lines of tablature in a row become a {start_of_tab} block.
  * @class reformat
  * @namespace ugsEditorPlus
  * @singleton

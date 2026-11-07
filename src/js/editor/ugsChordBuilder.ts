@@ -769,7 +769,9 @@ ugsChordBuilder.chordCanvas = (function() {
 }());
 
 /**
- *
+ * Turns the dots on the fretboard into a ChordPro chord definition,
+ * `{define: Name frets 0 2 3 2 fingers 0 1 2 3}`, plus an `add: string 0 fret 1 finger 1` for each
+ * string with a second dot. The chooser list saves it into the song.
  * @class export
  * @namespace ugsChordBuilder
  * @static

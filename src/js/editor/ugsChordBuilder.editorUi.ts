@@ -13,7 +13,9 @@ interface UgsChordBuilder {
 
 
 /**
- * Doing
+ * The Chord Builder's second panel: two stacked canvases (the fretboard and dots underneath,
+ * the cursor on top), the toolbox (dot or finger tool, slide up/down), the name and starting
+ * fret fields, and the {define} it makes. Add/Update hands that to chooserList.save().
  * @class editorUi
  * @constructor
  * @namespace ugsChordBuilder

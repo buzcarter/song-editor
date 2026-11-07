@@ -30,7 +30,9 @@ interface UgsChordBuilder {
 }
 
 /**
- *
+ * The Chord Builder's first panel: lists the song's `{define: ...}` chords, read from the
+ * Edit Song box. Opening one (or "new") hands it to the builder; saving writes the definition
+ * back into the Edit Song box and redraws the song (actions.run()).
  * @class chooserList
  * @namespace ugsChordBuilder
  * @static

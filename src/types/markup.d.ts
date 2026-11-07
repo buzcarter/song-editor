@@ -15,8 +15,11 @@ export interface EditorHtmlOptions {
   imgUrl?: string;
   /** Song title, pre-rendered into the songsheet */
   title?: string;
+  /** Pre-rendered into the songsheet, under the title */
   subtitle?: string;
+  /** Pre-rendered into the songsheet */
   artist?: string;
+  /** Pre-rendered into the songsheet */
   album?: string;
   /** The ChordPro text */
   body?: string;
