@@ -140,6 +140,39 @@ test('getSong() returns the Fullscreen editor text while it is open', async () =
   assert.deepEqual(errors, []);
 });
 
+// Song text is untrusted: a song file can come from anywhere. None of it may become markup.
+// (No spaces in the tag: the Chord Builder turns spaces in a chord name into dashes.)
+const INJECTED = '<b/data-injected=1>X</b>';
+
+test("song text doesn't become markup in the songsheet", () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const song = ['title', 'subtitle', 'artist', 'album', 'key'].map((name) => `{${name}: A${INJECTED}}`).join('\n')
+    + `\n[C]Hello ${INJECTED}\n`;
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song });
+  assert.equal(document.querySelectorAll('[data-injected]').length, 0);
+  assert.equal(document.getElementById('songTitle').textContent, `A${INJECTED}`);
+  assert.deepEqual(errors, []);
+});
+
+test("a {define} chord name doesn't become markup in the Chord Builder", () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const name = `Zz${INJECTED}`;
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: `{define: ${name} frets 1 2 3 4}\n[C]hello\n`,
+  });
+
+  // the chord list is filled when the editor mounts
+  const item = document.querySelector('#cdBldPick li[data-id]:not(.newChord)');
+  assert.equal(item.textContent, name);
+  assert.equal(document.querySelectorAll('[data-injected]').length, 0, 'chord list');
+
+  // opening the chord shows its {define} in the builder (which shortens long names)
+  item.click();
+  assert.match(document.getElementById('cdBldOutput').textContent, /^\{define: Zz<b\/data-injected=1 frets 1 2 3 4/);
+  assert.equal(document.querySelectorAll('[data-injected]').length, 0, 'builder output');
+  assert.deepEqual(errors, []);
+});
+
 test("a theme colors a muted string's X like its fret numbers", () => {
   const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
   window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
