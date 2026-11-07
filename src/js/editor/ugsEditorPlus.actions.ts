@@ -215,11 +215,10 @@ ugsEditorPlus.actions = (function() {
 	 * Zooms (scales) fonts
 	 * @method doSetFontSize
 	 * @private
-	 * @param value {string} point-size; value of the clicked value item
+	 * @param value {string|number} point-size: the clicked menu item's value (string) or options.fontSize (number)
 	 */
 	var doSetFontSize = function(value: string | number) {
-		// @ts-expect-error parseFloat takes one argument (the 10 is ignored)
-		var pt = parseFloat(value, 10);
+		var pt = parseFloat(String(value));
 		_ele.scalableArea.style.fontSize = pt + 'pt';
 	};
 
