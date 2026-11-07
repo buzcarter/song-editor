@@ -139,3 +139,15 @@ test('getSong() returns the Fullscreen editor text while it is open', async () =
   assert.equal(editor.getSong(), aceText);
   assert.deepEqual(errors, []);
 });
+
+test("a theme colors a muted string's X like its fret numbers", () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: '{define: Zx frets x 2 3 4}\n[Zx]muted\n',
+    theme: 'reversed',
+  });
+  const x = document.querySelector('#ukeChordsCanvas svg g#X');
+  assert.ok(x, 'the muted string has an X');
+  assert.match(x.getAttribute('style'), /stroke:#999999;/); // "reversed" fretText; it was black before
+  assert.deepEqual(errors, []);
+});
