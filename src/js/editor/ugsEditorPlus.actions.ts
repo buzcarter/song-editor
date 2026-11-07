@@ -13,6 +13,30 @@ declare namespace UgsEditorPlus {
 		/** Redraws the song from the Edit Song box; `isDoBackup` makes it the new "original" for transposing */
 		run(isDoBackup?: boolean): void;
 	}
+	/**
+	 * The settings an "ugs:option" event can change, and each one's value. Menus send the
+	 * clicked item's value (its href without the "#"); the Options dialog's checkboxes send booleans.
+	 */
+	interface OptionValues {
+		zoomFonts: string;
+		zoomDiagrams: string;
+		layout: string;
+		placement: string;
+		tuning: string;
+		colors: string;
+		transpose: string;
+		paper: string;
+		update: string;
+		showEnclosures: boolean;
+		hideCommonChords: boolean;
+		sortAlphabetical: boolean;
+		setCommonChords: string | string[];
+	}
+	/** An "ugs:option" event's detail: a menu or the Options dialog changed a setting */
+	type OptionChange = { [A in keyof OptionValues]: { action: A; value: OptionValues[A] } }[keyof OptionValues];
+}
+interface DocumentEventMap {
+	'ugs:option': CustomEvent<UgsEditorPlus.OptionChange>;
 }
 interface UgsEditorPlus {
 	actions: UgsEditorPlus.Actions;
@@ -77,7 +101,7 @@ ugsEditorPlus.actions = (function() {
 			scalableArea : document.getElementById('scalablePrintArea')!
 		};
 
-		document.addEventListener('ugs:option', function(e: any) {
+		document.addEventListener('ugs:option', function(e) {
 			doAction(e.detail.action, e.detail.value);
 		});
 

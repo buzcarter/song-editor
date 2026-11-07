@@ -31,6 +31,11 @@ ugsEditorPlus.dom = (function() {
   // (animations of different properties -- say a fade and a slide -- run side by side)
   var _running = new WeakMap<HTMLElement, UgsEditorPlus.DomAnimation[]>();
 
+  // a CSS property you can read and set by name on `element.style`, such as 'opacity' or 'height'
+  type CssProperty = {
+    [K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string ? K : never;
+  }[keyof CSSStyleDeclaration] & string;
+
   var toMs = function(speed?: UgsEditorPlus.Speed) {
     if (typeof speed === 'number') {
       return speed;
@@ -45,8 +50,8 @@ ugsEditorPlus.dom = (function() {
    * @param context {DOM-element} (optional) defaults to document
    * @return {DOM-element|null}
    */
-  _public.one = function(selector: string, context?: ParentNode | null) {
-    return (context || document).querySelector(selector) as any;
+  _public.one = function<E extends HTMLElement = HTMLElement>(selector: string, context?: ParentNode | null) {
+    return (context || document).querySelector<E>(selector);
   };
 
   /**
@@ -143,18 +148,19 @@ ugsEditorPlus.dom = (function() {
   _public.animate = function(ele, props, speed, onDone) {
     var ms = toMs(speed);
     var computed = window.getComputedStyle(ele);
-    var names = Object.keys(props);
+    // (Object.keys can't type its result: props' keys are CSS property names, as `animate` documents)
+    var names = Object.keys(props) as CssProperty[];
     var ends: Record<string, [string, string]> = {};
 
     // snapshot the starting values BEFORE dropping any running transition
     names.forEach(function(name) {
       var value = props[name];
-      ends[name] = Array.isArray(value) ? value : [computed[name as any] as string, value];
+      ends[name] = Array.isArray(value) ? value : [computed[name], value];
     });
     // drop running transitions of these properties, jump to the start values
     stop(ele, names);
     names.forEach(function(name) {
-      ele.style[name as any] = ends[name][0];
+      ele.style[name] = ends[name][0];
     });
     // force a reflow so the browser "sees" the start values before transitioning
     void ele.offsetWidth;
@@ -168,7 +174,7 @@ ugsEditorPlus.dom = (function() {
     _running.set(ele, running(ele).concat(anim));
     setTransition(ele);
     names.forEach(function(name) {
-      ele.style[name as any] = ends[name][1];
+      ele.style[name] = ends[name][1];
     });
 
     anim.id = setTimeout(function() {

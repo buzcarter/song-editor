@@ -80,7 +80,7 @@ ugsEditorPlus.optionsDlg = (function() {
 		});
 	};
 
-	var triggerNotify = function(action: string, value: unknown) {
+	var triggerNotify = function<A extends keyof UgsEditorPlus.OptionValues>(action: A, value: UgsEditorPlus.OptionValues[A]) {
 		ugsEditorPlus.dom.trigger('ugs:option', {
 			action: action,
 			value: value

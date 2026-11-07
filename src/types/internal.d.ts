@@ -52,8 +52,14 @@ declare var ace: {
   edit(elementId: string): AceEditor;
 };
 
+/** The parts of Ace's Editor that Fullscreen uses (src/js/editor/ugsEditorPlus.resize.ts) */
 interface AceEditor {
-  [key: string]: any;
+  setTheme(theme: string): void;
+  getSession(): { setMode(mode: string): void };
+  setOptions(options: Record<string, unknown>): void;
+  setValue(text: string, cursorPos?: number): string;
+  getValue(): string;
+  gotoLine(lineNumber: number, column?: number, animate?: boolean): void;
 }
 
 /** src/js/libs/lazyload.js (https://github.com/rgrove/lazyload/) */
@@ -63,7 +69,7 @@ declare var LazyLoad: {
 };
 
 /** CommonJS, for src/markup.ts's UMD wrapper (Node) */
-declare var module: { exports: any } | undefined;
+declare var module: { exports: Partial<typeof import('./markup')> } | undefined;
 
 /**
  * The editor's internal parts are on the same global as the public API (src/types/ugsEditorPlus.d.ts).

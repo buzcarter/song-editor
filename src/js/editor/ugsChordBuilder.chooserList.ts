@@ -233,10 +233,11 @@ ugsChordBuilder.chooserList = (function() {
 	 * @method onClick
 	 * @param  {Event} evt
 	 */
-	var onClick = function(evt: any) {
+	var onClick = function(evt: MouseEvent) {
 		evt.preventDefault();
-		_currentChord = dictionaryFind(evt.target.getAttribute('data-id'));
-		if (evt.target.getAttribute('data-action') == 'delete') {
+		// the click lands on an item (or its delete button) in the chord list
+		_currentChord = dictionaryFind((evt.target as Element).getAttribute('data-id'));
+		if ((evt.target as Element).getAttribute('data-action') == 'delete') {
 			doDelete(_currentChord!);
 			return;
 		}
