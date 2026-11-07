@@ -14,7 +14,10 @@
 declare namespace UgsEditorPlus {
   /** Features you can turn on or off; see src/js/editor/ugsEditorPlus.options.ts */
   interface Options {
-    /** Compatibility for Internet Explorer before IE9. Default `false`. */
+    /**
+     * Compatibility for Internet Explorer before IE9. Default `false`.
+     * @deprecated Does nothing: Song Formatter ignores it. Kept so pages that set it still work.
+     */
     useLegacyIe: boolean;
     /** Folder (with a trailing slash) holding ace-chordpro.min.js. Default `''`: "ace/" next to ugsEditorPlus.min.js. */
     aceUrl: string;
