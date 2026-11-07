@@ -39,6 +39,16 @@ describe('reformat', () => {
     const tab = 'A|--0--|\nE|--2--|\nC|--1--|\nG|--0--|';
     assert.equal(reformat.run(tab + '\nla la'), '{start_of_tab}\n' + tab + '\n{end_of_tab}\nla la\n');
   });
+
+  test('makes a tab block at the very end of the text', () => {
+    const tab = 'A|--0--|\nE|--2--|\nC|--1--|\nG|--0--|';
+    assert.equal(reformat.run(tab), '{start_of_tab}\n' + tab + '\n{end_of_tab}\n');
+  });
+
+  test('leaves three lines of tablature alone', () => {
+    const tab = 'A|--0--|\nE|--2--|\nC|--1--|';
+    assert.equal(reformat.run(tab), tab + '\n');
+  });
 });
 
 describe('transpose', () => {

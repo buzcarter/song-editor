@@ -224,14 +224,16 @@ ugsEditorPlus.reformat = (function() {
 	};
 
 	/**
-	 * TRUE if we can make a Tab block using this and the following 3 linrd (we need a set of four tab lines followed by a non-tab line)
+	 * TRUE if the three lines from index on are tab lines too, making a block of four with the
+	 * line before them (merge() has already moved past that one)
 	 * @method isTabBlock
 	 * @param lines {array of Lines}
-	 * @param index {int} current line's index within line array
+	 * @param index {int} index of the line after the first tab line
 	 * @return [bool]
 	 */
 	var isTabBlock = function(lines: UgsEditorPlus.ReformatLine[], index: number){
-		if (index + 3 >= lines.length){
+		// (the block can end the song: the last of the three is lines[index + 2])
+		if (index + 2 >= lines.length){
 			return false;
 		}
 		for (var i = index; i < index + 3; i++){
