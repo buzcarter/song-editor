@@ -130,17 +130,19 @@ ugsChordBuilder.chooserList = (function() {
 		}
 	};
 
-	/**
-	 * entity for storing raw chord info; attached to the LI via id
-	 * @class ChordDefinition
-	 * @param {string} name
-	 * @param {string} definition
-	 */
-	const ChordDefinition = function(this: UgsChordBuilder.ChordDefinition, name: string, definition: string) {
-		this.id = _nextId++;
-		this.name = name;
-		this.definition = definition;
-	} as unknown as new (name: string, definition: string) => UgsChordBuilder.ChordDefinition;
+	/** A {define} from the song; its list item has the same id (data-id) */
+	class ChordDefinition implements UgsChordBuilder.ChordDefinition {
+		/** the next free id: 0, 1, 2... (reset() starts over) */
+		id: number = _nextId++;
+		name: string;
+		/** the whole {define: ...} line */
+		definition: string;
+
+		constructor(name: string, definition: string) {
+			this.name = name;
+			this.definition = definition;
+		}
+	}
 
 	/**
 	 * @method init
