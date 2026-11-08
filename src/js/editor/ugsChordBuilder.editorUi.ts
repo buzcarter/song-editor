@@ -22,7 +22,7 @@ interface UgsChordBuilder {
  */
 ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 
-	var _ids = {
+	const _ids = {
 		// top-most container, the "master drawing surface"
 		container: 'cdBldEditorSurface',
 		// stacked canvas elements
@@ -52,25 +52,25 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	};
 
 	// the editor's checked lookups (ugsEditorPlus.dom loads before the Chord Builder)
-	var dom = ugsEditorPlus.dom;
+	const dom = ugsEditorPlus.dom;
 
 	// these elements are found by init(); everything that uses them runs after it
-	var _cursorCanvas: HTMLCanvasElement | null = null,
+	let _cursorCanvas: HTMLCanvasElement | null = null,
 		_eleDotsBtn: HTMLElement | null = null,
 		_eleFingerBtn: HTMLElement | null = null;
 
-	var _startingFret = 1;
-	var _currentName = '';
+	let _startingFret = 1;
+	let _currentName = '';
 
-	var _isDotToolActive = true;
-	var _finger = 0;
+	let _isDotToolActive = true;
+	let _finger = 0;
 
 	/**
 	 * A "reverse Enum" dictionary of finger number to description
 	 * @attribute _fingerNames
 	 * @type {JSON}
 	 */
-	var _fingerNames: Record<number, string> = {
+	const _fingerNames: Record<number, string> = {
 		0: 'None',
 		1: 'Index finger',
 		2: 'Middle finger',
@@ -89,14 +89,14 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 			return false;
 		}
 
-		var cursorContext = _cursorCanvas.getContext('2d');
-		var diagramContext = dom.byId(_ids.diagramCanvas, HTMLCanvasElement).getContext('2d');
+		const cursorContext = _cursorCanvas.getContext('2d');
+		const diagramContext = dom.byId(_ids.diagramCanvas, HTMLCanvasElement).getContext('2d');
 		// no 2D drawing: the same as no canvas
 		if (!cursorContext || !diagramContext) {
 			return false;
 		}
 
-		var ele = dom.byId(_ids.startingFret, HTMLSelectElement);
+		const ele = dom.byId(_ids.startingFret, HTMLSelectElement);
 		addStartingFretOptions(ele);
 		ele.addEventListener('change', onFretChange, false);
 
@@ -174,14 +174,14 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	var onSaveClick = function(evt: Event) {
 		evt.preventDefault();
-		var d = {
+		const d = {
 			name: _currentName,
 			startingFret: _startingFret,
 			dots: ugsChordBuilder.fretDots.getDots(),
 			definition: ugsChordBuilder.export.getDefinition(_currentName, _startingFret)
 		};
 		if (!ugsChordBuilder.chooserList.save(d)){
-			var e = dom.byId(_ids.chordName, HTMLInputElement);
+			const e = dom.byId(_ids.chordName, HTMLInputElement);
 			e.focus();
 			e.select();
 		}
@@ -200,8 +200,8 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 			return;
 		}
 
-		var maxFret = findMaxFret(chord.dots);
-		var startingFret = (maxFret > ugsChordBuilder.settings.fretBoard.numFrets) ? maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1 : 1;
+		const maxFret = findMaxFret(chord.dots);
+		const startingFret = (maxFret > ugsChordBuilder.settings.fretBoard.numFrets) ? maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1 : 1;
 		reset(chord.name, startingFret, convertDots(startingFret, chord.dots), false);
 	};
 
@@ -220,11 +220,11 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @return {array}
 	 */
 	var convertDots = function(startingFret: number, builderDots: UgsChordBuilder.Chord['dots']) {
-		var offset = startingFret - 1;
-		var ugsDots: UgsChordBuilder.Dot[] = [];
-		for (var i = 0; i < builderDots.length; i++) {
-			var dot = builderDots[i];
-			var fret = (dot.fret || 0) - offset;
+		const offset = startingFret - 1;
+		const ugsDots: UgsChordBuilder.Dot[] = [];
+		for (let i = 0; i < builderDots.length; i++) {
+			const dot = builderDots[i];
+			const fret = (dot.fret || 0) - offset;
 			if (fret < 1) {
 				continue;
 			}
@@ -240,9 +240,9 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @return {ing}
 	 */
 	var findMaxFret = function(dots: UgsChordBuilder.Chord['dots']) {
-		var max = 0;
-		for (var i = 0; i < dots.length; i++) {
-			var fret = dots[i].fret || 0;
+		let max = 0;
+		for (let i = 0; i < dots.length; i++) {
+			const fret = dots[i].fret || 0;
 			if (fret > max) {
 				max = fret;
 			}
@@ -258,7 +258,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @param {bool} isNew
 	 * @return {void}
 	 */
-	var resetInputs = function(name: string | undefined, startingFret: number | undefined, isNew: boolean) {
+	const resetInputs = function(name: string | undefined, startingFret: number | undefined, isNew: boolean) {
 		_currentName = (name && name.length > 0) ? name : 'CHORDNAME';
 		dom.byId(_ids.chordName, HTMLInputElement).value = _currentName;
 
@@ -275,7 +275,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * Updates the Toolbox's current tool to be "Add Dot"; sets properties required for cursor, etc.
 	 * @method resetCurrentTool
 	 */
-	var resetCurrentTool = function() {
+	const resetCurrentTool = function() {
 		// restore current drawing tool (this is lame-o)
 		// -----------------------------------------------
 		_isDotToolActive = true;
@@ -310,7 +310,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		resetCurrentTool();
 
 		if (dots && dots.length > 0) {
-			for (var i = 0; i < dots.length; i++) {
+			for (let i = 0; i < dots.length; i++) {
 				ugsChordBuilder.fretDots.toggleDot(dots[i]);
 			}
 		}
@@ -329,8 +329,8 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	var toggleTool = function(evt: Event) {
 		evt.preventDefault();
 		// the Dots and Fingers buttons are links: #dots and #fingers
-		var button = evt.currentTarget;
-		var useDotTool = button instanceof HTMLAnchorElement && button.href.indexOf('#dots') >= 0;
+		const button = evt.currentTarget;
+		const useDotTool = button instanceof HTMLAnchorElement && button.href.indexOf('#dots') >= 0;
 		if (useDotTool == _isDotToolActive) {
 			if (!useDotTool) {
 				updateFinger();
@@ -356,7 +356,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @return {void}
 	 */
 	var setClass = function(element: HTMLElement, className: string, isSet: boolean) {
-		var hasClass = element.className.indexOf(className) >= 0;
+		const hasClass = element.className.indexOf(className) >= 0;
 		if (isSet && !hasClass) {
 			// add
 			element.className += ' ' + className;
@@ -373,9 +373,9 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @return {void}
 	 */
 	var addStartingFretOptions = function(ele: HTMLElement) {
-		var s = '';
-		var lastValue = ugsChordBuilder.settings.fretBoard.maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1;
-		for (var i = 1; i <= lastValue; i++) {
+		let s = '';
+		const lastValue = ugsChordBuilder.settings.fretBoard.maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1;
+		for (let i = 1; i <= lastValue; i++) {
 			s += '<option value="' + i + '">' + i + '</option>';
 		}
 		ele.innerHTML = s;
@@ -410,15 +410,15 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	var slide = function(evt: Event) {
 		evt.preventDefault();
-		var moveAllowed = false;
-		var target = evt.target;
-		var numSteps = target instanceof Element && target.getAttribute('data-direction') == 'up' ? -1 : +1;
+		let moveAllowed = false;
+		const target = evt.target;
+		const numSteps = target instanceof Element && target.getAttribute('data-direction') == 'up' ? -1 : +1;
 		if (ugsChordBuilder.fretDots.slide(numSteps)) {
 			moveAllowed = true;
 		}
 		else {
-			var newStart = _startingFret + numSteps;
-			var lastValue = ugsChordBuilder.settings.fretBoard.maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1;
+			const newStart = _startingFret + numSteps;
+			const lastValue = ugsChordBuilder.settings.fretBoard.maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1;
 			if ((newStart >= 1) && (newStart <= lastValue)) {
 				_startingFret = newStart;
 				dom.byId(_ids.startingFret, HTMLSelectElement).value = String(newStart);
@@ -448,8 +448,8 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	var onMouseClick = function(this: HTMLCanvasElement, evt: MouseEvent) {
 		// (listens on the cursor canvas)
-		var pos = getPosition(this, evt);
-		var dot = ugsChordBuilder.tracking.toDot(pos);
+		const pos = getPosition(this, evt);
+		const dot = ugsChordBuilder.tracking.toDot(pos);
 		if (!dot) {
 			return;
 		}
@@ -471,7 +471,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @return {void}
 	 */
 	var getPosition = function(canvas: HTMLElement, evt: MouseEvent) {
-		var rect = canvas.getBoundingClientRect();
+		const rect = canvas.getBoundingClientRect();
 		return new ugsChordBuilder.entities.Position(
 			evt.clientX - rect.left,
 			evt.clientY - rect.top
