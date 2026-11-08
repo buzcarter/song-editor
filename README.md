@@ -99,6 +99,7 @@ Pages built for the UkeGeeks Songbook 1.5 keep working: the markup copied into t
 
 ```
 npm install
+npm run lint        # eslint
 npm run typecheck   # tsc
 npm run build       # dist/
 npm test            # needs a build first

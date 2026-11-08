@@ -55,9 +55,10 @@
     "build:css": "node scripts/build.js css",
     "typecheck": "tsc -p .",
     "test": "node --test test/*.test.js",
-    "prepublishOnly": "npm run typecheck && npm run build && npm test",
+    "prepublishOnly": "npm run lint && npm run typecheck && npm run build && npm test",
     "build:site": "node scripts/build-site.js",
-    "demo": "npm run build && node scripts/demo.js"
+    "demo": "npm run build && node scripts/demo.js",
+    "lint": "eslint src"
   },
   "peerDependencies": {
     "@ukegeeks/ace-chordpro-extension": "^1.0.0",
@@ -71,9 +72,11 @@
   "devDependencies": {
     "@ukegeeks/ace-chordpro-extension": "^1.0.0",
     "@ukegeeks/song-formatter": "^1.0.0-beta.1",
+    "eslint": "^10.14.0",
     "jsdom": "^31.0.0",
     "less": "^4.9.1",
     "terser": "^5.51.2",
-    "typescript": "~5.9"
+    "typescript": "~5.9",
+    "typescript-eslint": "^8.72.1"
   }
 }
