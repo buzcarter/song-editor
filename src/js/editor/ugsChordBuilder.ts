@@ -107,81 +107,47 @@ ugsChordBuilder.version = '1.0.6';
  * @singleton
  */
 ugsChordBuilder.entities = {
-	/**
-	 * @class entities.BoundingBox
-	 * @constructor
-	 * @param  {Position} pos   Position (JSON) object
-	 * @param  {JSON} dimensions JSON Object of form: {width: {int}, height: {int}}
-	 */
-	BoundingBox: function(this: UgsChordBuilder.BoundingBox, pos?: UgsChordBuilder.Position | null, dimensions?: UgsChordBuilder.Dimensions) {
-		/**
-		 * @property x
-		 * @type {int}
-		 */
-		this.x = pos ? pos.x : 0;
-		/**
-		 * @property y
-		 * @type {int}
-		 */
-		this.y = pos ? pos.y : 0;
-		/**
-		 * @property width
-		 * @type {int}
-		 */
-		this.width = dimensions ? dimensions.width : 1;
-		/**
-		 * @property height
-		 * @type {int}
-		 */
-		this.height = dimensions ? dimensions.height : 1;
+	/** A rectangle on the canvas; with no size it's 1 x 1 */
+	BoundingBox: class implements UgsChordBuilder.BoundingBox {
+		x: number;
+		y: number;
+		width: number;
+		height: number;
+
+		constructor(pos?: UgsChordBuilder.Position | null, dimensions?: UgsChordBuilder.Dimensions) {
+			this.x = pos ? pos.x : 0;
+			this.y = pos ? pos.y : 0;
+			this.width = dimensions ? dimensions.width : 1;
+			this.height = dimensions ? dimensions.height : 1;
+		}
 	},
 
-	/**
-	 * Describes a fingering Dot on the fretboard
-	 * @class entities.Dot
-	 * @constructor
-	 * @param  {int} string
-	 * @param  {int} fret
-	 * @param  {int} finger
-	 */
-	Dot: function(this: UgsChordBuilder.Dot, string: number, fret?: number, finger?: number) {
-		/**
-		 * String number, on sporano (GCEA), G is 0th string, and so on
-		 * @property string
-		 * @type {int}
-		 */
-		this.string = string;
-		/**
-		 * @property fret
-		 * @type {int}
-		 */
-		this.fret = fret ? fret : 0;
-		/**
-		 * @property finger
-		 * @type {int}
-		 */
-		this.finger = finger ? finger : 0;
+	/** A finger dot on the fretboard */
+	Dot: class implements UgsChordBuilder.Dot {
+		/** on a soprano (GCEA), G is string 0, and so on */
+		string: number;
+		fret: number;
+		/** 0 for no finger number */
+		finger: number;
+
+		constructor(string: number, fret?: number, finger?: number) {
+			this.string = string;
+			this.fret = fret ? fret : 0;
+			this.finger = finger ? finger : 0;
+		}
 	},
 
-	/**
-	 * @class entities.Position
-	 * @constructor
-	 * @param  {int} x
-	 * @param  {int} y
-	 */
-	Position: function(this: UgsChordBuilder.Position, x?: number, y?: number) {
-		/**
-		 * @property x
-		 * @type {int}
-		 */
-		this.x = x ? x : 0;
-		/**
-		 * @property y
-		 * @type {int}
-		 */
-		this.y = y ? y : 0;
+	/** A point on the canvas, in pixels */
+	Position: class implements UgsChordBuilder.Position {
+		x: number;
+		y: number;
+
+		constructor(x?: number, y?: number) {
+			this.x = x ? x : 0;
+			this.y = y ? y : 0;
+		}
 	}
-	} as unknown as UgsChordBuilder.Entities;
+};
 
 /**
  * "Properties, Options, Preferences" such as fretboard size and colors; dot attributes, the cursors, fonts etc.
@@ -795,19 +761,19 @@ ugsChordBuilder.export = (function() {
 	let _fretOffset = 0;
 
 	/**
-	 * Class for "reorganized" dots, think of this as a necklace where the
-	 * thread, the instrument string, has zero or more beads, or dots -- fret plus finger
-	 * @class  StringDots
-	 * @constructor
-	 * @private
-	 * @param  {int} string
-	 * @param  {dot_Array} dots
+	 * One string's dots: think of a necklace where the thread, the instrument string, has
+	 * zero or more beads, the dots (fret plus finger).
 	 */
-	const StringDots = function(this: UgsChordBuilder.StringDots, string: number, dots?: UgsChordBuilder.Dot[]) {
-		this.string = string;
-		this.dots = dots ? dots : [];
-		//this.fingers = fingers ? fingers : [];
-	} as unknown as new (string: number, dots?: UgsChordBuilder.Dot[]) => UgsChordBuilder.StringDots;
+	class StringDots implements UgsChordBuilder.StringDots {
+		/** counts from 1 here, unlike Dot.string */
+		string: number;
+		dots: UgsChordBuilder.Dot[];
+
+		constructor(string: number, dots?: UgsChordBuilder.Dot[]) {
+			this.string = string;
+			this.dots = dots ? dots : [];
+		}
+	}
 
 	const getStringDots = function() {
 		// initialize empty string array
