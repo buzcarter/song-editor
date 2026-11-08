@@ -120,7 +120,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param text {string} string RAW song
 	 * @return {array of Lines}
 	 */
-	var read = function(text: string){
+	const read = function(text: string){
 		const lineAry: UgsEditorPlus.ReformatLine[] = [];
 		const lines = text.split('\n').map(expandTabs);
 		for (let i = 0; i < lines.length; i++) {
@@ -156,7 +156,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param line {string}
 	 * @return {string}
 	 */
-	var expandTabs = function(line: string){
+	const expandTabs = function(line: string){
 		let out = '';
 		for (let i = 0; i < line.length; i++) {
 			if (line[i] != '\t') {
@@ -176,7 +176,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param line {line}
 	 * @return {_enums.lineTypes}
 	 */
-	var toLineType = function(line: UgsEditorPlus.ReformatLine){
+	const toLineType = function(line: UgsEditorPlus.ReformatLine){
 		if ((line.spaceCount + line.wordCount) < 1){
 			return _enums.lineTypes.blank;
 		}
@@ -201,7 +201,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param words {array of words}
 	 * @return [int] number found
 	 */
-	var countChords = function(words: string[]){
+	const countChords = function(words: string[]){
 		let count = 0;
 		for (let i = 0; i < words.length; i++) {
 			if (words[i].match(_re.chordNames)) {
@@ -217,7 +217,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param lines {array of Lines}
 	 * @return [string]
 	 */
-	var merge = function(lines: UgsEditorPlus.ReformatLine[]){
+	const merge = function(lines: UgsEditorPlus.ReformatLine[]){
 		let s = '';
 		let thisLine, nextLine;
 		for (let i = 0; i < lines.length; ) {
@@ -258,7 +258,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param index {int} index of the line after the first tab line
 	 * @return [bool]
 	 */
-	var isTabBlock = function(lines: UgsEditorPlus.ReformatLine[], index: number){
+	const isTabBlock = function(lines: UgsEditorPlus.ReformatLine[], index: number){
 		// (the block can end the song: the last of the three is lines[index + 2])
 		if (index + 2 >= lines.length){
 			return false;
@@ -278,7 +278,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param lyricsLine {string} the line of lyrics
 	 * @return [string] merged lines
 	 */
-	var mergeLines = function(chordLine: string, lyricsLine: string){
+	const mergeLines = function(chordLine: string, lyricsLine: string){
 		while (lyricsLine.length < chordLine.length){
 			lyricsLine += ' ';
 		}
@@ -307,7 +307,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @param chordLine {string} the line containing the chord names
 	 * @return [string] each word of input line gets bracketed
 	 */
-	var wrapChords = function(chordLine: string){
+	const wrapChords = function(chordLine: string){
 		const chords = chordLine.replace(_re.spaces, ' ').split(' ');
 		let s = '';
 		for (let i = 0; i < chords.length; i++) {

@@ -77,12 +77,12 @@ ugsEditorPlus.resize = (function(){
 		dom.find('#aceHeader button', HTMLElement).addEventListener('click', onShowHelpClicked);
 	};
 
-	var onShowHelpClicked = function(e: Event) {
+	const onShowHelpClicked = function(e: Event) {
 		e.preventDefault();
 		showHelp(!isHelpOpen);
 	};
 
-	var showHelp = function(isShow: boolean) {
+	const showHelp = function(isShow: boolean) {
 		isHelpOpen = isShow;
 		// (setup() makes them; only its buttons call this)
 		if (!help || !aceLayer) {
@@ -156,7 +156,7 @@ ugsEditorPlus.resize = (function(){
 			});
 	};
 
-	var copySongToAce = function() {
+	const copySongToAce = function() {
 		// (called once Ace is loaded)
 		if (editor === null) {
 			return;
@@ -173,7 +173,7 @@ ugsEditorPlus.resize = (function(){
 	 * @private
 	 * @return {void}
 	 */
-	var hideAce = function() {
+	const hideAce = function() {
 		isBig = false;
 
 		dom.show(dlg);

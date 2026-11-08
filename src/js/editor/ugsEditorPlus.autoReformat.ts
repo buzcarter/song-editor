@@ -69,21 +69,21 @@ ugsEditorPlus.autoReformat = (function() {
 		runNow();
 	};
 
-	var doOk = function(){
+	const doOk = function(){
 		_ele.cpmSource.value = _formatted;
 		doClose();
 		ugsEditorPlus.actions.run(true);
 	};
 
-	var doClose = function(){
+	const doClose = function(){
 		ukeGeeks.toolsLite.addClass(_ele.reformatDlg, 'isHidden');
 	};
 
-	var doDisable = function(isDisabled: boolean){
+	const doDisable = function(isDisabled: boolean){
 		_isDisabled = isDisabled;
 	};
 
-	var runNow = function(){
+	const runNow = function(){
 		_formatted = ugsEditorPlus.reformat.run(_ele.cpmSource.value);
 		_ele.reformatTextBox.value = _formatted;
 

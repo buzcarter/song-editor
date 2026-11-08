@@ -38,7 +38,7 @@ ugsEditorPlus.songAmatic = (function() {
 		ugsEditorPlus.actions.run();
 	};
 
-	var mergeOptions = function(options?: Partial<UgsEditorPlus.Options>) {
+	const mergeOptions = function(options?: Partial<UgsEditorPlus.Options>) {
 		const opts = {
 			hideChordEnclosures: !ukeGeeks.settings.opts.retainBrackets,
 			sortAlphabetical: ukeGeeks.settings.opts.sortAlphabetical,

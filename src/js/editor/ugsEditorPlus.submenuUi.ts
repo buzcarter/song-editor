@@ -53,7 +53,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return {bool} false to kill event bubbling
 	 */
-	var onOptionClick = function(this: HTMLElement, e: Event){
+	const onOptionClick = function(this: HTMLElement, e: Event){
 		const dom = ugsEditorPlus.dom;
 		const optionItem = this;
 		const value = stripHash(dom.find('a', HTMLAnchorElement, optionItem).getAttribute('href') || '');
@@ -87,7 +87,7 @@ ugsEditorPlus.submenuUi = (function(){
 		e.stopPropagation();
 	};
 
-	var setChecked = function(item: Element | null) {
+	const setChecked = function(item: Element | null) {
 		if (!item) {
 			//console.log('item for option not found');
 			return;
@@ -105,7 +105,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {string} id
 	 * @return {DOM-element}
 	 */
-	var getLabel = function(id: string) {
+	const getLabel = function(id: string) {
 		return ugsEditorPlus.dom.find('label[for="' + cssString(id) + '"]', HTMLLabelElement);
 	};
 
@@ -115,11 +115,11 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {string} value
 	 * @return {string}
 	 */
-	var cssString = function(value: unknown) {
+	const cssString = function(value: unknown) {
 		return String(value).replace(/["\\]/g, '\\$&');
 	};
 
-	var syncOptions = function(options: UgsEditorPlus.Options) {
+	const syncOptions = function(options: UgsEditorPlus.Options) {
 		let item: Element | null, id: string,
 			map = [{
 				action: 'zoomFonts',
@@ -163,7 +163,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return {bool} false to kill event bubbling
 	 */
-	var onLabelClick = function(this: HTMLElement, e: Event){
+	const onLabelClick = function(this: HTMLElement, e: Event){
 		const id = this.getAttribute('for') || '';
 		setActiveLabel(this);
 		ugsEditorPlus.dom.show(document.getElementById(id));
@@ -199,7 +199,7 @@ ugsEditorPlus.submenuUi = (function(){
 		});
 	};
 
-	var setActiveLabel = function(label: HTMLElement){
+	const setActiveLabel = function(label: HTMLElement){
 		const dom = ugsEditorPlus.dom;
 		Array.prototype.forEach.call(dom.closest(label, 'dl', HTMLElement).children, function(child: Element) {
 			if (child.tagName == 'DT') {
@@ -217,7 +217,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {Boolean} isInUse [description]
 	 * @return void
 	 */
-	var onListActive = function(ele: Element, isInUse: boolean){
+	const onListActive = function(ele: Element, isInUse: boolean){
 		const wrap = ele.closest('.enablePseudoSelects');
 		if (wrap) {
 			wrap.classList.toggle('event-userSelecting', isInUse);
@@ -229,7 +229,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return bool
 	 */
-	var doCollapseAllLists = function(this: HTMLElement, e: Event){
+	const doCollapseAllLists = function(this: HTMLElement, e: Event){
 		if (e.target instanceof Element && e.target.matches('a')){
 			return;
 		}
@@ -244,14 +244,14 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @method closeAll
 	 * @param  {event} e
 	 */
-	var closeAll = function(e: Event){
+	const closeAll = function(e: Event){
 		ugsEditorPlus.dom.all('.arrowBox').forEach(function(box) {
 			ugsEditorPlus.dom.fadeOut(box, 270);
 		});
 		ugsEditorPlus.topMenus.makeAllInactive();
 	};
 
-	var stripHash = function(value: string){
+	const stripHash = function(value: string){
 		return (value[0] == '#') ? value.substr(1) : value;
 	};
 
@@ -280,7 +280,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {DOM-element} ele the selected list item (LI)
 	 * @return {string}
 	 */
-	var getLabelText = function(action: string, value: string | number, ele: Element){
+	const getLabelText = function(action: string, value: string | number, ele: Element){
 		const index = ele.parentElement ? Array.prototype.indexOf.call(ele.parentElement.children, ele) : -1;
 
 		switch (action){
@@ -296,7 +296,7 @@ ugsEditorPlus.submenuUi = (function(){
 				if (value == 'up_0'){
 					return 'Original key';
 				}
-				var txt = ele.textContent || '';
+				const txt = ele.textContent || '';
 				return txt.replace(' ', ' steps - "') + '"';
 			default:
 			 return _desriptions[action][index];

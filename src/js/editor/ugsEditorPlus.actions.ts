@@ -121,7 +121,7 @@ ugsEditorPlus.actions = (function() {
 	 * @param change {OptionChange} the event's detail: the Action's name (one of those in the switch below)
 	 *   and its value (a string from a menu, a boolean from a checkbox)
 	 */
-	var doAction = function(change: UgsEditorPlus.OptionChange) {
+	const doAction = function(change: UgsEditorPlus.OptionChange) {
 		// actions that modify song's HTML or reference diagrams require rerunning Scriptasaurus
 		let runRequired = false;
 		// (for the log below: events come from the page, so an unknown action can still arrive)
@@ -182,7 +182,7 @@ ugsEditorPlus.actions = (function() {
 		}
 	};
 
-	var syncOptions = function(options: UgsEditorPlus.Options) {
+	const syncOptions = function(options: UgsEditorPlus.Options) {
 		// direct menus
 		doSetFontSize(options.fontSize);
 		doSetDiagramSize(options.diagramSize);
@@ -204,7 +204,7 @@ ugsEditorPlus.actions = (function() {
 	 * @method doUpdate
 	 * @private
 	 */
-	var doUpdate = function(){
+	const doUpdate = function(){
 		_public.run(true);
 	};
 
@@ -245,7 +245,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param value {string|number} point-size: the clicked menu item's value (string) or options.fontSize (number)
 	 */
-	var doSetFontSize = function(value: string | number) {
+	const doSetFontSize = function(value: string | number) {
 		const pt = parseFloat(String(value));
 		_ele.scalableArea.style.fontSize = pt + 'pt';
 	};
@@ -256,7 +256,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param value {string} percentage, integer between 0 and, well, 100?; value of the clicked value item
 	 */
-	var doSetDiagramSize = function(value: string | number) {
+	const doSetDiagramSize = function(value: string | number) {
 		const prct = parseInt(String(value), 10) / 100;
 		// apologies for the magic number...
 		const columnWidth = Math.round(prct * 225);
@@ -291,7 +291,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param value {string} value of the clicked value item
 	 */
-	var doLayout = function(value: string){
+	const doLayout = function(value: string){
 		const classes = document.body.classList;
 		classes.toggle('diagramsOnTop', value == 'top');
 		classes.toggle('diagramsOnSide', value == 'left');
@@ -309,7 +309,7 @@ ugsEditorPlus.actions = (function() {
 	 * @param value {string} value of the clicked value item
 	 * @return {Boolean}
 	 */
-	var doPlacement = function(value: string){
+	const doPlacement = function(value: string){
 		let isRunRequired = false;
 		ukeGeeks.toolsLite.setClass(_ele.songContainer, 'ugsInline', (value == 'inline'));
 
@@ -345,7 +345,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param value {string} value of the clicked value item
 	 */
-	var doSetTheme = function(value: string) {
+	const doSetTheme = function(value: string) {
 		 ugsEditorPlus.themes.set(value);
 	};
 
@@ -359,7 +359,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param value {string} currently selected option value
 	 */
-	var doSetPageWidth = function(value: string){
+	const doSetPageWidth = function(value: string){
 		const opts = ['letter', 'a4', 'screen'];
 		const classes = document.body.classList;
 		for(let i = 0; i < opts.length; i++){
@@ -378,7 +378,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param value {string} value of the clicked value item
 	 */
-	var doTuning = function(value: string){
+	const doTuning = function(value: string){
 		let tuning: number = ukeGeeks.definitions.instrument.sopranoUke,
 			msg = '<strong>GCEA</strong> Standard Ukulele';
 
@@ -402,7 +402,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param value {string} value of the clicked value item
 	 */
-	var doTranspose = function(value: string){
+	const doTranspose = function(value: string){
 		const sign = value[0] == 'u' ? 1 : -1;
 		const steps = parseInt(value[value.length - 1], 10);
 		transpose(sign * steps);
@@ -413,7 +413,7 @@ ugsEditorPlus.actions = (function() {
 	 * @method transpose
 	 * @param steps {int} number of semitones, +/-6
 	 */
-	var transpose = function(steps: number){
+	const transpose = function(steps: number){
 		let safeChords = [],
 			bad = '',
 			i;
@@ -478,7 +478,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param keyChord {string}
 	 */
-	var resetTranspose = function(keyChord: string) {
+	const resetTranspose = function(keyChord: string) {
 		const ul = ugsEditorPlus.dom.byId('transposeOptions', HTMLElement);
 		const items = ul.getElementsByTagName('li');
 		let sample;
@@ -511,7 +511,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param isVisible {bool}
 	 */
-	var setEnclosureVisible = function(isVisible: boolean){
+	const setEnclosureVisible = function(isVisible: boolean){
 		ukeGeeks.settings.opts.retainBrackets = isVisible;
 	};
 
@@ -521,7 +521,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param isAlphabetical {bool}
 	 */
-	var setSortAlphabetical = function(isAlphabetical: boolean) {
+	const setSortAlphabetical = function(isAlphabetical: boolean) {
 		ukeGeeks.settings.opts.sortAlphabetical = isAlphabetical;
 	};
 
@@ -531,7 +531,7 @@ ugsEditorPlus.actions = (function() {
 	 * @private
 	 * @param isIgnore {bool}
 	 */
-	var setIgnoreCommon = function(isIgnore: boolean){
+	const setIgnoreCommon = function(isIgnore: boolean){
 		ukeGeeks.settings.opts.ignoreCommonChords = isIgnore;
 	};
 
@@ -542,7 +542,7 @@ ugsEditorPlus.actions = (function() {
 	 * @param chordList {mixed} Either string, as comma seperated values list, or array of chord names
 	 * @return {void}
 	 */
-	var setCommonChordsList = function(chordList: string | string[]) {
+	const setCommonChordsList = function(chordList: string | string[]) {
 		if (typeof chordList === 'string') {
 			const inputList = chordList.split(/[ ,]+/);
 		const cleanList = [];

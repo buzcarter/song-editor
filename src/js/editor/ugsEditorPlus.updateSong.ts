@@ -84,7 +84,7 @@ ugsEditorPlus.updateSong = (function() {
 	 */
 	let _hideTimer: number | undefined;
 
-	var ele = function(name: keyof typeof _selectors) {
+	const ele = function(name: keyof typeof _selectors) {
 		return ugsEditorPlus.dom.one(_selectors[name]);
 	};
 
@@ -116,7 +116,7 @@ ugsEditorPlus.updateSong = (function() {
 		}, 3000);
 	};
 
-	var doUpdate = function() {
+	const doUpdate = function() {
 		if (_isUpdating){
 			return;
 		}

@@ -35,7 +35,7 @@ ugsEditorPlus.styles = (function() {
 		return this;
 	};
 	
-	var _getSheet = function(title: string){
+	const _getSheet = function(title: string){
 		for (let i = 0; i < document.styleSheets.length; i++){
 			if (document.styleSheets[i].title == title){
 				return document.styleSheets[i];
@@ -44,7 +44,7 @@ ugsEditorPlus.styles = (function() {
 		return null;
 	};
 	
-	var _getRules = function() {
+	const _getRules = function() {
 		if (_sheet == null){
 			return [];
 		}

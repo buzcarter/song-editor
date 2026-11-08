@@ -45,7 +45,7 @@ ugsEditorPlus.chordBuilder = (function() {
 	 * @method onShowDlgBtnClick
 	 * @param  {event} evt
 	 */
-	var onShowDlgBtnClick = function(this: HTMLElement, evt: Event){
+	const onShowDlgBtnClick = function(this: HTMLElement, evt: Event){
 		evt.preventDefault();
 		// (init() makes the builder before it listens for this click)
 		if (_builder) {
