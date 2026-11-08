@@ -206,7 +206,14 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	};
 
 	/**
-	 * Converts standard scriptasaurus Dot array to chordBuilder dot array (fret changes)
+	 * Converts Song Formatter's dots to the builder's: frets counted from the starting fret.
+	 * An `add:` that leaves out a value gives a dot with a null in it; these are read the way
+	 * Song Formatter draws them on the songsheet:
+	 *  - no string: the first string
+	 *  - no finger: no finger number
+	 *  - no fret: dropped. The builder has no "fret 0" dot (loading one would clear its string,
+	 *    erasing the chord's real dot there), and the songsheet draws it off the fretboard.
+	 * Dots below the starting fret are dropped too, for the same reason.
 	 * @method convertDots
 	 * @param {int} startingFret
 	 * @param  {array} builderDots
@@ -216,11 +223,12 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		var offset = startingFret - 1;
 		var ugsDots: UgsChordBuilder.Dot[] = [];
 		for (var i = 0; i < builderDots.length; i++) {
-			// a missing fret counts as 0 (as null did in the subtraction)
-			var fret = (builderDots[i].fret || 0) - offset;
-			// TODO: string and finger can be null too (an `add:` that leaves one out); decide what the builder should do
-			// with such a dot before dropping these `!`s: that changes behavior
-			ugsDots.push(new ugsChordBuilder.entities.Dot(builderDots[i].string!, (fret < 0 ? 0 : fret), builderDots[i].finger!));
+			var dot = builderDots[i];
+			var fret = (dot.fret || 0) - offset;
+			if (fret < 1) {
+				continue;
+			}
+			ugsDots.push(new ugsChordBuilder.entities.Dot(dot.string || 0, fret, dot.finger || 0));
 		}
 		return ugsDots;
 	};

@@ -171,6 +171,44 @@ describe('Chord Builder export', () => {
     }
   });
 
+  test('opening a {define} whose add: leaves out a value', () => {
+    // opens the song's one {define} in the builder; returns its dots and what it would save
+    const open = (define) => {
+      const page = loadEditorPage({ body: '<div id="editor"></div>' });
+      page.window.ugsEditorPlus.songAmatic.mount(page.document.getElementById('editor'), { song: define + '\n[Zq]hi\n' });
+      page.document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+      const cb = page.window.ugsChordBuilder;
+      return {
+        dots: [...cb.fretDots.getDots()].map((d) => `${d.string}/${d.fret}/${d.finger}`).sort(),
+        output: page.document.getElementById('cdBldOutput').textContent,
+        ...page,
+      };
+    };
+
+    let opened = open('{define: Zq frets 0 3 0 0 fingers 0 2 0 0 add: string 2 finger 1}');
+    assert.deepEqual(opened.dots, ['1/3/2'], 'no fret: dropped, and the real dot on its string kept');
+    assert.equal(opened.output, '{define: Zq frets 0 3 0 0 fingers 0 2 0 0}');
+
+    opened = open('{define: Zq frets 0 0 0 3 fingers 0 0 0 3 add: fret 2 finger 1}');
+    assert.deepEqual(opened.dots, ['0/2/1', '3/3/3'], 'no string: the first string, as the songsheet draws it');
+
+    opened = open('{define: Zq frets 0 0 0 3 fingers 0 0 0 3 add: string 4 fret 1}');
+    assert.deepEqual(opened.dots, ['3/1/0', '3/3/3'], 'no finger: no number');
+    assert.equal(opened.output, '{define: Zq frets 0 0 0 3 fingers 0 0 0 3 add: string 4 fret 1 finger 0}');
+    assert.deepEqual(opened.errors, []);
+  });
+
+  test('a dot that had no string can be clicked off like any other', () => {
+    const page = loadEditorPage({ body: '<div id="editor"></div>' });
+    page.window.ugsEditorPlus.songAmatic.mount(page.document.getElementById('editor'), {
+      song: '{define: Zq frets 0 0 0 3 fingers 0 0 0 3 add: fret 2 finger 1}\n[Zq]hi\n',
+    });
+    page.document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+    const cb = page.window.ugsChordBuilder;
+    cb.fretDots.toggleDot(new cb.entities.Dot(0, 2, 0)); // what clicking it with the dot tool does
+    assert.deepEqual([...cb.fretDots.getDots()].map((d) => `${d.string}/${d.fret}`), ['3/3']);
+  });
+
   test('sliding stops at the ends of the diagram', () => {
     place([0, 1, 1], [1, 4, 2]);
     assert.equal(fretDots.slide(-1), false, 'fret 1 can\'t go lower');
