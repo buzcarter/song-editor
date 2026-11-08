@@ -209,6 +209,40 @@ describe('Chord Builder export', () => {
     assert.deepEqual([...cb.fretDots.getDots()].map((d) => `${d.string}/${d.fret}`), ['3/3']);
   });
 
+  test('saving a chord from the builder updates the song and the list', () => {
+    // The list's ids are strings (data-id) and the dictionary's are numbers; both must find the chord.
+    const page = loadEditorPage({ body: '<div id="editor"></div>' });
+    const { document } = page;
+    page.window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+      song: '{define: Zq frets 0 3 0 0 fingers 0 2 0 0}\n[Zq]hi\n',
+    });
+    const cb = page.window.ugsChordBuilder;
+    const song = () => document.getElementById('chordProSource').value;
+    const listNames = () => [...document.querySelectorAll('#cdBldPick li[data-id]:not(.newChord)')].map((li) => li.textContent.trim());
+
+    // edit the song's chord: opened by its list item, saved by its dictionary id
+    document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+    cb.fretDots.toggleDot(new cb.entities.Dot(3, 1, 0));
+    document.getElementById('cdBldSaveBtn').click();
+    assert.match(song(), /^\{define: Zq frets 0 3 0 1 fingers 0 2 0 0\}\n/);
+    assert.doesNotMatch(song(), /frets 0 3 0 0/);
+
+    // a new chord: added to the song and the list
+    document.querySelector('#cdBldPick li.newChord').click();
+    const name = document.getElementById('cdBldChordName');
+    name.value = 'Zr';
+    name.dispatchEvent(new page.window.Event('keyup'));
+    cb.fretDots.toggleDot(new cb.entities.Dot(0, 2, 0));
+    document.getElementById('cdBldSaveBtn').click();
+    assert.match(song(), /^\{define: Zr frets 2 0 0 0 fingers 0 0 0 0\}$/m);
+    assert.deepEqual(listNames().sort(), ['Zq', 'Zr']);
+
+    // ...and it opens again from its new list item
+    [...document.querySelectorAll('#cdBldPick li[data-id]')].find((li) => li.textContent.trim() === 'Zr').click();
+    assert.deepEqual([...cb.fretDots.getDots()].map((d) => `${d.string}/${d.fret}`), ['0/2']);
+    assert.deepEqual(page.errors, []);
+  });
+
   test('sliding stops at the ends of the diagram', () => {
     place([0, 1, 1], [1, 4, 2]);
     assert.equal(fretDots.slide(-1), false, 'fret 1 can\'t go lower');
