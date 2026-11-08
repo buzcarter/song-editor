@@ -331,7 +331,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		// the Dots and Fingers buttons are links: #dots and #fingers
 		const button = evt.currentTarget;
 		const useDotTool = button instanceof HTMLAnchorElement && button.href.indexOf('#dots') >= 0;
-		if (useDotTool == _isDotToolActive) {
+		if (useDotTool === _isDotToolActive) {
 			if (!useDotTool) {
 				updateFinger();
 				ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
@@ -412,7 +412,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		evt.preventDefault();
 		let moveAllowed = false;
 		const target = evt.target;
-		const numSteps = target instanceof Element && target.getAttribute('data-direction') == 'up' ? -1 : +1;
+		const numSteps = target instanceof Element && target.getAttribute('data-direction') === 'up' ? -1 : +1;
 		if (ugsChordBuilder.fretDots.slide(numSteps)) {
 			moveAllowed = true;
 		}

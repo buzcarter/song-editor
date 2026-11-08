@@ -439,7 +439,7 @@ ugsChordBuilder.fretDots = (function() {
 	};
 
 	_public.toggleDot = function(dot) {
-		if (dot.fret == 0) {
+		if (dot.fret === 0) {
 			clearColumn(dot.string);
 			return;
 		}
@@ -459,7 +459,7 @@ ugsChordBuilder.fretDots = (function() {
 			return false;
 		}
 
-		_dots[index].finger = _dots[index].finger == finger ? 0 : finger;
+		_dots[index].finger = _dots[index].finger === finger ? 0 : finger;
 		return true;
 	};
 
@@ -481,7 +481,7 @@ ugsChordBuilder.fretDots = (function() {
 	 */
 	const find = function(dot: UgsChordBuilder.Dot) {
 		for (let i = _dots.length - 1; i >= 0; i--) {
-			if (_dots[i].string == dot.string && _dots[i].fret == dot.fret) {
+			if (_dots[i].string === dot.string && _dots[i].fret === dot.fret) {
 				return i;
 			}
 		}
@@ -496,7 +496,7 @@ ugsChordBuilder.fretDots = (function() {
 	 */
 	const clearColumn = function(string: number) {
 		for (let i = _dots.length - 1; i >= 0; i--) {
-			if (_dots[i].string == string) {
+			if (_dots[i].string === string) {
 				_dots.splice(i, 1);
 			}
 		}
@@ -821,7 +821,7 @@ ugsChordBuilder.export = (function() {
 		const dots = ugsChordBuilder.fretDots.getDots();
 		for (stringNumber = aryStringDots.length - 1; stringNumber >= 0; stringNumber--) {
 			for (let i = dots.length - 1; i >= 0; i--) {
-				if (aryStringDots[stringNumber].string == dots[i].string + 1) {
+				if (aryStringDots[stringNumber].string === dots[i].string + 1) {
 					aryStringDots[stringNumber].dots.push(dots[i]);
 				}
 			}
@@ -873,7 +873,7 @@ ugsChordBuilder.export = (function() {
 	 */
 	const getFinger = function(dots: UgsChordBuilder.Dot[], fret: number) {
 		for (let i = 0; i < dots.length; i++) {
-			if (dots[i].fret == fret) {
+			if (dots[i].fret === fret) {
 				return dots[i].finger;
 			}
 		}
@@ -918,7 +918,7 @@ ugsChordBuilder.export = (function() {
 			const minMax = getMinMax(dotsPerString[i].dots);
 			fretsStr += fretNumber(minMax.max) + ' ';
 			fingersString += getFinger(dotsPerString[i].dots, minMax.max) + ' ';
-			if (minMax.max != minMax.min) {
+			if (minMax.max !== minMax.min) {
 				addsString += ' add: string ' + dotsPerString[i].string + ' fret ' + fretNumber(minMax.min) + ' finger ' + getFinger(dotsPerString[i].dots, minMax.min);
 			}
 		}

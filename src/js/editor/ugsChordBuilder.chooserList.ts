@@ -246,7 +246,7 @@ ugsChordBuilder.chooserList = (function() {
 			return;
 		}
 		_currentChord = dictionaryFind(target.getAttribute('data-id'));
-		if (target.getAttribute('data-action') == 'delete') {
+		if (target.getAttribute('data-action') === 'delete') {
 			if (_currentChord) {
 				doDelete(_currentChord);
 			}
@@ -314,7 +314,7 @@ ugsChordBuilder.chooserList = (function() {
 	const listGetItem = function(id: number | string | null) {
 		const items = chordListEle().getElementsByTagName('li');
 		for (let i = 0; i < items.length; i++) {
-			if (items[i].getAttribute('data-id') == ('' + id)) {
+			if (items[i].getAttribute('data-id') === ('' + id)) {
 				return items[i];
 			}
 		}
@@ -406,7 +406,7 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	const replaceAll = function(text: string, searchValue: string, newValue: string): string {
 		const newText = text.replace(searchValue, newValue);
-		return (newText == text) ? text : replaceAll(newText, searchValue, newValue);
+		return (newText === text) ? text : replaceAll(newText, searchValue, newValue);
 	};
 
 	/**
@@ -473,7 +473,7 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	const dictionaryGetIndex = function(id: number | string | null) {
 		for (let i = 0; i < _chordDictionary.length; i++) {
-			if ('' + _chordDictionary[i].id == id) {
+			if ('' + _chordDictionary[i].id === '' + id) {
 				return i;
 			}
 		}
@@ -492,7 +492,7 @@ ugsChordBuilder.chooserList = (function() {
 	const dictionaryFindDupes = function(id: number, name: string) {
 		const search = name.toLowerCase();
 		for (let i = _chordDictionary.length - 1; i >= 0; i--) {
-			if (('' + _chordDictionary[i].id != '' + id) && (_chordDictionary[i].name.toLowerCase() == search)) {
+			if (('' + _chordDictionary[i].id !== '' + id) && (_chordDictionary[i].name.toLowerCase() === search)) {
 				return i;
 			}
 		}
