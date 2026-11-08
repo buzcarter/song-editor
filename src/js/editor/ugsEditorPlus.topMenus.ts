@@ -24,8 +24,8 @@ ugsEditorPlus.topMenus = (function() {
 	 * @public
 	 * @return {void}
 	 */
-	var _init = function() {
-		var dom = ugsEditorPlus.dom;
+	const _init = function() {
+		const dom = ugsEditorPlus.dom;
 		dom.on('#ugsAppToolbar > ul li:not([data-dialog]) > a', 'click', _onMenuItemClick);
 		dom.on('.showOptionsBox a', 'click', _onShowOptionsClick);
 
@@ -42,11 +42,11 @@ ugsEditorPlus.topMenus = (function() {
 	 */
 	var _onMenuItemClick = function(this: HTMLElement) {
 		// the clicked anchor tag
-		var parent = this.parentElement;
+		const parent = this.parentElement;
 		if (!parent) {
 			return;
 		}
-		var isOpen = parent.classList.contains('active');
+		const isOpen = parent.classList.contains('active');
 		_makeAllInactive();
 		if (isOpen) {
 			return;
@@ -72,7 +72,7 @@ ugsEditorPlus.topMenus = (function() {
 	 * @private
 	 * @return {void}
 	 */
-	var _closeAll = function() {
+	const _closeAll = function() {
 		// hide any drop-down/arrow boxes currently open
 		_makeAllInactive();
 		ugsEditorPlus.dom.all('.arrowBox').forEach(ugsEditorPlus.dom.hide);
@@ -128,8 +128,8 @@ ugsEditorPlus.topMenus = (function() {
 	 * @return {bool} false to kill event bubbling
 	 */
 	var _onShowOptionsClick = function(this: HTMLElement, e: Event) {
-		var dom = ugsEditorPlus.dom;
-		var dlg = dom.byId((this.getAttribute('href') || '').replace(/^#/, ''), HTMLElement);
+		const dom = ugsEditorPlus.dom;
+		const dlg = dom.byId((this.getAttribute('href') || '').replace(/^#/, ''), HTMLElement);
 
 		dom.all('.arrowBox').forEach(function(box) {
 			if (box !== dlg) {

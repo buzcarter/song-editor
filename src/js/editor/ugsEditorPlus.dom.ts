@@ -26,14 +26,14 @@ ugsEditorPlus.dom = (function() {
    * @property _public
    * @type JsonObject
    */
-  var _public = {} as UgsEditorPlus.Dom;
+  const _public = {} as UgsEditorPlus.Dom;
 
   /**
    * named speeds, in milliseconds (same as jQuery's)
    * @property SPEEDS
    * @private
    */
-  var SPEEDS: Record<string, number> = {
+  const SPEEDS: Record<string, number> = {
     fast: 200,
     normal: 400,
     slow: 600
@@ -41,14 +41,14 @@ ugsEditorPlus.dom = (function() {
 
   // running animations, per element: [{ props: [names], css: 'opacity 400ms ease', id: timer, fade: 'in'|'out' }]
   // (animations of different properties -- say a fade and a slide -- run side by side)
-  var _running = new WeakMap<HTMLElement, UgsEditorPlus.DomAnimation[]>();
+  const _running = new WeakMap<HTMLElement, UgsEditorPlus.DomAnimation[]>();
 
   // a CSS property you can read and set by name on `element.style`, such as 'opacity' or 'height'
   type CssProperty = {
     [K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string ? K : never;
   }[keyof CSSStyleDeclaration] & string;
 
-  var toMs = function(speed?: UgsEditorPlus.Speed) {
+  const toMs = function(speed?: UgsEditorPlus.Speed) {
     if (typeof speed === 'number') {
       return speed;
     }
@@ -87,7 +87,7 @@ ugsEditorPlus.dom = (function() {
    * @param type {function} constructor, e.g. HTMLInputElement
    * @return {DOM-element}
    */
-  var checked = function<T extends Element>(ele: Element | null, what: string, type: new () => T): T {
+  const checked = function<T extends Element>(ele: Element | null, what: string, type: new () => T): T {
     if (!(ele instanceof type)) {
       throw new Error('ugsEditorPlus: ' + what + (ele ? ' is not a ' + type.name : ' not found'));
     }
@@ -137,7 +137,7 @@ ugsEditorPlus.dom = (function() {
    * @param handler {function}
    */
   _public.on = function(target, eventName, handler) {
-    var list = (typeof target === 'string') ? _public.all(target) : (Array.isArray(target) ? target : [target]);
+    const list = (typeof target === 'string') ? _public.all(target) : (Array.isArray(target) ? target : [target]);
     list.forEach(function(ele: EventTarget | null) {
       if (ele) {
         ele.addEventListener(eventName, handler);
@@ -155,11 +155,11 @@ ugsEditorPlus.dom = (function() {
     return !!(ele && ele.getClientRects().length);
   };
 
-  var running = function(ele: HTMLElement) {
+  const running = function(ele: HTMLElement) {
     return _running.get(ele) || [];
   };
 
-  var setTransition = function(ele: HTMLElement) {
+  const setTransition = function(ele: HTMLElement) {
     ele.style.transition = running(ele).map(function(anim) {
       return anim.css;
     }).join(', ');
@@ -167,9 +167,9 @@ ugsEditorPlus.dom = (function() {
 
   // cancel running animations on ele (all of them, or just those touching propNames);
   // leaves the current inline values in place
-  var stop = function(ele: HTMLElement, propNames?: string[]) {
-    var keep = running(ele).filter(function(anim) {
-      var isHit = !propNames || anim.props.some(function(name) {
+  const stop = function(ele: HTMLElement, propNames?: string[]) {
+    const keep = running(ele).filter(function(anim) {
+      const isHit = !propNames || anim.props.some(function(name) {
         return propNames.indexOf(name) >= 0;
       });
       if (isHit) {
@@ -181,19 +181,19 @@ ugsEditorPlus.dom = (function() {
     setTransition(ele);
   };
 
-  var fadeDirection = function(ele: HTMLElement) {
-    var fades = running(ele).filter(function(anim) {
+  const fadeDirection = function(ele: HTMLElement) {
+    const fades = running(ele).filter(function(anim) {
       return !!anim.fade;
     });
     return fades.length ? fades[0].fade : null;
   };
 
-  var isHidden = function(ele: HTMLElement) {
+  const isHidden = function(ele: HTMLElement) {
     return window.getComputedStyle(ele).display === 'none';
   };
 
   // display the element; when a stylesheet (or class) hides it fall back to "block"
-  var display = function(ele: HTMLElement) {
+  const display = function(ele: HTMLElement) {
     ele.style.display = '';
     if (isHidden(ele)) {
       ele.style.display = 'block';
@@ -210,15 +210,15 @@ ugsEditorPlus.dom = (function() {
    * @return {JSON} the running animation
    */
   _public.animate = function(ele, props, speed, onDone) {
-    var ms = toMs(speed);
-    var computed = window.getComputedStyle(ele);
+    const ms = toMs(speed);
+    const computed = window.getComputedStyle(ele);
     // (Object.keys can't type its result: props' keys are CSS property names, as `animate` documents)
-    var names = Object.keys(props) as CssProperty[];
-    var ends: Record<string, [string, string]> = {};
+    const names = Object.keys(props) as CssProperty[];
+    const ends: Record<string, [string, string]> = {};
 
     // snapshot the starting values BEFORE dropping any running transition
     names.forEach(function(name) {
-      var value = props[name];
+      const value = props[name];
       ends[name] = Array.isArray(value) ? value : [computed[name], value];
     });
     // drop running transitions of these properties, jump to the start values
@@ -229,7 +229,7 @@ ugsEditorPlus.dom = (function() {
     // force a reflow so the browser "sees" the start values before transitioning
     void ele.offsetWidth;
 
-    var anim: UgsEditorPlus.DomAnimation = {
+    const anim: UgsEditorPlus.DomAnimation = {
       props: names,
       css: names.map(function(name) {
         return name.replace(/[A-Z]/g, '-$&').toLowerCase() + ' ' + ms + 'ms ease';
@@ -305,7 +305,7 @@ ugsEditorPlus.dom = (function() {
     if (!ele || (!isHidden(ele) && fadeDirection(ele) !== 'out')) {
       return;
     }
-    var from = isHidden(ele) ? 0 : parseFloat(window.getComputedStyle(ele).opacity);
+    const from = isHidden(ele) ? 0 : parseFloat(window.getComputedStyle(ele).opacity);
     display(ele);
     _public.animate(ele, { opacity: [String(from), '1'] }, speed, function() {
       ele.style.opacity = '';
@@ -353,7 +353,7 @@ ugsEditorPlus.dom = (function() {
       return;
     }
     display(ele);
-    var height = ele.offsetHeight;
+    const height = ele.offsetHeight;
     ele.style.overflow = 'hidden';
     _public.animate(ele, { height: ['0px', height + 'px'] }, speed, function() {
       ele.style.height = '';
@@ -369,12 +369,12 @@ ugsEditorPlus.dom = (function() {
    * @param handleSelector {string} (optional) CSS selector of the "grab" area inside ele; default: ele itself
    */
   _public.draggable = function(ele, handleSelector) {
-    var found = handleSelector ? ele.querySelector(handleSelector) : ele;
+    const found = handleSelector ? ele.querySelector(handleSelector) : ele;
     if (!(found instanceof HTMLElement)) {
       return;
     }
-    var handle = found;
-    var drag: { id: number, dx: number, dy: number } | null = null;
+    const handle = found;
+    let drag: { id: number, dx: number, dy: number } | null = null;
 
     handle.style.cursor = 'move';
     handle.style.touchAction = 'none';
@@ -383,7 +383,7 @@ ugsEditorPlus.dom = (function() {
       if (e.button !== 0 || (e.target instanceof Element && e.target.closest('a, button, input, select, textarea'))) {
         return;
       }
-      var rect = ele.getBoundingClientRect();
+      const rect = ele.getBoundingClientRect();
       drag = {
         id: e.pointerId,
         dx: e.clientX - rect.left,
@@ -404,13 +404,13 @@ ugsEditorPlus.dom = (function() {
         return;
       }
       // keep the handle on screen
-      var left = Math.min(Math.max(e.clientX - drag.dx, 40 - ele.offsetWidth), window.innerWidth - 40);
-      var top = Math.min(Math.max(e.clientY - drag.dy, 0), window.innerHeight - 30);
+      const left = Math.min(Math.max(e.clientX - drag.dx, 40 - ele.offsetWidth), window.innerWidth - 40);
+      const top = Math.min(Math.max(e.clientY - drag.dy, 0), window.innerHeight - 30);
       ele.style.left = left + 'px';
       ele.style.top = top + 'px';
     });
 
-    var endDrag = function(e: PointerEvent) {
+    const endDrag = function(e: PointerEvent) {
       if (!drag || e.pointerId !== drag.id) {
         return;
       }

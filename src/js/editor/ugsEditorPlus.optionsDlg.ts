@@ -21,7 +21,7 @@ ugsEditorPlus.optionsDlg = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.OptionsDlg;
+	const _public = {} as UgsEditorPlus.OptionsDlg;
 
 	/**
 	 * Sets up this class by attaching event handlers to form elements;
@@ -29,7 +29,7 @@ ugsEditorPlus.optionsDlg = (function() {
 	 * @public
 	 */
 	_public.init = function() {
-		var dom = ugsEditorPlus.dom,
+		const dom = ugsEditorPlus.dom,
 			options = ugsEditorPlus.options;
 
 		// Update Button
@@ -39,7 +39,7 @@ ugsEditorPlus.optionsDlg = (function() {
 		};
 
 		// show/hide square bracket (chord enclosure)
-		var chkEnclosures = dom.byId('chkEnclosures', HTMLInputElement);
+		const chkEnclosures = dom.byId('chkEnclosures', HTMLInputElement);
 		chkEnclosures.checked = options.hideChordEnclosures;
 		chkEnclosures.onclick = function() {
 			// Boolean "isVisible"
@@ -47,16 +47,16 @@ ugsEditorPlus.optionsDlg = (function() {
 		};
 
 		// list of chord names to ignore
-		var commonChordList = dom.byId('commonChordList', HTMLInputElement);
-		commonChordList.value = (typeof options.commonChords == 'string') ? options.commonChords : options.commonChords.join(", ");
+		const commonChordList = dom.byId('commonChordList', HTMLInputElement);
+		commonChordList.value = (typeof options.commonChords === 'string') ? options.commonChords : options.commonChords.join(", ");
 		commonChordList.onchange = function() {
 			triggerNotify('setCommonChords', commonChordList.value);
 		};
 
 		// toggle order of reference diagrams (optional: older pages don't have it)
-		var sortAlphaOrNull = document.getElementById('chkSortAlpha');
+		const sortAlphaOrNull = document.getElementById('chkSortAlpha');
 		if (sortAlphaOrNull instanceof HTMLInputElement) {
-			var chkSortAlpha = sortAlphaOrNull;
+			const chkSortAlpha = sortAlphaOrNull;
 			chkSortAlpha.checked = options.sortAlphabetical;
 			chkSortAlpha.onclick = function() {
 				triggerNotify('sortAlphabetical', chkSortAlpha.checked);
@@ -64,7 +64,7 @@ ugsEditorPlus.optionsDlg = (function() {
 		}
 
 		// toggle ignore common chords
-		var chkIgnoreCommon = dom.byId('chkIgnoreCommon', HTMLInputElement);
+		const chkIgnoreCommon = dom.byId('chkIgnoreCommon', HTMLInputElement);
 		chkIgnoreCommon.checked = options.ignoreCommonChords;
 		chkIgnoreCommon.onclick = function() {
 			// Boolean for "isIgnore"

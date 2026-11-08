@@ -26,9 +26,9 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.SubmenuUi;
+	const _public = {} as UgsEditorPlus.SubmenuUi;
 
-	var _open: { id: string } | null = null;
+	let _open: { id: string } | null = null;
 
 	/**
 	 * attaches event handlers
@@ -38,7 +38,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 */
 	_public.init = function() {
 		ugsEditorPlus.themes.loadList('#colorPicker .pseudoSelect', ugsEditorPlus.options.theme);
-		var dom = ugsEditorPlus.dom;
+		const dom = ugsEditorPlus.dom;
 		dom.on('.enablePseudoSelects label', 'click', onLabelClick);
 		dom.on('.pseudoSelect li', 'click', onOptionClick);
 		dom.on(document.body, 'click', closeAll);
@@ -54,14 +54,14 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {bool} false to kill event bubbling
 	 */
 	var onOptionClick = function(this: HTMLElement, e: Event){
-		var dom = ugsEditorPlus.dom;
-		var optionItem = this;
-		var value = stripHash(dom.find('a', HTMLAnchorElement, optionItem).getAttribute('href') || '');
+		const dom = ugsEditorPlus.dom;
+		const optionItem = this;
+		const value = stripHash(dom.find('a', HTMLAnchorElement, optionItem).getAttribute('href') || '');
 
 		// the element holding the "pseudo-select"
-		var select = dom.closest(optionItem, 'dd', HTMLElement);
-		var id = select.id;
-		var actionName = select.getAttribute('data-action') || '';
+		const select = dom.closest(optionItem, 'dd', HTMLElement);
+		const id = select.id;
+		const actionName = select.getAttribute('data-action') || '';
 
 		// a selection's been made so we hide the (sub) select list
 		ugsEditorPlus.dom.hide(select);
@@ -72,7 +72,7 @@ ugsEditorPlus.submenuUi = (function(){
 		_open = null;
 
 		// now bubble out the info -- update display to show selected value ...
-		var label = getLabel(id);
+		const label = getLabel(id);
 		dom.find('span', HTMLElement, label).textContent = getLabelText(actionName, value, optionItem);
 		dom.closest(label, 'dt', HTMLElement).classList.remove('active');
 
@@ -92,7 +92,7 @@ ugsEditorPlus.submenuUi = (function(){
 			//console.log('item for option not found');
 			return;
 		}
-		var siblings = item.parentElement ? item.parentElement.children : [];
+		const siblings = item.parentElement ? item.parentElement.children : [];
 		Array.prototype.forEach.call(siblings, function(sibling: Element) {
 			sibling.classList.remove('checked');
 		});
@@ -120,7 +120,7 @@ ugsEditorPlus.submenuUi = (function(){
 	};
 
 	var syncOptions = function(options: UgsEditorPlus.Options) {
-		var item: Element | null, id: string,
+		let item: Element | null, id: string,
 			map = [{
 				action: 'zoomFonts',
 				value: options.fontSize
@@ -144,7 +144,7 @@ ugsEditorPlus.submenuUi = (function(){
 				value: options.lyricStyle
 			}];
 
-		for (var i = map.length - 1; i >= 0; i--) {
+		for (let i = map.length - 1; i >= 0; i--) {
 			item = document.querySelector('[data-action="' + map[i].action + '"] a[href="#' + cssString(map[i].value) + '"]');
 			if (!item) {
 				continue;
@@ -164,7 +164,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {bool} false to kill event bubbling
 	 */
 	var onLabelClick = function(this: HTMLElement, e: Event){
-		var id = this.getAttribute('for') || '';
+		const id = this.getAttribute('for') || '';
 		setActiveLabel(this);
 		ugsEditorPlus.dom.show(document.getElementById(id));
 		onListActive(this, true);
@@ -200,7 +200,7 @@ ugsEditorPlus.submenuUi = (function(){
 	};
 
 	var setActiveLabel = function(label: HTMLElement){
-		var dom = ugsEditorPlus.dom;
+		const dom = ugsEditorPlus.dom;
 		Array.prototype.forEach.call(dom.closest(label, 'dl', HTMLElement).children, function(child: Element) {
 			if (child.tagName == 'DT') {
 				child.classList.remove('active');
@@ -218,7 +218,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return void
 	 */
 	var onListActive = function(ele: Element, isInUse: boolean){
-		var wrap = ele.closest('.enablePseudoSelects');
+		const wrap = ele.closest('.enablePseudoSelects');
 		if (wrap) {
 			wrap.classList.toggle('event-userSelecting', isInUse);
 		}
@@ -265,7 +265,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @private
 	 * @type {JSON}
 	 */
-	var _desriptions: Record<string, string[]> = {
+	const _desriptions: Record<string, string[]> = {
 		'zoomDiagrams' : ['Tiny', 'Small', 'Medium', 'Large', 'Stupid Large'],
 		'layout' : ['Reference diagrams on left', 'Reference diagrams at top', 'No reference diagrams'],
 		'placement' : ['Chord names inline with lyrics', 'Chord names above lyrics', 'Names & diagrams above lyrics'],
@@ -281,7 +281,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {string}
 	 */
 	var getLabelText = function(action: string, value: string | number, ele: Element){
-		var index = ele.parentElement ? Array.prototype.indexOf.call(ele.parentElement.children, ele) : -1;
+		const index = ele.parentElement ? Array.prototype.indexOf.call(ele.parentElement.children, ele) : -1;
 
 		switch (action){
 			case 'paper':

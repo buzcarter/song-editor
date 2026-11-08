@@ -36,16 +36,16 @@ ugsEditorPlus.reformat = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.Reformat;
+	const _public = {} as UgsEditorPlus.Reformat;
 
-	var _hasChords = false;
+	let _hasChords = false;
 
 	/**
 	 *
 	 * @property _enums
 	 * @private
 	 */
-	var _enums = {
+	const _enums = {
 		lineTypes : {
 			blank : 0,
 			chords : 1,
@@ -61,7 +61,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @constructor
 	 * @for reformat
 	 */
-	var LineObj = function(this: UgsEditorPlus.ReformatLine) {
+	const LineObj = function(this: UgsEditorPlus.ReformatLine) {
 		this.source = '';
 		this.wordCount = 0;
 		this.spaceCount = 0;
@@ -70,7 +70,7 @@ ugsEditorPlus.reformat = (function() {
 		this.lineType = _enums.lineTypes.blank;
 	} as unknown as new () => UgsEditorPlus.ReformatLine;
 
-	var _re = {
+	const _re = {
 		words : /\b(\S+)\b/gi,
 		spaces : /(\s+)/g,
 		leadingSpace : /(^\s+)/,
@@ -101,7 +101,7 @@ ugsEditorPlus.reformat = (function() {
 	 */
 	_public.run = function(text) {
 		_hasChords = false;
-		var lines = read(text);
+		const lines = read(text);
 		return merge(lines);
 	};
 
@@ -121,18 +121,18 @@ ugsEditorPlus.reformat = (function() {
 	 * @return {array of Lines}
 	 */
 	var read = function(text: string){
-		var lineAry: UgsEditorPlus.ReformatLine[] = [];
-		var lines = text.split('\n').map(expandTabs);
-		for (var i = 0; i < lines.length; i++) {
-			var words = lines[i].match(_re.words);
-			var l = new LineObj();
+		const lineAry: UgsEditorPlus.ReformatLine[] = [];
+		const lines = text.split('\n').map(expandTabs);
+		for (let i = 0; i < lines.length; i++) {
+			const words = lines[i].match(_re.words);
+			const l = new LineObj();
 			l.source = lines[i];
 			if ((words != null) && (words.length > 0)){
 				l.wordCount = words.length;
 				l.words = words;
 				l.chordCount = countChords(words);
 			}
-			var spaces = lines[i].match(_re.spaces);
+			const spaces = lines[i].match(_re.spaces);
 			if ((spaces != null) && (spaces.length > 0)){
 				l.spaceCount = spaces.length;
 			}
@@ -148,7 +148,7 @@ ugsEditorPlus.reformat = (function() {
 	 * @property TAB_SIZE
 	 * @final
 	 */
-	var TAB_SIZE = 8;
+	const TAB_SIZE = 8;
 
 	/**
 	 * Replaces each tab with the spaces up to the next tab stop
@@ -157,8 +157,8 @@ ugsEditorPlus.reformat = (function() {
 	 * @return {string}
 	 */
 	var expandTabs = function(line: string){
-		var out = '';
-		for (var i = 0; i < line.length; i++) {
+		let out = '';
+		for (let i = 0; i < line.length; i++) {
 			if (line[i] != '\t') {
 				out += line[i];
 				continue;
@@ -181,12 +181,12 @@ ugsEditorPlus.reformat = (function() {
 			return _enums.lineTypes.blank;
 		}
 
-		var tabs = line.source.match(_re.tabs);
+		const tabs = line.source.match(_re.tabs);
 		if (tabs != null){
 			return _enums.lineTypes.tabs;
 		}
 
-		var t = _enums.lineTypes.lyrics;
+		let t = _enums.lineTypes.lyrics;
 		if ((line.chordCount > 0) && (line.wordCount == line.chordCount)){
 			t = _enums.lineTypes.chords;
 			_hasChords = true;
@@ -202,8 +202,8 @@ ugsEditorPlus.reformat = (function() {
 	 * @return [int] number found
 	 */
 	var countChords = function(words: string[]){
-		var count = 0;
-		for (var i = 0; i < words.length; i++) {
+		let count = 0;
+		for (let i = 0; i < words.length; i++) {
 			if (words[i].match(_re.chordNames)) {
 				count++;
 			}
@@ -218,9 +218,9 @@ ugsEditorPlus.reformat = (function() {
 	 * @return [string]
 	 */
 	var merge = function(lines: UgsEditorPlus.ReformatLine[]){
-		var s = '';
-		var thisLine, nextLine;
-		for (var i = 0; i < lines.length; ) {
+		let s = '';
+		let thisLine, nextLine;
+		for (let i = 0; i < lines.length; ) {
 			thisLine = lines[i];
 			nextLine = lines[i+1];
 			i++;
@@ -263,7 +263,7 @@ ugsEditorPlus.reformat = (function() {
 		if (index + 2 >= lines.length){
 			return false;
 		}
-		for (var i = index; i < index + 3; i++){
+		for (let i = index; i < index + 3; i++){
 			if (lines[i].lineType != _enums.lineTypes.tabs){
 				return false;
 			}
@@ -282,16 +282,16 @@ ugsEditorPlus.reformat = (function() {
 		while (lyricsLine.length < chordLine.length){
 			lyricsLine += ' ';
 		}
-		var s = '';
+		let s = '';
 		// (only called for chord lines, which have chord blocks)
-		var blocks = chordLine.match(_re.chrdBlock) || [];
-		var lead = chordLine.match(_re.leadingSpace);
-		var offset = 0;
+		const blocks = chordLine.match(_re.chrdBlock) || [];
+		const lead = chordLine.match(_re.leadingSpace);
+		let offset = 0;
 		if (lead){
 			s += lyricsLine.substr(offset, lead[0].length);
 			offset = lead[0].length;
 		}
-		for (var j = 0; j < blocks.length; j++) {
+		for (let j = 0; j < blocks.length; j++) {
 			s += '[' + blocks[j].replace(_re.spaces, '') + ']' + lyricsLine.substr(offset, blocks[j].length);
 			offset += blocks[j].length;
 		}
@@ -308,9 +308,9 @@ ugsEditorPlus.reformat = (function() {
 	 * @return [string] each word of input line gets bracketed
 	 */
 	var wrapChords = function(chordLine: string){
-		var chords = chordLine.replace(_re.spaces, ' ').split(' ');
-		var s = '';
-		for (var i = 0; i < chords.length; i++) {
+		const chords = chordLine.replace(_re.spaces, ' ').split(' ');
+		let s = '';
+		for (let i = 0; i < chords.length; i++) {
 			if (chords[i].length > 0){
 				s += '[' + chords[i] + '] ';
 			}

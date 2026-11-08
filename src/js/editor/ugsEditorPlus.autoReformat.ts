@@ -27,23 +27,23 @@ ugsEditorPlus.autoReformat = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.AutoReformat;
+	const _public = {} as UgsEditorPlus.AutoReformat;
 
 	/**
 	 * associative array/JSON handles to key/frequently accessed DOM Elements (see init()
 	 * @property _ele
 	 * @type {JSON}
 	 */
-	var _ele = {} as UgsEditorPlus.ReformatElements;
+	let _ele = {} as UgsEditorPlus.ReformatElements;
 
-	var _formatted: string;
-	var _isDisabled = false;
+	let _formatted: string;
+	let _isDisabled = false;
 
 	_public.run = function(elements){
 		if (_isDisabled){
 			return;
 		}
-		var dom = ugsEditorPlus.dom;
+		const dom = ugsEditorPlus.dom;
 		// adds the dialog's elements to the ones passed in (the same object, as before)
 		_ele = Object.assign(elements, {
 			reformatTextBox: dom.byId('reformatSource', HTMLTextAreaElement),
@@ -60,7 +60,7 @@ ugsEditorPlus.autoReformat = (function() {
 		};
 
 		// need to reset on reload
-		var chk = dom.byId('reformatDisable', HTMLInputElement);
+		const chk = dom.byId('reformatDisable', HTMLInputElement);
 		chk.checked = false;
 		chk.onclick = function() {
 			doDisable(chk.checked);
