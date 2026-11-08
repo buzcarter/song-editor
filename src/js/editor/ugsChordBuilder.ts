@@ -427,7 +427,7 @@ ugsChordBuilder.fretDots = (function() {
 		return true;
 	};
 
-	var inRange = function(numSteps: number) {
+	const inRange = function(numSteps: number) {
 		for (let i = 0; i < _dots.length; i++) {
 			if ((_dots[i].fret + numSteps < 1) || (_dots[i].fret + numSteps > opts_board.numFrets)) {
 				return false;
@@ -477,7 +477,7 @@ ugsChordBuilder.fretDots = (function() {
 	 * @param  {entities.dot} dot
 	 * @return {int}
 	 */
-	var find = function(dot: UgsChordBuilder.Dot) {
+	const find = function(dot: UgsChordBuilder.Dot) {
 		for (let i = _dots.length - 1; i >= 0; i--) {
 			if (_dots[i].string == dot.string && _dots[i].fret == dot.fret) {
 				return i;
@@ -492,7 +492,7 @@ ugsChordBuilder.fretDots = (function() {
 	 * @method clearColumn
 	 * @param string {int}
 	 */
-	var clearColumn = function(string: number) {
+	const clearColumn = function(string: number) {
 		for (let i = _dots.length - 1; i >= 0; i--) {
 			if (_dots[i].string == string) {
 				_dots.splice(i, 1);
@@ -603,7 +603,7 @@ ugsChordBuilder.cursorCanvas = (function() {
 		// not centering pos.x - 0.5 * _handImage.width, pos.y - 0.5 * _handImage.height);
 	};
 
-	var loadImage = function() {
+	const loadImage = function() {
 		_handImage = new Image();
 		_handImage.onload = function() {
 			_imgOk = true;
@@ -959,7 +959,7 @@ ugsChordBuilder.export = (function() {
 	 * @param  {string} chordName
 	 * @return {string}
 	 */
-	var scrub = function(name: string) {
+	const scrub = function(name: string) {
 		// paranoia protection: no reserved words (makes life easier for parsing)
 		const disallow = /^(frets|fingers|add:)$/i;
 		// trim leading & trailing spaces, internal spaces get smushed into single dash
