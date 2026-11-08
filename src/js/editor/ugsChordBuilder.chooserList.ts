@@ -394,10 +394,9 @@ ugsChordBuilder.chooserList = (function() {
 	};
 
 	/**
-	 * Using just a bit of recursion performs as advertised: replaces all occurences of
-	 * searchValue with newValue within text (haystack).
-	 * DANGER: it is, of course, for this to get hung in an infinite loop if new value
-	 * inclues complete search value. :D
+	 * Replaces every occurrence of searchValue in text with newValue, both taken as plain text.
+	 * (Not String.replace: it reads "$&" or "$$" in newValue as patterns, and a chord name can
+	 * contain them.)
 	 * @method replaceAll
 	 * @param  {string} text
 	 * @param  {string} searchValue
@@ -405,8 +404,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * @return {string}
 	 */
 	const replaceAll = function(text: string, searchValue: string, newValue: string): string {
-		const newText = text.replace(searchValue, newValue);
-		return (newText === text) ? text : replaceAll(newText, searchValue, newValue);
+		return text.split(searchValue).join(newValue);
 	};
 
 	/**
