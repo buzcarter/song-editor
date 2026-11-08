@@ -57,21 +57,15 @@ ugsEditorPlus.reformat = (function() {
 		}
 	};
 
-	/**
-	 * Line Object Class Definition (sets defaults)
-	 * @class reformat.LineObj
-	 * @private
-	 * @constructor
-	 * @for reformat
-	 */
-	const LineObj = function(this: UgsEditorPlus.ReformatLine) {
-		this.source = '';
-		this.wordCount = 0;
-		this.spaceCount = 0;
-		this.words = [];
-		this.chordCount = 0;
-		this.lineType = _enums.lineTypes.blank;
-	} as unknown as new () => UgsEditorPlus.ReformatLine;
+	/** One line of the text, as read() finds it; a new one is a blank line */
+	class LineObj implements UgsEditorPlus.ReformatLine {
+		source = '';
+		wordCount = 0;
+		spaceCount = 0;
+		words: string[] = [];
+		chordCount = 0;
+		lineType = _enums.lineTypes.blank;
+	}
 
 	const _re = {
 		words : /\b(\S+)\b/gi,
