@@ -170,7 +170,7 @@ ugsEditorPlus.submenuUi = (function(){
 		if (_open !== null) {
 			ugsEditorPlus.dom.hide(document.getElementById(_open.id));
 		}
-		if (_open !== null && _open.id == id) {
+		if (_open !== null && _open.id === id) {
 			_open = null;
 		}
 		else {
@@ -201,7 +201,7 @@ ugsEditorPlus.submenuUi = (function(){
 	const setActiveLabel = function(label: HTMLElement){
 		const dom = ugsEditorPlus.dom;
 		Array.prototype.forEach.call(dom.closest(label, 'dl', HTMLElement).children, function(child: Element) {
-			if (child.tagName == 'DT') {
+			if (child.tagName === 'DT') {
 				child.classList.remove('active');
 			}
 		});
@@ -251,7 +251,7 @@ ugsEditorPlus.submenuUi = (function(){
 	};
 
 	const stripHash = function(value: string){
-		return (value[0] == '#') ? value.substr(1) : value;
+		return (value[0] === '#') ? value.substr(1) : value;
 	};
 
 	/* ----------------------------------------------------------------------------------- *|
@@ -292,7 +292,7 @@ ugsEditorPlus.submenuUi = (function(){
 			case 'colors':
 				return ugsEditorPlus.themes.getDescription(String(value));
 			case 'transpose': {
-				if (value == 'up_0'){
+				if (value === 'up_0'){
 					return 'Original key';
 				}
 				const txt = ele.textContent || '';

@@ -37,7 +37,7 @@ ugsEditorPlus.styles = (function() {
 	
 	const _getSheet = function(title: string){
 		for (let i = 0; i < document.styleSheets.length; i++){
-			if (document.styleSheets[i].title == title){
+			if (document.styleSheets[i].title === title){
 				return document.styleSheets[i];
 			}
 		}
@@ -59,7 +59,7 @@ ugsEditorPlus.styles = (function() {
 			if (!(rule instanceof CSSStyleRule) || !rule.selectorText) {
 				continue;
 			}
-			if (rule.selectorText.toLowerCase() == selector) {
+			if (rule.selectorText.toLowerCase() === selector) {
 				return rule;
 			}
 		}

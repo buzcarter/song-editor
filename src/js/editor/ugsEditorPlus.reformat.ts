@@ -162,13 +162,13 @@ ugsEditorPlus.reformat = (function() {
 	const expandTabs = function(line: string){
 		let out = '';
 		for (let i = 0; i < line.length; i++) {
-			if (line[i] != '\t') {
+			if (line[i] !== '\t') {
 				out += line[i];
 				continue;
 			}
 			do {
 				out += ' ';
-			} while (out.length % TAB_SIZE != 0);
+			} while (out.length % TAB_SIZE !== 0);
 		}
 		return out;
 	};
@@ -190,7 +190,7 @@ ugsEditorPlus.reformat = (function() {
 		}
 
 		let t = _enums.lineTypes.lyrics;
-		if ((line.chordCount > 0) && (line.wordCount == line.chordCount)){
+		if ((line.chordCount > 0) && (line.wordCount === line.chordCount)){
 			t = _enums.lineTypes.chords;
 			_hasChords = true;
 		}
@@ -228,21 +228,21 @@ ugsEditorPlus.reformat = (function() {
 			nextLine = lines[i+1];
 			i++;
 			// If this line's blank or its the last line...
-			if (!nextLine || (thisLine.lineType == _enums.lineTypes.blank)){
+			if (!nextLine || (thisLine.lineType === _enums.lineTypes.blank)){
 				s += thisLine.source + '\n';
 				continue;
 			}
 
 			// OK, we've complicated things a bit by adding tabs, so we'll handle this in a helper...
-			if ((thisLine.lineType == _enums.lineTypes.tabs) && isTabBlock(lines, i)){
+			if ((thisLine.lineType === _enums.lineTypes.tabs) && isTabBlock(lines, i)){
 				s += '{start_of_tab}\n' + thisLine.source.replace(_re.leadingSpace, '') + '\n' + nextLine.source.replace(_re.leadingSpace, '') + '\n' + lines[i + 1].source.replace(_re.leadingSpace, '') + '\n' + lines[i + 2].source.replace(_re.leadingSpace, '') + '\n' + '{end_of_tab}\n';
 				i+= 3;
 				continue;
 			}
 
 			// finally, look for a "mergable" pair: this line is chords and the next is lyrics -- if not this we'll just output the current line
-			if ((thisLine.lineType != _enums.lineTypes.chords) || (nextLine.lineType != _enums.lineTypes.lyrics)){
-				s += (thisLine.lineType == _enums.lineTypes.chords) ? wrapChords(thisLine.source) + '\n' : thisLine.source + '\n';
+			if ((thisLine.lineType !== _enums.lineTypes.chords) || (nextLine.lineType !== _enums.lineTypes.lyrics)){
+				s += (thisLine.lineType === _enums.lineTypes.chords) ? wrapChords(thisLine.source) + '\n' : thisLine.source + '\n';
 				continue;
 			}
 
@@ -267,7 +267,7 @@ ugsEditorPlus.reformat = (function() {
 			return false;
 		}
 		for (let i = index; i < index + 3; i++){
-			if (lines[i].lineType != _enums.lineTypes.tabs){
+			if (lines[i].lineType !== _enums.lineTypes.tabs){
 				return false;
 			}
 		}

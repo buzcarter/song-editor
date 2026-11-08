@@ -280,7 +280,7 @@ ugsEditorPlus.themes = (function() {
 			if (Object.prototype.hasOwnProperty.call(_colorSchemes, key)) {
 				const li = document.createElement('li');
 				const a = document.createElement('a');
-				if (key == selectedValue) {
+				if (key === selectedValue) {
 					li.className = 'checked';
 				}
 				a.href = '#' + key;

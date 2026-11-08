@@ -293,9 +293,9 @@ ugsEditorPlus.actions = (function() {
 	 */
 	const doLayout = function(value: string){
 		const classes = document.body.classList;
-		classes.toggle('diagramsOnTop', value == 'top');
-		classes.toggle('diagramsOnSide', value == 'left');
-		classes.toggle('ugsHideDiagrams', value == 'none');
+		classes.toggle('diagramsOnTop', value === 'top');
+		classes.toggle('diagramsOnSide', value === 'left');
+		classes.toggle('ugsHideDiagrams', value === 'none');
 	};
 
 	/* ----------------------------------------------------------------------------------- *|
@@ -311,20 +311,20 @@ ugsEditorPlus.actions = (function() {
 	 */
 	const doPlacement = function(value: string){
 		let isRunRequired = false;
-		ukeGeeks.toolsLite.setClass(_ele.songContainer, 'ugsInline', (value == 'inline'));
+		ukeGeeks.toolsLite.setClass(_ele.songContainer, 'ugsInline', (value === 'inline'));
 
 		// NOTE: ugs already adds the "chord diagrams above" class based on setting,
 		// BUT does NOT remove it!!!!
-		const isMiniDiagrams = (value == 'miniDiagrams');
+		const isMiniDiagrams = (value === 'miniDiagrams');
 		if (!isMiniDiagrams){
 			ukeGeeks.toolsLite.removeClass(_ele.songContainer, 'ugsInlineDiagrams');
 		}
 
-		if (isMiniDiagrams || (_prevValues.placement == 'miniDiagrams')){
+		if (isMiniDiagrams || (_prevValues.placement === 'miniDiagrams')){
 			ukeGeeks.settings.inlineDiagrams = isMiniDiagrams;
 			isRunRequired = true;
 		}
-		else if (!isMiniDiagrams && (_prevValues.placement != 'miniDiagrams')) {
+		else if (!isMiniDiagrams && (_prevValues.placement !== 'miniDiagrams')) {
 			// we're jumping between "above" and "inline", either way we need to
 			// manually fix the overlaps
 			ukeGeeks.overlapFixer.Fix(_ele.songText);
@@ -382,12 +382,12 @@ ugsEditorPlus.actions = (function() {
 		let tuning: number = ukeGeeks.definitions.instrument.sopranoUke,
 			msg = '<strong>GCEA</strong> Standard Ukulele';
 
-		if (value == 'baritone') {
+		if (value === 'baritone') {
 			tuning = ukeGeeks.definitions.instrument.baritoneUke;
 			msg = '<strong>DGBE</strong> Baritone Ukulele';
 		}
 
-		if (value == 'alternate') {
+		if (value === 'alternate') {
 			tuning = ukeGeeks.definitions.instrument.alternateUke;
 			msg = '<strong>ADF#B</strong> alternate tuning';
 		}
@@ -403,7 +403,7 @@ ugsEditorPlus.actions = (function() {
 	 * @param value {string} value of the clicked value item
 	 */
 	const doTranspose = function(value: string){
-		const sign = value[0] == 'u' ? 1 : -1;
+		const sign = value[0] === 'u' ? 1 : -1;
 		const steps = parseInt(value[value.length - 1], 10);
 		transpose(sign * steps);
 	};
