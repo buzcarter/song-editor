@@ -55,25 +55,24 @@ ugsEditorPlus.submenuUi = (function(){
 	 */
 	const onOptionClick = function(this: HTMLElement, e: Event){
 		const dom = ugsEditorPlus.dom;
-		const optionItem = this;
-		const value = stripHash(dom.find('a', HTMLAnchorElement, optionItem).getAttribute('href') || '');
+		const value = stripHash(dom.find('a', HTMLAnchorElement, this).getAttribute('href') || '');
 
 		// the element holding the "pseudo-select"
-		const select = dom.closest(optionItem, 'dd', HTMLElement);
+		const select = dom.closest(this, 'dd', HTMLElement);
 		const id = select.id;
 		const actionName = select.getAttribute('data-action') || '';
 
 		// a selection's been made so we hide the (sub) select list
 		ugsEditorPlus.dom.hide(select);
 		// ...and reset ("uncheck") all items and check ("highlight") this selected item
-		setChecked(optionItem);
+		setChecked(this);
 
 		onListActive(this, false);
 		_open = null;
 
 		// now bubble out the info -- update display to show selected value ...
 		const label = getLabel(id);
-		dom.find('span', HTMLElement, label).textContent = getLabelText(actionName, value, optionItem);
+		dom.find('span', HTMLElement, label).textContent = getLabelText(actionName, value, this);
 		dom.closest(label, 'dt', HTMLElement).classList.remove('active');
 
 		// lastly, execute the action
@@ -120,8 +119,8 @@ ugsEditorPlus.submenuUi = (function(){
 	};
 
 	const syncOptions = function(options: UgsEditorPlus.Options) {
-		let item: Element | null, id: string,
-			map = [{
+		let item: Element | null, id: string;
+		const map = [{
 				action: 'zoomFonts',
 				value: options.fontSize
 			}, {
@@ -244,7 +243,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @method closeAll
 	 * @param  {event} e
 	 */
-	const closeAll = function(e: Event){
+	const closeAll = function(){
 		ugsEditorPlus.dom.all('.arrowBox').forEach(function(box) {
 			ugsEditorPlus.dom.fadeOut(box, 270);
 		});
@@ -292,12 +291,13 @@ ugsEditorPlus.submenuUi = (function(){
 				return _desriptions.zoomDiagrams[index] + ' diagrams';
 			case 'colors':
 				return ugsEditorPlus.themes.getDescription(String(value));
-			case 'transpose':
+			case 'transpose': {
 				if (value == 'up_0'){
 					return 'Original key';
 				}
 				const txt = ele.textContent || '';
 				return txt.replace(' ', ' steps - "') + '"';
+			}
 			default:
 			 return _desriptions[action][index];
 		}

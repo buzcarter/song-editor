@@ -357,7 +357,7 @@ ugsChordBuilder.tracking = (function() {
 	 * @return {bool}
 	 */
 	const collision = function(object1: UgsChordBuilder.BoundingBox, object2: UgsChordBuilder.BoundingBox) {
-		return (object1.x < object2.x + object2.width) && (object1.x + object1.width  > object2.x) && (object1.y < object2.y + object2.height) && (object1.y + object1.height > object2.y);
+		return (object1.x < object2.x + object2.width) && (object1.x + object1.width > object2.x) && (object1.y < object2.y + object2.height) && (object1.y + object1.height > object2.y);
 	};
 
 	/**
@@ -811,8 +811,8 @@ ugsChordBuilder.export = (function() {
 
 	const getStringDots = function() {
 		// initialize empty string array
-		let stringNumber,
-			aryStringDots: UgsChordBuilder.StringDots[] = [];
+		let stringNumber;
+		const aryStringDots: UgsChordBuilder.StringDots[] = [];
 		for (stringNumber = 1; stringNumber <= opts_board.stringNames.length; stringNumber++) {
 			aryStringDots.push(new StringDots(stringNumber));
 		}

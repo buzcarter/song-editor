@@ -153,7 +153,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @private
 	 * @return {void}
 	 */
-	const showOutputBox = function(evt: Event) {
+	const showOutputBox = function() {
 		// (the click is on the show-output checkbox)
 		setClass(dom.byId(_ids.outputBox, HTMLElement), 'collapseOutput', !dom.byId(_ids.showOutputBtn, HTMLInputElement).checked);
 	};
@@ -386,7 +386,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @private
 	 * @return {void}
 	 */
-	const onNameChange = function(this: HTMLInputElement, evt: Event) {
+	const onNameChange = function(this: HTMLInputElement) {
 		_currentName = this.value;
 		exportDefinition();
 	};
@@ -396,7 +396,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @private
 	 * @return {void}
 	 */
-	const onFretChange = function(this: HTMLSelectElement, evt: Event) {
+	const onFretChange = function(this: HTMLSelectElement) {
 		_startingFret = parseInt(this.value, 10);
 		exportDefinition();
 		redraw();

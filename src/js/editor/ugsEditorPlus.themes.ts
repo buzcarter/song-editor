@@ -249,7 +249,7 @@ ugsEditorPlus.themes = (function() {
 		const classes = document.body.classList;
 		// see: http://stackoverflow.com/questions/921789/how-to-loop-through-javascript-object-literal-with-objects-as-members
 		for (const key in _colorSchemes) {
-			if (_colorSchemes.hasOwnProperty(key)) {
+			if (Object.prototype.hasOwnProperty.call(_colorSchemes, key)) {
 				classes.remove('theme-' + key);
 			}
 		}
@@ -277,7 +277,7 @@ ugsEditorPlus.themes = (function() {
 		const ul = ugsEditorPlus.dom.find(selector, HTMLElement);
 		ul.textContent = '';
 		for (const key in _colorSchemes) {
-			if (_colorSchemes.hasOwnProperty(key)) {
+			if (Object.prototype.hasOwnProperty.call(_colorSchemes, key)) {
 				const li = document.createElement('li');
 				const a = document.createElement('a');
 				if (key == selectedValue) {

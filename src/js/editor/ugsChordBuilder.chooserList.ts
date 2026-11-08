@@ -191,7 +191,7 @@ ugsChordBuilder.chooserList = (function() {
 			alert('Hey, this chord name is already being used.');
 			return false;
 		}
-		let id = -1;
+		let id: number;
 		if (_currentChord == null) {
 			id = definitionAdd(data.name, data.definition);
 			_currentChord = dictionaryFind(id);

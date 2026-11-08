@@ -414,8 +414,8 @@ ugsEditorPlus.actions = (function() {
 	 * @param steps {int} number of semitones, +/-6
 	 */
 	const transpose = function(steps: number){
-		let safeChords = [],
-			bad = '',
+		const safeChords = [];
+		let bad = '',
 			i;
 
 		// find "shiftable" chords
