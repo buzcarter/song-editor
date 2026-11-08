@@ -44,12 +44,12 @@ ugsChordBuilder.chooserList = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsChordBuilder.ChooserList;
+	const _public = {} as UgsChordBuilder.ChooserList;
 
 	// array of custom chords defined in this song
-	var _chordDictionary: UgsChordBuilder.ChordDefinition[] = [];
+	let _chordDictionary: UgsChordBuilder.ChordDefinition[] = [];
 	// the HTML UL element (the editor's checked lookup: ugsEditorPlus.dom loads before the Chord Builder)
-	var chordListEle = function() {
+	const chordListEle = function() {
 		return ugsEditorPlus.dom.byId(_ids.chordList, HTMLElement);
 	};
 
@@ -59,13 +59,13 @@ ugsChordBuilder.chooserList = (function() {
 	 * @attribute C_NEW_CHORD
 	 * @type {Int}
 	 */
-	var C_NEW_CHORD = -1;
+	const C_NEW_CHORD = -1;
 
 	// next available Id used on LI's
-	var _nextId = 0;
+	let _nextId = 0;
 
 	// HTML element Ids
-	var _ids = {
+	const _ids = {
 		// ChordPro Song -- the unmodified source
 		source: 'chordProSource',
 		// the UL where we'll be loading the chords
@@ -78,13 +78,13 @@ ugsChordBuilder.chooserList = (function() {
 	 * Chord current sent to the editor.
 	 * @attribute _currentChord
 	 */
-	var _currentChord: UgsChordBuilder.ChordDefinition | null = null;
+	let _currentChord: UgsChordBuilder.ChordDefinition | null = null;
 
 	/**
 	 * Handle to the chordBuilder (UI) "setChord" method
 	 * @attribute _setChordMethod
 	 */
-	var _setChordMethod: (chord: UgsChordBuilder.Chord | null) => void = function() {};
+	let _setChordMethod: (chord: UgsChordBuilder.Chord | null) => void = function() {};
 
 	/**
 	 * Hanlde to instance of Scriptasaurus chord brush class, to paint the wee little
@@ -92,14 +92,14 @@ ugsChordBuilder.chooserList = (function() {
 	 * @attribute _ugsBrushTool
 	 * @type {Object}
 	 */
-	var _ugsBrushTool: InstanceType<typeof ukeGeeks.chordBrush> | null = null;
+	let _ugsBrushTool: InstanceType<typeof ukeGeeks.chordBrush> | null = null;
 
 	/**
 	 * Required settings for the Chord Brush -- dimensions, fonts, and colors.
 	 * @attribute _diagramSettings
 	 * @type {JSON}
 	 */
-	var _diagramSettings = {
+	const _diagramSettings = {
 		dimensions: {
 			showText: false,
 			height: 50,
@@ -136,7 +136,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {string} name
 	 * @param {string} definition
 	 */
-	var ChordDefinition = function(this: UgsChordBuilder.ChordDefinition, name: string, definition: string) {
+	const ChordDefinition = function(this: UgsChordBuilder.ChordDefinition, name: string, definition: string) {
 		this.id = _nextId++;
 		this.name = name;
 		this.definition = definition;
@@ -153,7 +153,7 @@ ugsChordBuilder.chooserList = (function() {
 		_start();
 	};
 
-	var _start = function() {
+	const _start = function() {
 		songGetDefinitions(ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement).value);
 		listLoad(chordListEle(), _chordDictionary);
 	};
@@ -173,8 +173,8 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {bool} isChooserPanel
 	 */
 	_public.show = function(isChooserPanel) {
-		var dom = ugsEditorPlus.dom;
-		var chooserPanel = dom.byId(_ids.chooserPanel, HTMLElement);
+		const dom = ugsEditorPlus.dom;
+		const chooserPanel = dom.byId(_ids.chooserPanel, HTMLElement);
 		chooserPanel.style.display = isChooserPanel ? 'block' : 'none';
 		dom.byId(_ids.builderPanel, HTMLElement).style.display = !isChooserPanel ? 'block' : 'none';
 		dom.closest(chooserPanel, '.overlay', HTMLElement).classList.toggle('chordBuilderNarrow', isChooserPanel);
@@ -191,19 +191,19 @@ ugsChordBuilder.chooserList = (function() {
 			alert('Hey, this chord name is already being used.');
 			return false;
 		}
-		var id = -1;
+		let id: number;
 		if (_currentChord == null) {
 			id = definitionAdd(data.name, data.definition);
 			_currentChord = dictionaryFind(id);
 			songAddDefinition(data.definition);
 		}
 		else {
-			var i = dictionaryGetIndex(_currentChord.id);
+			const i = dictionaryGetIndex(_currentChord.id);
 			if (i < 0) {
 				// console.log('error: not found');
 				return false;
 			}
-			var oldDefinition = _chordDictionary[i].definition;
+			const oldDefinition = _chordDictionary[i].definition;
 			_chordDictionary[i].name = data.name;
 			_chordDictionary[i].definition = data.definition;
 			id = _chordDictionary[i].id;
@@ -220,11 +220,11 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {ChordDefinition} chord
 	 * @return {void}
 	 */
-	var doDelete = function(chord: UgsChordBuilder.ChordDefinition) {
+	const doDelete = function(chord: UgsChordBuilder.ChordDefinition) {
 		if (!confirm('Delete definition for "' + chord.name + '"?')) {
 			return;
 		}
-		var item = listGetItem(chord.id);
+		const item = listGetItem(chord.id);
 		if (!item) {
 			return;
 		}
@@ -238,22 +238,22 @@ ugsChordBuilder.chooserList = (function() {
 	 * @method onClick
 	 * @param  {Event} evt
 	 */
-	var onClick = function(evt: MouseEvent) {
+	const onClick = function(evt: MouseEvent) {
 		evt.preventDefault();
 		// the click lands on an item (or its delete button) in the chord list
-		var target = evt.target;
+		const target = evt.target;
 		if (!(target instanceof Element)) {
 			return;
 		}
 		_currentChord = dictionaryFind(target.getAttribute('data-id'));
-		if (target.getAttribute('data-action') == 'delete') {
+		if (target.getAttribute('data-action') === 'delete') {
 			if (_currentChord) {
 				doDelete(_currentChord);
 			}
 			return;
 		}
 
-		var chord = null;
+		let chord = null;
 		if (_currentChord != null) {
 			chord = ukeGeeks.chordImport.runLine(_currentChord.definition);
 			if (chord && hasMutedStrings(chord)) {
@@ -270,9 +270,9 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {ugs.chord}  chord
 	 * @return {Boolean}
 	 */
-	var hasMutedStrings = function(chord: UgsChordBuilder.Chord) {
+	const hasMutedStrings = function(chord: UgsChordBuilder.Chord) {
 		if (chord.muted) {
-			for (var i = 0; i < chord.muted.length; i++) {
+			for (let i = 0; i < chord.muted.length; i++) {
 				if (chord.muted[i]) {
 					return true;
 				}
@@ -288,13 +288,13 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {int} id
 	 * @return {DOM_LI}
 	 */
-	var listUpdate = function(id: number) {
-		var def = dictionaryFind(id);
+	const listUpdate = function(id: number) {
+		const def = dictionaryFind(id);
 		if (!def) {
 			// (save() passes the id it just added or updated)
 			return null;
 		}
-		var item: HTMLLIElement | null | void = listGetItem(id);
+		let item: HTMLLIElement | null | void = listGetItem(id);
 		if (!item) {
 			item = listAddItem(id, def.name);
 		}
@@ -311,10 +311,10 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {int} id
 	 * @return {DOM_LI}
 	 */
-	var listGetItem = function(id: number | string | null) {
-		var items = chordListEle().getElementsByTagName('li');
-		for (var i = 0; i < items.length; i++) {
-			if (items[i].getAttribute('data-id') == ('' + id)) {
+	const listGetItem = function(id: number | string | null) {
+		const items = chordListEle().getElementsByTagName('li');
+		for (let i = 0; i < items.length; i++) {
+			if (items[i].getAttribute('data-id') === ('' + id)) {
 				return items[i];
 			}
 		}
@@ -329,9 +329,9 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {bool} isInner (optional) if TRUE only reutrns the inner HTML part, otherwise returns complete LI tag
 	 * @return {string}
 	 */
-	var listHtmlString = function(id: number, name: string, isInner?: boolean) {
+	const listHtmlString = function(id: number, name: string, isInner?: boolean) {
 		isInner = (arguments.length > 2) ? isInner : false;
-		var innerHtml = '<span class="deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + ukeGeeks.toolsLite.escapeHtml(name);
+		const innerHtml = '<span class="deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + ukeGeeks.toolsLite.escapeHtml(name);
 		return isInner ? innerHtml : '<li data-id="' + id + '" title="Edit this definition" class="ugs-grouped">' + innerHtml + '</li>';
 	};
 
@@ -341,14 +341,14 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {DOM_UL} ul
 	 * @param {array} chordDefs
 	 */
-	var listLoad = function(ul: HTMLElement, chordDefs: UgsChordBuilder.ChordDefinition[]) {
-		var i, s = '';
+	const listLoad = function(ul: HTMLElement, chordDefs: UgsChordBuilder.ChordDefinition[]) {
+		let i, s = '';
 		for (i = 0; i < chordDefs.length; i++) {
 			s += listHtmlString(chordDefs[i].id, chordDefs[i].name);
 		}
 		ul.innerHTML = '<li data-id="' + C_NEW_CHORD + '" class="newChord">+ Add New Chord</li>' + s;
 
-		var items = ul.getElementsByTagName('li');
+		const items = ul.getElementsByTagName('li');
 		for (i = items.length - 1; i >= 0; i--) {
 			if (i < 1) {
 				continue;
@@ -363,8 +363,8 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {int} id
 	 * @param  {string} name
 	 */
-	var listAddItem = function(id: number, name: string) {
-		var temp = document.createElement('ul');
+	const listAddItem = function(id: number, name: string) {
+		const temp = document.createElement('ul');
 		temp.innerHTML = listHtmlString(id, name);
 		chordListEle().appendChild(temp.childNodes[0]);
 	};
@@ -373,14 +373,14 @@ ugsChordBuilder.chooserList = (function() {
 	 * Adds mini-chord diagram to the list item found by Id.
 	 * @method listAddDiagram
 	 */
-	var listAddDiagram = function(id: number | string | null) {
-		var element = listGetItem(id);
-		var defintion = dictionaryFind(id);
+	const listAddDiagram = function(id: number | string | null) {
+		const element = listGetItem(id);
+		const defintion = dictionaryFind(id);
 		// (the list holds an item for each definition)
 		if (!element || !defintion) {
 			return;
 		}
-		var chord = ukeGeeks.chordImport.runLine(defintion.definition);
+		const chord = ukeGeeks.chordImport.runLine(defintion.definition);
 		if (!chord) {
 			// Song Formatter can't read this {define}: no mini-diagram
 			return;
@@ -404,9 +404,9 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {string} newValue
 	 * @return {string}
 	 */
-	var replaceAll = function(text: string, searchValue: string, newValue: string): string {
-		var newText = text.replace(searchValue, newValue);
-		return (newText == text) ? text : replaceAll(newText, searchValue, newValue);
+	const replaceAll = function(text: string, searchValue: string, newValue: string): string {
+		const newText = text.replace(searchValue, newValue);
+		return (newText === text) ? text : replaceAll(newText, searchValue, newValue);
 	};
 
 	/**
@@ -416,8 +416,8 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {string} newDefinition
 	 * @return {void}
 	 */
-	var songReplace = function(oldDefinition: string, newDefinition: string) {
-		var e = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
+	const songReplace = function(oldDefinition: string, newDefinition: string) {
+		const e = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
 		e.value = replaceAll(e.value, oldDefinition, newDefinition);
 		ugsEditorPlus.actions.run();
 	};
@@ -427,10 +427,10 @@ ugsChordBuilder.chooserList = (function() {
 	 * them to the ChordDictionary.
 	 * @method songGetDefinitions
 	 */
-	var songGetDefinitions = function(text: string) {
-		var defineRegEx = /\{define:\s*([^}]+?)\s+frets[^}]+?\}/im;
-		var lines = text.split('\n');
-		for (var i = lines.length - 1; i >= 0; i--) {
+	const songGetDefinitions = function(text: string) {
+		const defineRegEx = /\{define:\s*([^}]+?)\s+frets[^}]+?\}/im;
+		const lines = text.split('\n');
+		for (let i = lines.length - 1; i >= 0; i--) {
 			if (!defineRegEx.test(lines[i])) {
 				continue;
 			}
@@ -445,13 +445,13 @@ ugsChordBuilder.chooserList = (function() {
 	 * @method songAddDefinition
 	 * @param {string} definition
 	 */
-	var songAddDefinition = function(definition: string) {
-		var choProText = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
-		var instructionRegEx = /\s*\{\s*(title|t|artist|subtitle|st|album|define):.*?\}/im;
-		var lines = choProText.value.split('\n');
-		var html = '';
-		var inserted = false;
-		for (var i = lines.length - 1; i >= 0; i--) {
+	const songAddDefinition = function(definition: string) {
+		const choProText = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
+		const instructionRegEx = /\s*\{\s*(title|t|artist|subtitle|st|album|define):.*?\}/im;
+		const lines = choProText.value.split('\n');
+		let html = '';
+		let inserted = false;
+		for (let i = lines.length - 1; i >= 0; i--) {
 			if (!inserted && instructionRegEx.test(lines[i])) {
 				html = definition + '\n' + html;
 				inserted = true;
@@ -471,9 +471,9 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {int} id
 	 * @return {int}
 	 */
-	var dictionaryGetIndex = function(id: number | string | null) {
-		for (var i = 0; i < _chordDictionary.length; i++) {
-			if ('' + _chordDictionary[i].id == id) {
+	const dictionaryGetIndex = function(id: number | string | null) {
+		for (let i = 0; i < _chordDictionary.length; i++) {
+			if ('' + _chordDictionary[i].id === '' + id) {
 				return i;
 			}
 		}
@@ -489,10 +489,10 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {string} name
 	 * @return {int}
 	 */
-	var dictionaryFindDupes = function(id: number, name: string) {
-		var search = name.toLowerCase();
-		for (var i = _chordDictionary.length - 1; i >= 0; i--) {
-			if (('' + _chordDictionary[i].id != '' + id) && (_chordDictionary[i].name.toLowerCase() == search)) {
+	const dictionaryFindDupes = function(id: number, name: string) {
+		const search = name.toLowerCase();
+		for (let i = _chordDictionary.length - 1; i >= 0; i--) {
+			if (('' + _chordDictionary[i].id !== '' + id) && (_chordDictionary[i].name.toLowerCase() === search)) {
 				return i;
 			}
 		}
@@ -506,8 +506,8 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param  {int} id
 	 * @return {ChordDefinition}
 	 */
-	var dictionaryFind = function(id: number | string | null) {
-		var i = dictionaryGetIndex(id);
+	const dictionaryFind = function(id: number | string | null) {
+		const i = dictionaryGetIndex(id);
 		return i >= 0 ? _chordDictionary[i] : null;
 	};
 
@@ -519,8 +519,8 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {string} definition
 	 * @return {int}
 	 */
-	var definitionAdd = function(name: string, definition: string) {
-		var chord = new ChordDefinition(name, definition);
+	const definitionAdd = function(name: string, definition: string) {
+		const chord = new ChordDefinition(name, definition);
 		_chordDictionary.push(chord);
 		return chord.id;
 	};

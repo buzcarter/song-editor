@@ -21,14 +21,14 @@ ugsEditorPlus.resize = (function(){
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.Resize;
+	const _public = {} as UgsEditorPlus.Resize;
 
-	var dom = ugsEditorPlus.dom;
+	const dom = ugsEditorPlus.dom;
 
-	var dlg: HTMLElement | null = null;
-	var aceLayer: HTMLElement | null = null;
-	var help: HTMLElement | null = null;
-	var editor: AceEditor | null = null;
+	let dlg: HTMLElement | null = null;
+	let aceLayer: HTMLElement | null = null;
+	let help: HTMLElement | null = null;
+	let editor: AceEditor | null = null;
 
 	/**
 	 * miliseconds to fade in/out editor
@@ -36,23 +36,23 @@ ugsEditorPlus.resize = (function(){
 	 * @final
 	 * @type {Number}
 	 */
-	var FADE_SPEED = 550;
+	const FADE_SPEED = 550;
 	/**
 	 * miliseconds to slide in/out sidebar (help) panel
 	 * @property SLIDE_SPEED
 	 * @final
 	 * @type {Number}
 	 */
-	var SLIDE_SPEED = 400;
+	const SLIDE_SPEED = 400;
 
 	/**
 	 * Hold the current state of the dialog, we'll store this on the element in "data-sized" attribute
 	 * @attribute isBig
 	 * @type {Boolean}
 	 */
-	var isBig = false;
+	let isBig = false;
 
-	var isHelpOpen = false;
+	let isHelpOpen = false;
 
 	/**
 	 * Initializer: preps handles and sets state varables.
@@ -60,7 +60,7 @@ ugsEditorPlus.resize = (function(){
 	 * @private
 	 * @return {void}
 	 */
-	var setup = function(dlgElement: HTMLElement){
+	const setup = function(dlgElement: HTMLElement){
 		dlg = dlgElement;
 		// static markup only
 		document.body.insertAdjacentHTML('beforeend', '<div id="aceHeader"><button class="aceSideBtn" title="Show options &amp; help"><span></span><span></span><span></span></button><strong>Edit Song</strong><a href="#exit-fullscreen">Exit fullscreen</a></div><div id="aceEditor"></div><div id="aceHelp"></div>');
@@ -77,12 +77,12 @@ ugsEditorPlus.resize = (function(){
 		dom.find('#aceHeader button', HTMLElement).addEventListener('click', onShowHelpClicked);
 	};
 
-	var onShowHelpClicked = function(e: Event) {
+	const onShowHelpClicked = function(e: Event) {
 		e.preventDefault();
 		showHelp(!isHelpOpen);
 	};
 
-	var showHelp = function(isShow: boolean) {
+	const showHelp = function(isShow: boolean) {
 		isHelpOpen = isShow;
 		// (setup() makes them; only its buttons call this)
 		if (!help || !aceLayer) {
@@ -103,8 +103,8 @@ ugsEditorPlus.resize = (function(){
 	 * @param  {string} fileName
 	 * @return {string}
 	 */
-	var getPath = function(fileName: string) {
-		var path = '',
+	const getPath = function(fileName: string) {
+		let path = '',
 			lower: string, pos: number;
 
 		fileName = fileName.toLowerCase();
@@ -119,7 +119,7 @@ ugsEditorPlus.resize = (function(){
 		return path;
 	};
 
-	var showAce = function() {
+	const showAce = function() {
 		isBig = true;
 
 		document.documentElement.classList.add('aceEditorActive');
@@ -136,7 +136,7 @@ ugsEditorPlus.resize = (function(){
 		// only execute this block once (thus the null check)
 		// the folder holding ace-chordpro.min.js: options.aceUrl, or by default "ace/" next to
 		// the folder ugsEditorPlus.min.js was loaded from (e.g. "/js/ace/")
-		var aceUrl = ugsEditorPlus.options.aceUrl || (getPath('ugsEditorPlus') + 'ace/');
+		const aceUrl = ugsEditorPlus.options.aceUrl || (getPath('ugsEditorPlus') + 'ace/');
 
 		// Ace with the ChordPro mode, snippets, chord completer and theme built in
 		// (@ukegeeks/ace-chordpro-extension, which the host page copies there)
@@ -156,7 +156,7 @@ ugsEditorPlus.resize = (function(){
 			});
 	};
 
-	var copySongToAce = function() {
+	const copySongToAce = function() {
 		// (called once Ace is loaded)
 		if (editor === null) {
 			return;
@@ -173,7 +173,7 @@ ugsEditorPlus.resize = (function(){
 	 * @private
 	 * @return {void}
 	 */
-	var hideAce = function() {
+	const hideAce = function() {
 		isBig = false;
 
 		dom.show(dlg);

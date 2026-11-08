@@ -24,10 +24,10 @@ ugsEditorPlus.styles = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.Styles;
+	const _public = {} as UgsEditorPlus.Styles;
 	_public.Rules = [];
 
-	var _sheet: CSSStyleSheet | null = null;
+	let _sheet: CSSStyleSheet | null = null;
 
 	_public.getSheet = function(title) {
 		_sheet = _getSheet(title);
@@ -35,16 +35,16 @@ ugsEditorPlus.styles = (function() {
 		return this;
 	};
 	
-	var _getSheet = function(title: string){
-		for (var i = 0; i < document.styleSheets.length; i++){
-			if (document.styleSheets[i].title == title){
+	const _getSheet = function(title: string){
+		for (let i = 0; i < document.styleSheets.length; i++){
+			if (document.styleSheets[i].title === title){
 				return document.styleSheets[i];
 			}
 		}
 		return null;
 	};
 	
-	var _getRules = function() {
+	const _getRules = function() {
 		if (_sheet == null){
 			return [];
 		}
@@ -53,13 +53,13 @@ ugsEditorPlus.styles = (function() {
 	
 	_public.find = function(selector) {
 		selector = selector.toLowerCase();
-		for (var i = 0; i < _public.Rules.length; i++) {
-			var rule = _public.Rules[i];
+		for (let i = 0; i < _public.Rules.length; i++) {
+			const rule = _public.Rules[i];
 			// style rules only (an @media rule has no selector)
 			if (!(rule instanceof CSSStyleRule) || !rule.selectorText) {
 				continue;
 			}
-			if (rule.selectorText.toLowerCase() == selector) {
+			if (rule.selectorText.toLowerCase() === selector) {
 				return rule;
 			}
 		}

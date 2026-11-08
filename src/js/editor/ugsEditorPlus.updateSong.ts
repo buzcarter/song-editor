@@ -11,21 +11,21 @@ ugsEditorPlus.updateSong = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.UpdateSong;
+	const _public = {} as UgsEditorPlus.UpdateSong;
 
 	/**
 	 * The host's save callback: takes the ChordPro text, returns (a promise of) the message to show.
 	 * @property _save
 	 * @type {Function}
 	 */
-	var _save: UgsEditorPlus.SaveHandler | null = null;
+	let _save: UgsEditorPlus.SaveHandler | null = null;
 
 	/**
 	 * Name / Value pairs for CSS selectors of HTML elements to be manipulated
 	 * @property _selectors
 	 * @type {JSON}
 	 */
-	var _selectors = {
+	const _selectors = {
 		messageBox : '#messageBox',
 		message : '#sourceFeedback',
 		button : '#saveBtn',
@@ -38,7 +38,7 @@ ugsEditorPlus.updateSong = (function() {
 	 * @property _isUpdating
 	 * @type {Boolean}
 	 */
-	var _isUpdating = false;
+	let _isUpdating = false;
 
 	/**
 	 * Saves by posting to the UkeGeeks Songbook server (the original behavior).
@@ -49,7 +49,7 @@ ugsEditorPlus.updateSong = (function() {
 	 */
 	_public.init = function(ajaxUri: string, filename: string) {
 		_public.setSaveHandler(function(song: string) {
-			var data = {
+			const data = {
 				'handler': 'ugs_update_81jr',
 				'filename': filename,
 				'song': song
@@ -82,14 +82,14 @@ ugsEditorPlus.updateSong = (function() {
 	 * @property _hideTimer
 	 * @type {Number}
 	 */
-	var _hideTimer: number | undefined;
+	let _hideTimer: number | undefined;
 
-	var ele = function(name: keyof typeof _selectors) {
+	const ele = function(name: keyof typeof _selectors) {
 		return ugsEditorPlus.dom.one(_selectors[name]);
 	};
 
-	var showBusy = function(){
-		var dom = ugsEditorPlus.dom;
+	const showBusy = function(){
+		const dom = ugsEditorPlus.dom;
 		clearTimeout(_hideTimer);
 		dom.hide(ele('message'));
 		if (dom.isVisible(ele('messageBox'))) {
@@ -102,21 +102,21 @@ ugsEditorPlus.updateSong = (function() {
 		dom.show(ele('spinner'));
 	};
 
-	var showMessage = function(message: string){
-		var msg = ugsEditorPlus.dom.find(_selectors.message, HTMLElement);
+	const showMessage = function(message: string){
+		const msg = ugsEditorPlus.dom.find(_selectors.message, HTMLElement);
 		ugsEditorPlus.dom.hide(ele('spinner'));
 		msg.textContent = message;
 		ugsEditorPlus.dom.show(msg);
 	};
 
-	var hideMessage = function(){
+	const hideMessage = function(){
 		clearTimeout(_hideTimer);
 		_hideTimer = setTimeout(function() {
 			ugsEditorPlus.dom.fadeOut(ele('messageBox'), 'slow');
 		}, 3000);
 	};
 
-	var doUpdate = function() {
+	const doUpdate = function() {
 		if (_isUpdating){
 			return;
 		}

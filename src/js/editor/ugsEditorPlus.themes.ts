@@ -34,14 +34,14 @@ ugsEditorPlus.themes = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.Themes;
+	const _public = {} as UgsEditorPlus.Themes;
 
 	/**
 	 * available color schemes (see UkeGeeks.settings)
 	 * @property _colorSchemes
 	 * @type {JSON-Object}
 	 */
-	var _colorSchemes: Record<string, UgsEditorPlus.ColorScheme> = {
+	const _colorSchemes: Record<string, UgsEditorPlus.ColorScheme> = {
 		'normal': {
 			name: 'Normal (white paper)',
 			selectText: 'Normal colors (white paper)',
@@ -245,11 +245,11 @@ ugsEditorPlus.themes = (function() {
 
 	};
 
-	var setBody = function(themeName: string) {
-		var classes = document.body.classList;
+	const setBody = function(themeName: string) {
+		const classes = document.body.classList;
 		// see: http://stackoverflow.com/questions/921789/how-to-loop-through-javascript-object-literal-with-objects-as-members
-		for (var key in _colorSchemes) {
-			if (_colorSchemes.hasOwnProperty(key)) {
+		for (const key in _colorSchemes) {
+			if (Object.prototype.hasOwnProperty.call(_colorSchemes, key)) {
 				classes.remove('theme-' + key);
 			}
 		}
@@ -274,13 +274,13 @@ ugsEditorPlus.themes = (function() {
 	 * @param {string} selectedValue value that should be "checked"
 	 */
 	_public.loadList = function(selector, selectedValue) {
-		var ul = ugsEditorPlus.dom.find(selector, HTMLElement);
+		const ul = ugsEditorPlus.dom.find(selector, HTMLElement);
 		ul.textContent = '';
-		for (var key in _colorSchemes) {
-			if (_colorSchemes.hasOwnProperty(key)) {
-				var li = document.createElement('li');
-				var a = document.createElement('a');
-				if (key == selectedValue) {
+		for (const key in _colorSchemes) {
+			if (Object.prototype.hasOwnProperty.call(_colorSchemes, key)) {
+				const li = document.createElement('li');
+				const a = document.createElement('a');
+				if (key === selectedValue) {
 					li.className = 'checked';
 				}
 				a.href = '#' + key;
@@ -300,7 +300,7 @@ ugsEditorPlus.themes = (function() {
 	_public.set = function(themeName) {
 		setBody(themeName);
 
-		var c = _colorSchemes[themeName];
+		const c = _colorSchemes[themeName];
 		ukeGeeks.settings.colors = c.song;
 		ukeGeeks.settings.tabs.lineColor = c.tabs.lines;
 		ukeGeeks.settings.tabs.dotColor = c.tabs.dots;

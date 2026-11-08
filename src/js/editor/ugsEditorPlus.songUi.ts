@@ -19,7 +19,7 @@ ugsEditorPlus.songUi = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.SongUi;
+	const _public = {} as UgsEditorPlus.SongUi;
 
 	/**
 	 * Sets an element's Inner HTML and sets visibility based on whether the value is empty (or not)
@@ -28,9 +28,9 @@ ugsEditorPlus.songUi = (function() {
 	 * @param id {string} element's Id
 	 * @param value {string} content value
 	 */
-	var trySet = function(id: string, value: string){
-		var hasValue = value && (value.length > 0);
-		var h = document.getElementById(id);
+	const trySet = function(id: string, value: string){
+		const hasValue = value && (value.length > 0);
+		const h = document.getElementById(id);
 		if (!h){
 			return;
 		}
@@ -45,7 +45,7 @@ ugsEditorPlus.songUi = (function() {
 	 * @param song {Song(Object)}
 	 */
 	_public.update = function(song){
-		var h = ugsEditorPlus.dom.byId('songTitle', HTMLElement);
+		let h = ugsEditorPlus.dom.byId('songTitle', HTMLElement);
 		h.innerHTML = (song.title.length > 0) ? song.title : 'Untitled-Song';
 
 		trySet('songArtist', song.artist);
@@ -57,8 +57,8 @@ ugsEditorPlus.songUi = (function() {
 			h.style.display = 'none';
 		}
 		else {
-			var s = '';
-			for(var i = 0; i < song.ugsMeta.length; i++){
+			let s = '';
+			for(let i = 0; i < song.ugsMeta.length; i++){
 				s += '<p>' + song.ugsMeta[i] + '</p>';
 			}
 			h.innerHTML = s;

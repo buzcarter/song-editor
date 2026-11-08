@@ -26,9 +26,9 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.SubmenuUi;
+	const _public = {} as UgsEditorPlus.SubmenuUi;
 
-	var _open: { id: string } | null = null;
+	let _open: { id: string } | null = null;
 
 	/**
 	 * attaches event handlers
@@ -38,7 +38,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 */
 	_public.init = function() {
 		ugsEditorPlus.themes.loadList('#colorPicker .pseudoSelect', ugsEditorPlus.options.theme);
-		var dom = ugsEditorPlus.dom;
+		const dom = ugsEditorPlus.dom;
 		dom.on('.enablePseudoSelects label', 'click', onLabelClick);
 		dom.on('.pseudoSelect li', 'click', onOptionClick);
 		dom.on(document.body, 'click', closeAll);
@@ -53,27 +53,26 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return {bool} false to kill event bubbling
 	 */
-	var onOptionClick = function(this: HTMLElement, e: Event){
-		var dom = ugsEditorPlus.dom;
-		var optionItem = this;
-		var value = stripHash(dom.find('a', HTMLAnchorElement, optionItem).getAttribute('href') || '');
+	const onOptionClick = function(this: HTMLElement, e: Event){
+		const dom = ugsEditorPlus.dom;
+		const value = stripHash(dom.find('a', HTMLAnchorElement, this).getAttribute('href') || '');
 
 		// the element holding the "pseudo-select"
-		var select = dom.closest(optionItem, 'dd', HTMLElement);
-		var id = select.id;
-		var actionName = select.getAttribute('data-action') || '';
+		const select = dom.closest(this, 'dd', HTMLElement);
+		const id = select.id;
+		const actionName = select.getAttribute('data-action') || '';
 
 		// a selection's been made so we hide the (sub) select list
 		ugsEditorPlus.dom.hide(select);
 		// ...and reset ("uncheck") all items and check ("highlight") this selected item
-		setChecked(optionItem);
+		setChecked(this);
 
 		onListActive(this, false);
 		_open = null;
 
 		// now bubble out the info -- update display to show selected value ...
-		var label = getLabel(id);
-		dom.find('span', HTMLElement, label).textContent = getLabelText(actionName, value, optionItem);
+		const label = getLabel(id);
+		dom.find('span', HTMLElement, label).textContent = getLabelText(actionName, value, this);
 		dom.closest(label, 'dt', HTMLElement).classList.remove('active');
 
 		// lastly, execute the action
@@ -87,12 +86,12 @@ ugsEditorPlus.submenuUi = (function(){
 		e.stopPropagation();
 	};
 
-	var setChecked = function(item: Element | null) {
+	const setChecked = function(item: Element | null) {
 		if (!item) {
 			//console.log('item for option not found');
 			return;
 		}
-		var siblings = item.parentElement ? item.parentElement.children : [];
+		const siblings = item.parentElement ? item.parentElement.children : [];
 		Array.prototype.forEach.call(siblings, function(sibling: Element) {
 			sibling.classList.remove('checked');
 		});
@@ -105,7 +104,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {string} id
 	 * @return {DOM-element}
 	 */
-	var getLabel = function(id: string) {
+	const getLabel = function(id: string) {
 		return ugsEditorPlus.dom.find('label[for="' + cssString(id) + '"]', HTMLLabelElement);
 	};
 
@@ -115,13 +114,13 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {string} value
 	 * @return {string}
 	 */
-	var cssString = function(value: unknown) {
+	const cssString = function(value: unknown) {
 		return String(value).replace(/["\\]/g, '\\$&');
 	};
 
-	var syncOptions = function(options: UgsEditorPlus.Options) {
-		var item: Element | null, id: string,
-			map = [{
+	const syncOptions = function(options: UgsEditorPlus.Options) {
+		let item: Element | null, id: string;
+		const map = [{
 				action: 'zoomFonts',
 				value: options.fontSize
 			}, {
@@ -144,7 +143,7 @@ ugsEditorPlus.submenuUi = (function(){
 				value: options.lyricStyle
 			}];
 
-		for (var i = map.length - 1; i >= 0; i--) {
+		for (let i = map.length - 1; i >= 0; i--) {
 			item = document.querySelector('[data-action="' + map[i].action + '"] a[href="#' + cssString(map[i].value) + '"]');
 			if (!item) {
 				continue;
@@ -163,15 +162,15 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return {bool} false to kill event bubbling
 	 */
-	var onLabelClick = function(this: HTMLElement, e: Event){
-		var id = this.getAttribute('for') || '';
+	const onLabelClick = function(this: HTMLElement, e: Event){
+		const id = this.getAttribute('for') || '';
 		setActiveLabel(this);
 		ugsEditorPlus.dom.show(document.getElementById(id));
 		onListActive(this, true);
 		if (_open !== null) {
 			ugsEditorPlus.dom.hide(document.getElementById(_open.id));
 		}
-		if (_open !== null && _open.id == id) {
+		if (_open !== null && _open.id === id) {
 			_open = null;
 		}
 		else {
@@ -199,10 +198,10 @@ ugsEditorPlus.submenuUi = (function(){
 		});
 	};
 
-	var setActiveLabel = function(label: HTMLElement){
-		var dom = ugsEditorPlus.dom;
+	const setActiveLabel = function(label: HTMLElement){
+		const dom = ugsEditorPlus.dom;
 		Array.prototype.forEach.call(dom.closest(label, 'dl', HTMLElement).children, function(child: Element) {
-			if (child.tagName == 'DT') {
+			if (child.tagName === 'DT') {
 				child.classList.remove('active');
 			}
 		});
@@ -217,8 +216,8 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {Boolean} isInUse [description]
 	 * @return void
 	 */
-	var onListActive = function(ele: Element, isInUse: boolean){
-		var wrap = ele.closest('.enablePseudoSelects');
+	const onListActive = function(ele: Element, isInUse: boolean){
+		const wrap = ele.closest('.enablePseudoSelects');
 		if (wrap) {
 			wrap.classList.toggle('event-userSelecting', isInUse);
 		}
@@ -229,7 +228,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 * @return bool
 	 */
-	var doCollapseAllLists = function(this: HTMLElement, e: Event){
+	const doCollapseAllLists = function(this: HTMLElement, e: Event){
 		if (e.target instanceof Element && e.target.matches('a')){
 			return;
 		}
@@ -244,15 +243,15 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @method closeAll
 	 * @param  {event} e
 	 */
-	var closeAll = function(e: Event){
+	const closeAll = function(){
 		ugsEditorPlus.dom.all('.arrowBox').forEach(function(box) {
 			ugsEditorPlus.dom.fadeOut(box, 270);
 		});
 		ugsEditorPlus.topMenus.makeAllInactive();
 	};
 
-	var stripHash = function(value: string){
-		return (value[0] == '#') ? value.substr(1) : value;
+	const stripHash = function(value: string){
+		return (value[0] === '#') ? value.substr(1) : value;
 	};
 
 	/* ----------------------------------------------------------------------------------- *|
@@ -265,7 +264,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @private
 	 * @type {JSON}
 	 */
-	var _desriptions: Record<string, string[]> = {
+	const _desriptions: Record<string, string[]> = {
 		'zoomDiagrams' : ['Tiny', 'Small', 'Medium', 'Large', 'Stupid Large'],
 		'layout' : ['Reference diagrams on left', 'Reference diagrams at top', 'No reference diagrams'],
 		'placement' : ['Chord names inline with lyrics', 'Chord names above lyrics', 'Names & diagrams above lyrics'],
@@ -280,8 +279,8 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {DOM-element} ele the selected list item (LI)
 	 * @return {string}
 	 */
-	var getLabelText = function(action: string, value: string | number, ele: Element){
-		var index = ele.parentElement ? Array.prototype.indexOf.call(ele.parentElement.children, ele) : -1;
+	const getLabelText = function(action: string, value: string | number, ele: Element){
+		const index = ele.parentElement ? Array.prototype.indexOf.call(ele.parentElement.children, ele) : -1;
 
 		switch (action){
 			case 'paper':
@@ -292,12 +291,13 @@ ugsEditorPlus.submenuUi = (function(){
 				return _desriptions.zoomDiagrams[index] + ' diagrams';
 			case 'colors':
 				return ugsEditorPlus.themes.getDescription(String(value));
-			case 'transpose':
-				if (value == 'up_0'){
+			case 'transpose': {
+				if (value === 'up_0'){
 					return 'Original key';
 				}
-				var txt = ele.textContent || '';
+				const txt = ele.textContent || '';
 				return txt.replace(' ', ' steps - "') + '"';
+			}
 			default:
 			 return _desriptions[action][index];
 		}

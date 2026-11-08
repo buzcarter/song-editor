@@ -12,7 +12,7 @@ ugsEditorPlus.songAmatic = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsEditorPlus.SongAmatic;
+	const _public = {} as UgsEditorPlus.SongAmatic;
 
 	/**
 	 * attaches event handlers, preps variables, and runs UGS
@@ -21,7 +21,7 @@ ugsEditorPlus.songAmatic = (function() {
 	 * @return {void}
 	 */
 	_public.init = function(options?: Partial<UgsEditorPlus.Options>) {
-		var opts = mergeOptions(options);
+		const opts = mergeOptions(options);
 
 		ukeGeeks.settings.opts.retainBrackets = !opts.hideChordEnclosures;
 		ugsEditorPlus.dom.toggle(document.getElementById('songSourceDlg'), opts.showEditOnLoad);
@@ -38,8 +38,8 @@ ugsEditorPlus.songAmatic = (function() {
 		ugsEditorPlus.actions.run();
 	};
 
-	var mergeOptions = function(options?: Partial<UgsEditorPlus.Options>) {
-		var opts = {
+	const mergeOptions = function(options?: Partial<UgsEditorPlus.Options>) {
+		const opts = {
 			hideChordEnclosures: !ukeGeeks.settings.opts.retainBrackets,
 			sortAlphabetical: ukeGeeks.settings.opts.sortAlphabetical,
 			ignoreCommonChords: ukeGeeks.settings.opts.ignoreCommonChords,

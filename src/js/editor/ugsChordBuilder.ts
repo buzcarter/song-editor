@@ -93,6 +93,8 @@ interface UgsChordBuilder {
  * @namespace ugsChordBuilder
  * @main  ugsChordBuilder
  */
+// Must stay var: a top-level var puts it on window, where Studio and the Songbook read it.
+// eslint-disable-next-line no-var -- see above
 var ugsChordBuilder: UgsChordBuilder = window.ugsChordBuilder || ({} as UgsChordBuilder);
 ugsChordBuilder.version = '1.0.6';
 
@@ -193,7 +195,7 @@ ugsChordBuilder.settings = (function() {
 	// "Revealing Module Pattern"
 
 	// dependencies:
-	var ents = ugsChordBuilder.entities;
+	const ents = ugsChordBuilder.entities;
 
 	//'Geneva, "Lucida Sans", "Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, sans-serif';
 	/**
@@ -202,7 +204,7 @@ ugsChordBuilder.settings = (function() {
 	 * @final
 	 * @constant
 	 */
-	var FONT_STACK = 'Arial, "Helvetica Neue", Helvetica, Verdana, sans-serif';
+	const FONT_STACK = 'Arial, "Helvetica Neue", Helvetica, Verdana, sans-serif';
 
 	/**
 	 * Fretboard upper left hand corner position (pseudo-constants)
@@ -210,12 +212,12 @@ ugsChordBuilder.settings = (function() {
 	 * @type {Position}
 	 * @static
 	 */
-	var anchorPos = {
+	const anchorPos = {
 		x: 75,
 		y: 75
 	};
 
-	var cursor = {
+	const cursor = {
 		fillColor: 'rgba(220, 216, 73, 0.35)', // 'rgba(245, 127, 18, 0.3)',
 		strokeWidth: 1,
 		strokeColor: '#AAB444', // '#F57F12',
@@ -223,7 +225,7 @@ ugsChordBuilder.settings = (function() {
 		imageUri: '/img/editor/hand-cursor.png'
 	};
 
-	var fretBoard = {
+	const fretBoard = {
 		numFrets: 5,
 		maxFret: 16,
 		stringNames: ['G', 'C', 'E', 'A'],
@@ -233,7 +235,7 @@ ugsChordBuilder.settings = (function() {
 		stringSpace: 30
 	};
 
-	var dot = {
+	const dot = {
 		fillColor: '#F68014',
 		radius: 11,
 		strokeWidth: 2,
@@ -244,20 +246,20 @@ ugsChordBuilder.settings = (function() {
 		fontColor: '#ffffff'
 	};
 
-	var fretLabel = {
+	const fretLabel = {
 		fontFamily: FONT_STACK,
 		fontSize: 28, // Pixels
 		color: '#6A6A63',
 		lightColor: '#EAEAE8' //D6D6D6' //A4A4A3'
 	};
 
-	var stringLabel = {
+	const stringLabel = {
 		fontFamily: FONT_STACK,
 		fontSize: 34, // Pixels
 		color: '#DCD849' // #AAB444'//
 	};
 
-	var chord = {
+	const chord = {
 		nameMaxLength: 20
 	};
 
@@ -266,7 +268,7 @@ ugsChordBuilder.settings = (function() {
 	 * @method targetDimensions
 	 * @return {JSON} {width: ?, height: ? }
 	 */
-	var targetDimensions = function() {
+	const targetDimensions = function() {
 		return {
 			height: fretBoard.fretSpace,
 			width: fretBoard.stringSpace
@@ -278,8 +280,8 @@ ugsChordBuilder.settings = (function() {
 	 * @method targetAnchorPos
 	 * @return {postion}
 	 */
-	var targetAnchorPos = function() {
-		var dimensions = targetDimensions();
+	const targetAnchorPos = function() {
+		const dimensions = targetDimensions();
 		return new ents.Position(
 			anchorPos.x - 0.5 * dimensions.width,
 			anchorPos.y - dimensions.height - 0.2 * fretBoard.strokeWidth
@@ -292,7 +294,7 @@ ugsChordBuilder.settings = (function() {
 	 * @param  {element} canvas
 	 * @return {void}
 	 */
-	var centerAnchor = function(canvas: HTMLCanvasElement) {
+	const centerAnchor = function(canvas: HTMLCanvasElement) {
 		anchorPos.x = (0.5 * canvas.width) - (0.5 * (fretBoard.stringNames.length - 1) * fretBoard.stringSpace) - fretBoard.strokeWidth;
 		anchorPos.y = (0.5 * canvas.height) - (0.5 * fretBoard.numFrets * fretBoard.stringSpace);
 	};
@@ -322,7 +324,7 @@ ugsChordBuilder.settings = (function() {
  */
 ugsChordBuilder.tracking = (function() {
 	// dependencies:
-	var ents = ugsChordBuilder.entities,
+	const ents = ugsChordBuilder.entities,
 		settings = ugsChordBuilder.settings;
 
 	/**
@@ -330,16 +332,16 @@ ugsChordBuilder.tracking = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsChordBuilder.Tracking;
+	const _public = {} as UgsChordBuilder.Tracking;
 
-	var targetBox: UgsChordBuilder.BoundingBox | null = null;
+	let targetBox: UgsChordBuilder.BoundingBox | null = null;
 
-	var getTarget = function() {
+	const getTarget = function() {
 		if (targetBox) {
 			return targetBox;
 		}
 
-		var dimensions = settings.targetDimensions();
+		const dimensions = settings.targetDimensions();
 		dimensions.width = dimensions.width * settings.fretBoard.stringNames.length;
 		dimensions.height = dimensions.height * (settings.fretBoard.numFrets + 1);
 		targetBox = new ents.BoundingBox(settings.targetAnchorPos(), dimensions);
@@ -354,8 +356,8 @@ ugsChordBuilder.tracking = (function() {
 	 * @param  {BoundingBox} object2
 	 * @return {bool}
 	 */
-	var collision = function(object1: UgsChordBuilder.BoundingBox, object2: UgsChordBuilder.BoundingBox) {
-		return (object1.x < object2.x + object2.width) && (object1.x + object1.width  > object2.x) && (object1.y < object2.y + object2.height) && (object1.y + object1.height > object2.y);
+	const collision = function(object1: UgsChordBuilder.BoundingBox, object2: UgsChordBuilder.BoundingBox) {
+		return (object1.x < object2.x + object2.width) && (object1.x + object1.width > object2.x) && (object1.y < object2.y + object2.height) && (object1.y + object1.height > object2.y);
 	};
 
 	/**
@@ -365,13 +367,13 @@ ugsChordBuilder.tracking = (function() {
 	 * @return {dot}
 	 */
 	_public.toDot = function(pos) {
-		var cursorBox = new ents.BoundingBox(pos);
-		var box = getTarget();
+		const cursorBox = new ents.BoundingBox(pos);
+		const box = getTarget();
 		if (!collision(cursorBox, box)) {
 			return null;
 		}
 
-		var dimensions = settings.targetDimensions();
+		const dimensions = settings.targetDimensions();
 		return new ents.Dot(
 			Math.floor((pos.x - box.x) / dimensions.width),
 			Math.floor((pos.y - box.y) / dimensions.height)
@@ -398,7 +400,7 @@ ugsChordBuilder.tracking = (function() {
  */
 ugsChordBuilder.fretDots = (function() {
 	// dependencies:
-	var ents = ugsChordBuilder.entities,
+	const ents = ugsChordBuilder.entities,
 		anchor_pos = ugsChordBuilder.settings.anchorPos,
 		opts_board = ugsChordBuilder.settings.fretBoard,
 		opts_dot = ugsChordBuilder.settings.dot;
@@ -408,10 +410,10 @@ ugsChordBuilder.fretDots = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsChordBuilder.FretDots;
+	const _public = {} as UgsChordBuilder.FretDots;
 
 	// locals
-	var _dots: UgsChordBuilder.Dot[] = [];
+	const _dots: UgsChordBuilder.Dot[] = [];
 
 	_public.getDots = function() {
 		return _dots.slice();
@@ -421,14 +423,14 @@ ugsChordBuilder.fretDots = (function() {
 		if (!inRange(numSteps)) {
 			return false;
 		}
-		for (var i = 0; i < _dots.length; i++) {
+		for (let i = 0; i < _dots.length; i++) {
 			_dots[i].fret = _dots[i].fret + numSteps;
 		}
 		return true;
 	};
 
-	var inRange = function(numSteps: number) {
-		for (var i = 0; i < _dots.length; i++) {
+	const inRange = function(numSteps: number) {
+		for (let i = 0; i < _dots.length; i++) {
 			if ((_dots[i].fret + numSteps < 1) || (_dots[i].fret + numSteps > opts_board.numFrets)) {
 				return false;
 			}
@@ -437,12 +439,12 @@ ugsChordBuilder.fretDots = (function() {
 	};
 
 	_public.toggleDot = function(dot) {
-		if (dot.fret == 0) {
+		if (dot.fret === 0) {
 			clearColumn(dot.string);
 			return;
 		}
 
-		var index = find(dot);
+		const index = find(dot);
 		if (index < 0) {
 			_dots.push(dot);
 		}
@@ -452,12 +454,12 @@ ugsChordBuilder.fretDots = (function() {
 	};
 
 	_public.toggleFinger = function(dot, finger) {
-		var index = find(dot);
+		const index = find(dot);
 		if (index < 0) {
 			return false;
 		}
 
-		_dots[index].finger = _dots[index].finger == finger ? 0 : finger;
+		_dots[index].finger = _dots[index].finger === finger ? 0 : finger;
 		return true;
 	};
 
@@ -466,7 +468,7 @@ ugsChordBuilder.fretDots = (function() {
 	 * @method reset
 	 */
 	_public.reset = function() {
-		for (var i = 0; i < opts_board.stringNames.length; i++) {
+		for (let i = 0; i < opts_board.stringNames.length; i++) {
 			clearColumn(i);
 		}
 	};
@@ -477,9 +479,9 @@ ugsChordBuilder.fretDots = (function() {
 	 * @param  {entities.dot} dot
 	 * @return {int}
 	 */
-	var find = function(dot: UgsChordBuilder.Dot) {
-		for (var i = _dots.length - 1; i >= 0; i--) {
-			if (_dots[i].string == dot.string && _dots[i].fret == dot.fret) {
+	const find = function(dot: UgsChordBuilder.Dot) {
+		for (let i = _dots.length - 1; i >= 0; i--) {
+			if (_dots[i].string === dot.string && _dots[i].fret === dot.fret) {
 				return i;
 			}
 		}
@@ -492,22 +494,22 @@ ugsChordBuilder.fretDots = (function() {
 	 * @method clearColumn
 	 * @param string {int}
 	 */
-	var clearColumn = function(string: number) {
-		for (var i = _dots.length - 1; i >= 0; i--) {
-			if (_dots[i].string == string) {
+	const clearColumn = function(string: number) {
+		for (let i = _dots.length - 1; i >= 0; i--) {
+			if (_dots[i].string === string) {
 				_dots.splice(i, 1);
 			}
 		}
 	};
 
-	var getPosition = function(dot: UgsChordBuilder.Dot) {
+	const getPosition = function(dot: UgsChordBuilder.Dot) {
 		return new ents.Position(
 			anchor_pos.x + 0.47 * opts_board.strokeWidth + dot.string * opts_board.stringSpace,
 			anchor_pos.y + 0.47 * opts_board.strokeWidth + (dot.fret - 0.5) * opts_board.fretSpace
 		);
 	};
 
-	var drawDot = function(context: CanvasRenderingContext2D, pos: UgsChordBuilder.Position) {
+	const drawDot = function(context: CanvasRenderingContext2D, pos: UgsChordBuilder.Position) {
 		context.beginPath();
 		context.arc(pos.x, pos.y, opts_dot.radius, 0, 2 * Math.PI, false);
 		context.fillStyle = opts_dot.fillColor;
@@ -517,7 +519,7 @@ ugsChordBuilder.fretDots = (function() {
 		context.stroke();
 	};
 
-	var addLabel = function(context: CanvasRenderingContext2D, pos: UgsChordBuilder.Position, text: number) {
+	const addLabel = function(context: CanvasRenderingContext2D, pos: UgsChordBuilder.Position, text: number) {
 		context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
 		context.textAlign = 'center';
 		context.fillStyle = opts_dot.fontColor;
@@ -525,8 +527,8 @@ ugsChordBuilder.fretDots = (function() {
 	};
 
 	_public.draw = function(context) {
-		for (var i = _dots.length - 1; i >= 0; i--) {
-			var pos = getPosition(_dots[i]);
+		for (let i = _dots.length - 1; i >= 0; i--) {
+			const pos = getPosition(_dots[i]);
 			drawDot(context, pos);
 			if (_dots[i].finger > 0) {
 				addLabel(context, pos, _dots[i].finger);
@@ -550,7 +552,7 @@ ugsChordBuilder.fretDots = (function() {
  */
 ugsChordBuilder.cursorCanvas = (function() {
 	// dependencies
-	var opts_cursor = ugsChordBuilder.settings.cursor,
+	const opts_cursor = ugsChordBuilder.settings.cursor,
 		opts_dot = ugsChordBuilder.settings.dot;
 
 	/**
@@ -558,19 +560,19 @@ ugsChordBuilder.cursorCanvas = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsChordBuilder.CursorCanvas;
+	const _public = {} as UgsChordBuilder.CursorCanvas;
 
 	// set by init(), which editorUi calls before anything draws. (Typing these honestly means passing the
 	// context to each draw function: a rewrite, for when the Chord Builder becomes a module.)
-	var _context: CanvasRenderingContext2D = null!;
+	let _context: CanvasRenderingContext2D = null!;
 
-	var _handImage: HTMLImageElement = null!;
-	var _imgOk = false;
+	let _handImage: HTMLImageElement = null!;
+	let _imgOk = false;
 
-	var _dotCursor = true;
-	var _finger = 1;
+	let _dotCursor = true;
+	let _finger = 1;
 
-	var _lastPos: UgsChordBuilder.Position = {
+	let _lastPos: UgsChordBuilder.Position = {
 		x: 0,
 		y: 0
 	};
@@ -580,8 +582,8 @@ ugsChordBuilder.cursorCanvas = (function() {
 		loadImage();
 	};
 
-	var erase = function(pos: UgsChordBuilder.Position) {
-		var radius = opts_cursor.radius + opts_cursor.strokeWidth;
+	const erase = function(pos: UgsChordBuilder.Position) {
+		const radius = opts_cursor.radius + opts_cursor.strokeWidth;
 		// Need to allow for dot, image, and the finger number -- magic number for now:
 		_context.clearRect(pos.x - radius, pos.y - radius, radius + 50, radius + 60);
 		/*
@@ -593,7 +595,7 @@ ugsChordBuilder.cursorCanvas = (function() {
 		*/
 	};
 
-	var drawHandCursor = function(pos: UgsChordBuilder.Position) {
+	const drawHandCursor = function(pos: UgsChordBuilder.Position) {
 		_context.drawImage(_handImage, pos.x, pos.y);
 
 		_context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
@@ -603,7 +605,7 @@ ugsChordBuilder.cursorCanvas = (function() {
 		// not centering pos.x - 0.5 * _handImage.width, pos.y - 0.5 * _handImage.height);
 	};
 
-	var loadImage = function() {
+	const loadImage = function() {
 		_handImage = new Image();
 		_handImage.onload = function() {
 			_imgOk = true;
@@ -611,7 +613,7 @@ ugsChordBuilder.cursorCanvas = (function() {
 		_handImage.src = opts_cursor.imageUri;
 	};
 
-	var drawDotCursor = function(pos: UgsChordBuilder.Position) {
+	const drawDotCursor = function(pos: UgsChordBuilder.Position) {
 		_context.beginPath();
 		_context.arc(pos.x, pos.y, opts_cursor.radius, 0, 2 * Math.PI, false);
 		_context.fillStyle = opts_cursor.fillColor;
@@ -654,7 +656,7 @@ ugsChordBuilder.cursorCanvas = (function() {
 ugsChordBuilder.chordCanvas = (function() {
 
 	// dependencies
-	var ents = ugsChordBuilder.entities,
+	const ents = ugsChordBuilder.entities,
 		center_anchor = ugsChordBuilder.settings.centerAnchor,
 		anchor_pos = ugsChordBuilder.settings.anchorPos,
 		opt_fLabel = ugsChordBuilder.settings.fretLabel,
@@ -666,10 +668,10 @@ ugsChordBuilder.chordCanvas = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsChordBuilder.ChordCanvas;
+	const _public = {} as UgsChordBuilder.ChordCanvas;
 
 	// set by init() (see cursorCanvas above)
-	var _context: CanvasRenderingContext2D = null!,
+	let _context: CanvasRenderingContext2D = null!,
 		_canvas: HTMLCanvasElement = null!;
 
 	_public.init = function(ctx, ele) {
@@ -678,57 +680,57 @@ ugsChordBuilder.chordCanvas = (function() {
 		center_anchor(_canvas);
 	};
 
-	var erase = function() {
+	const erase = function() {
 		_context.clearRect(0, 0, _canvas.width, _canvas.height);
 	};
 
-	var addLabel = function(text: number, color: string, pos: UgsChordBuilder.Position) {
+	const addLabel = function(text: number, color: string, pos: UgsChordBuilder.Position) {
 		_context.font = opt_fLabel.fontSize + 'px ' + opt_fLabel.fontFamily;
 		_context.textAlign = 'right';
 		_context.fillStyle = color;
 		_context.fillText(String(text), pos.x, pos.y);
 	};
 
-	var addLabels = function(startingFret: number) {
-		var pos = new ents.Position(
+	const addLabels = function(startingFret: number) {
+		const pos = new ents.Position(
 			anchor_pos.x - 0.3 * opt_fLabel.fontSize,
 			anchor_pos.y + opt_fLabel.fontSize
 		);
-		var color = startingFret > 1 ? opt_fLabel.color : opt_fLabel.lightColor;
-		for (var i = 0; i < opts_board.numFrets; i++) {
+		let color = startingFret > 1 ? opt_fLabel.color : opt_fLabel.lightColor;
+		for (let i = 0; i < opts_board.numFrets; i++) {
 			addLabel(startingFret + i, color, pos);
 			pos.y += opts_board.fretSpace;
 			color = opt_fLabel.lightColor;
 		}
 	};
 
-	var addStringName = function(text: string, pos: UgsChordBuilder.Position) {
+	const addStringName = function(text: string, pos: UgsChordBuilder.Position) {
 		_context.font = opt_sLabel.fontSize + 'px ' + opt_sLabel.fontFamily;
 		_context.textAlign = 'center';
 		_context.fillStyle = opt_sLabel.color;
 		_context.fillText(text, pos.x, pos.y);
 	};
 
-	var addStringNames = function() {
-		var pos = new ents.Position(
+	const addStringNames = function() {
+		const pos = new ents.Position(
 			anchor_pos.x + 0.5 * opts_board.strokeWidth,
 			anchor_pos.y - 0.25 * opt_fLabel.fontSize
 		);
 
-		for (var i = 0; i < opts_board.stringNames.length; i++) {
+		for (let i = 0; i < opts_board.stringNames.length; i++) {
 			addStringName(opts_board.stringNames[i], pos);
 			pos.x += opts_board.stringSpace;
 		}
 	};
 
-	var drawFretboard = function() {
-		var i, x, y;
+	const drawFretboard = function() {
+		let i, x, y;
 
 		// width offset, a "subpixel" adjustment
-		var offset = opts_board.strokeWidth / 2;
+		const offset = opts_board.strokeWidth / 2;
 		// locals
-		var stringHeight = opts_board.numFrets * opts_board.fretSpace;
-		var fretWidth = (opts_board.stringNames.length - 1) * opts_board.stringSpace;
+		const stringHeight = opts_board.numFrets * opts_board.fretSpace;
+		const fretWidth = (opts_board.stringNames.length - 1) * opts_board.stringSpace;
 		// build shape
 		_context.beginPath();
 		// add "C" & "E" strings
@@ -779,7 +781,7 @@ ugsChordBuilder.chordCanvas = (function() {
  */
 ugsChordBuilder.export = (function() {
 	// dependencies
-	var opts_board = ugsChordBuilder.settings.fretBoard,
+	const opts_board = ugsChordBuilder.settings.fretBoard,
 		opts_chord = ugsChordBuilder.settings.chord;
 
 	/**
@@ -787,10 +789,10 @@ ugsChordBuilder.export = (function() {
 	 * @property _public
 	 * @type JsonObject
 	 */
-	var _public = {} as UgsChordBuilder.Export;
+	const _public = {} as UgsChordBuilder.Export;
 
 	// set by getDefinition() before anything reads it
-	var _fretOffset = 0;
+	let _fretOffset = 0;
 
 	/**
 	 * Class for "reorganized" dots, think of this as a necklace where the
@@ -801,25 +803,25 @@ ugsChordBuilder.export = (function() {
 	 * @param  {int} string
 	 * @param  {dot_Array} dots
 	 */
-	var StringDots = function(this: UgsChordBuilder.StringDots, string: number, dots?: UgsChordBuilder.Dot[]) {
+	const StringDots = function(this: UgsChordBuilder.StringDots, string: number, dots?: UgsChordBuilder.Dot[]) {
 		this.string = string;
 		this.dots = dots ? dots : [];
 		//this.fingers = fingers ? fingers : [];
 	} as unknown as new (string: number, dots?: UgsChordBuilder.Dot[]) => UgsChordBuilder.StringDots;
 
-	var getStringDots = function() {
+	const getStringDots = function() {
 		// initialize empty string array
-		var stringNumber,
-			aryStringDots: UgsChordBuilder.StringDots[] = [];
+		let stringNumber;
+		const aryStringDots: UgsChordBuilder.StringDots[] = [];
 		for (stringNumber = 1; stringNumber <= opts_board.stringNames.length; stringNumber++) {
 			aryStringDots.push(new StringDots(stringNumber));
 		}
 
 		// add dots
-		var dots = ugsChordBuilder.fretDots.getDots();
+		const dots = ugsChordBuilder.fretDots.getDots();
 		for (stringNumber = aryStringDots.length - 1; stringNumber >= 0; stringNumber--) {
-			for (var i = dots.length - 1; i >= 0; i--) {
-				if (aryStringDots[stringNumber].string == dots[i].string + 1) {
+			for (let i = dots.length - 1; i >= 0; i--) {
+				if (aryStringDots[stringNumber].string === dots[i].string + 1) {
 					aryStringDots[stringNumber].dots.push(dots[i]);
 				}
 			}
@@ -834,10 +836,10 @@ ugsChordBuilder.export = (function() {
 	 * @param  {dot_array} ary
 	 * @return {JSON}
 	 */
-	var getMinMax = function(ary: UgsChordBuilder.Dot[]) {
-		var max = 0;
-		var min = 900;
-		for (var i = ary.length - 1; i >= 0; i--) {
+	const getMinMax = function(ary: UgsChordBuilder.Dot[]) {
+		let max = 0;
+		let min = 900;
+		for (let i = ary.length - 1; i >= 0; i--) {
 			if (ary[i].fret > max) {
 				max = ary[i].fret;
 			}
@@ -857,7 +859,7 @@ ugsChordBuilder.export = (function() {
 	 * @param  {int} fret
 	 * @return {int}
 	 */
-	var fretNumber = function(fret: number) {
+	const fretNumber = function(fret: number) {
 		return fret > 0 ? _fretOffset + fret : 0;
 	};
 
@@ -869,9 +871,9 @@ ugsChordBuilder.export = (function() {
 	 * @param  {int} fret
 	 * @return {int}
 	 */
-	var getFinger = function(dots: UgsChordBuilder.Dot[], fret: number) {
-		for (var i = 0; i < dots.length; i++) {
-			if (dots[i].fret == fret) {
+	const getFinger = function(dots: UgsChordBuilder.Dot[], fret: number) {
+		for (let i = 0; i < dots.length; i++) {
+			if (dots[i].fret === fret) {
 				return dots[i].finger;
 			}
 		}
@@ -887,10 +889,10 @@ ugsChordBuilder.export = (function() {
 	 */
 	_public.getPrimaryFrets = function(startingFret) {
 		_fretOffset = startingFret - 1;
-		var dotsPerString = getStringDots();
-		var primaries = [];
-		for (var i = 0; i < dotsPerString.length; i++) {
-			var minMax = getMinMax(dotsPerString[i].dots);
+		const dotsPerString = getStringDots();
+		const primaries = [];
+		for (let i = 0; i < dotsPerString.length; i++) {
+			const minMax = getMinMax(dotsPerString[i].dots);
 			primaries.push(fretNumber(minMax.max));
 		}
 		return primaries;
@@ -905,18 +907,18 @@ ugsChordBuilder.export = (function() {
 	 */
 	_public.getDefinition = function(chordName, startingFret) {
 		chordName = scrub(chordName);
-		var name = (chordName && chordName.length > 0) ? chordName : 'CHORDNAME';
-		var fretsStr = '';
-		var fingersString = '';
-		var addsString = '';
+		const name = (chordName && chordName.length > 0) ? chordName : 'CHORDNAME';
+		let fretsStr = '';
+		let fingersString = '';
+		let addsString = '';
 
 		_fretOffset = startingFret - 1;
-		var dotsPerString = getStringDots();
-		for (var i = 0; i < dotsPerString.length; i++) {
-			var minMax = getMinMax(dotsPerString[i].dots);
+		const dotsPerString = getStringDots();
+		for (let i = 0; i < dotsPerString.length; i++) {
+			const minMax = getMinMax(dotsPerString[i].dots);
 			fretsStr += fretNumber(minMax.max) + ' ';
 			fingersString += getFinger(dotsPerString[i].dots, minMax.max) + ' ';
-			if (minMax.max != minMax.min) {
+			if (minMax.max !== minMax.min) {
 				addsString += ' add: string ' + dotsPerString[i].string + ' fret ' + fretNumber(minMax.min) + ' finger ' + getFinger(dotsPerString[i].dots, minMax.min);
 			}
 		}
@@ -937,14 +939,14 @@ ugsChordBuilder.export = (function() {
 		// Keep regexs simple by a couple cheats:
 		// First, using 'X07MX001' as my CSS clasname prefix to avoid collisions.
 		// We temporarily remove the name, then put it back in the very last step.
-		var html = _public.getDefinition(chordName, startingFret);
+		let html = _public.getDefinition(chordName, startingFret);
 		html = html.replace(' ' + chordName, ' ' + 'X07Myq791wso01');
 		html = html.replace(/\b(\d+)\b/g, '<span class="chordPro-X07MX001number">$1</span>');
 		html = html.replace(/\b(frets?|fingers?|string)\b/g, '<span class="chordPro-X07MX001attribute">$1</span>');
 		html = html.replace(/\b(define|add)\b/g, '<span class="chordPro-X07MX001keyword">$1</span>');
 		// the name can come from the song's {define}: escape it (the rest is numbers and keywords).
 		// A function, not a string, puts it in: replace() would read a "$&" or "$$" in the name as a pattern.
-		var nameHtml = '<span class="chordPro-string">' + ukeGeeks.toolsLite.escapeHtml(chordName) + '</span>';
+		const nameHtml = '<span class="chordPro-string">' + ukeGeeks.toolsLite.escapeHtml(chordName) + '</span>';
 		return html
 			.replace('X07Myq791wso01', function() {
 				return nameHtml;
@@ -959,11 +961,11 @@ ugsChordBuilder.export = (function() {
 	 * @param  {string} chordName
 	 * @return {string}
 	 */
-	var scrub = function(name: string) {
+	const scrub = function(name: string) {
 		// paranoia protection: no reserved words (makes life easier for parsing)
-		var disallow = /^(frets|fingers|add:)$/i;
+		const disallow = /^(frets|fingers|add:)$/i;
 		// trim leading & trailing spaces, internal spaces get smushed into single dash
-		var cleaned = name.replace(/^\s*(.*?)\s*$/, '$1').replace(/\s+/g, '-');
+		let cleaned = name.replace(/^\s*(.*?)\s*$/, '$1').replace(/\s+/g, '-');
 		if (disallow.test(cleaned)) {
 			cleaned = '';
 		}
