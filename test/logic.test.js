@@ -243,6 +243,26 @@ describe('Chord Builder export', () => {
     assert.deepEqual(page.errors, []);
   });
 
+  test('a chord renamed with $ in its name saves as typed', () => {
+    // String.replace reads "$&", "$$", "$`" and "$'" in its replacement as patterns
+    for (const newName of ['Zq$&', 'Zq$$', 'Zq$`', "Zq$'", 'Zq$1']) {
+      const page = loadEditorPage({ body: '<div id="editor"></div>' });
+      const { document } = page;
+      // the renamed chord leaves [Zq] in the lyrics undefined, and Song Formatter alerts about it
+      page.window.alert = () => {};
+      page.window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+        song: '{define: Zq frets 0 3 0 0 fingers 0 2 0 0}\n[Zq]hi\n',
+      });
+      document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+      const name = document.getElementById('cdBldChordName');
+      name.value = newName;
+      name.dispatchEvent(new page.window.Event('keyup'));
+      document.getElementById('cdBldSaveBtn').click();
+      assert.equal(document.getElementById('chordProSource').value, `{define: ${newName} frets 0 3 0 0 fingers 0 2 0 0}\n[Zq]hi\n`, newName);
+      assert.deepEqual(page.errors, [], newName);
+    }
+  });
+
   test('sliding stops at the ends of the diagram', () => {
     place([0, 1, 1], [1, 4, 2]);
     assert.equal(fretDots.slide(-1), false, 'fret 1 can\'t go lower');
