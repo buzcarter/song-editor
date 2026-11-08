@@ -20,6 +20,9 @@ interface UgsEditorPlus {
 	reformat: UgsEditorPlus.Reformat;
 }
 
+// Must stay var: ugsEditorPlus.namespace.ts declares it too, in the same global scope
+// (only var allows that), and a top-level var puts it on window for Studio and the Songbook.
+// eslint-disable-next-line no-var -- see above
 var ugsEditorPlus: UgsEditorPlus = window.ugsEditorPlus || ({} as UgsEditorPlus);
 
 /**

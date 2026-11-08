@@ -93,6 +93,8 @@ interface UgsChordBuilder {
  * @namespace ugsChordBuilder
  * @main  ugsChordBuilder
  */
+// Must stay var: a top-level var puts it on window, where Studio and the Songbook read it.
+// eslint-disable-next-line no-var -- see above
 var ugsChordBuilder: UgsChordBuilder = window.ugsChordBuilder || ({} as UgsChordBuilder);
 ugsChordBuilder.version = '1.0.6';
 
