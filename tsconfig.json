@@ -13,6 +13,8 @@
     "strict": true,
     // The scripts run in sloppy mode today; TypeScript must not add "use strict"
     "alwaysStrict": false,
+    // TypeScript 5.0 is the last supported deprecation warning gate for this config.
+    "ignoreDeprecations": "5.0",
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
