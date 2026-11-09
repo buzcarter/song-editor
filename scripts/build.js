@@ -3,7 +3,7 @@
  * Builds the Song-a-Matic editor into dist/:
  *
  *   src/js/**                          -> dist/js/ugsEditorPlus.merged.js + .min.js (browser bundle)
- *   src/markup.ts                      -> dist/markup.js (Node; also inside the bundle)
+ *   src/markup.ts + src/templates/*.html -> dist/markup.js (Node; also inside the bundle)
  *   src/types/ugsEditorPlus.d.ts       -> dist/ugsEditorPlus.d.ts, dist/markup.d.ts (type declarations)
  *   src/less/ugsEditorPlus_merged.less -> dist/css/ugsEditorPlus.merged.css + .min.css
  *   src/css/ugsEditorPlus.print.css    -> dist/css/ (hand-written, copied)
@@ -74,6 +74,8 @@ const COPIES = {
     ['src/types/markup.d.ts', 'markup.d.ts'],
   ],
 };
+// src/markup.ts holds this in quotes; the build swaps the quotes and all for the template text
+const TEMPLATE_PLACEHOLDER = "'__EDITOR_TEMPLATE__'";
 const IMG_DIR = 'img/editor';
 
 const rel = (p) => path.relative(ROOT, p);
@@ -89,7 +91,12 @@ const sourceFile = (name) => {
 
 /** Reads a source file as JavaScript: a .ts file loses its types, nothing else. */
 const readSource = async (file) => {
-  const text = await fs.readFile(file, 'utf8');
+  let text = await fs.readFile(file, 'utf8');
+  if (text.includes(TEMPLATE_PLACEHOLDER)) {
+    // markup.ts: put src/templates/editor.html in where the placeholder is
+    const html = await fs.readFile(path.join(ROOT, 'src/templates/editor.html'), 'utf8');
+    text = text.replace(TEMPLATE_PLACEHOLDER, () => JSON.stringify(html.replace(/\r\n?/g, '\n').replace(/\n$/, '')));
+  }
   if (!file.endsWith('.ts')) {
     return text;
   }

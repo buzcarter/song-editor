@@ -38,6 +38,13 @@ test('the Edit Song box holds the exact song text, entities and all', () => {
   assert.ok(out.includes('<textarea id="chordProSource" wrap="off">Lyrics &amp;amp; Music &amp;copy; 1933 &amp; &lt;b&gt;</textarea>'));
 });
 
+test('"{{" in a song is shown as written, not treated as a template tag', () => {
+  const out = editorHtml({ title: '{{body}}', body: '{{#if canSave}}x{{/if}} {{imgUrl}}' });
+  assert.ok(out.includes('<h1 id="songTitle" class="ugs-songTitle">{{body}}</h1>'));
+  assert.ok(out.includes('<pre>{{#if canSave}}x{{/if}} {{imgUrl}}</pre>'));
+  assert.ok(!out.includes('id="saveBtn"'));
+});
+
 test('defaults: no Save button, relative image folder, empty song', () => {
   const out = editorHtml();
   assert.ok(!out.includes('id="saveBtn"'));
