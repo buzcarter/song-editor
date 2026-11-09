@@ -26,8 +26,9 @@ ugsEditorPlus.topMenus = (function() {
 	 */
 	const _init = function() {
 		const dom = ugsEditorPlus.dom;
-		dom.on('#ugsAppToolbar > ul li:not([data-dialog]) > a', 'click', _onMenuItemClick);
-		dom.on('.showOptionsBox a', 'click', _onShowOptionsClick);
+		// (a, button: Songbook 1.5 pages have links here)
+		dom.on('#ugsAppToolbar > ul li:not([data-dialog]) > button, #ugsAppToolbar > ul li:not([data-dialog]) > a', 'click', _onMenuItemClick);
+		dom.on('.showOptionsBox > button, .showOptionsBox > a', 'click', _onShowOptionsClick);
 
 		dom.on('#ugsAppToolbar > ul li[data-dialog]', 'click', _onShowDlgBtnClick);
 		dom.on('.closeBtn', 'click', _onCloseBtnClick);
@@ -41,7 +42,7 @@ ugsEditorPlus.topMenus = (function() {
 	 * @return {void}
 	 */
 	const _onMenuItemClick = function(this: HTMLElement) {
-		// the clicked anchor tag
+		// the clicked button
 		const parent = this.parentElement;
 		if (!parent) {
 			return;
@@ -129,7 +130,7 @@ ugsEditorPlus.topMenus = (function() {
 	 */
 	const _onShowOptionsClick = function(this: HTMLElement, e: Event) {
 		const dom = ugsEditorPlus.dom;
-		const dlg = dom.byId((this.getAttribute('href') || '').replace(/^#/, ''), HTMLElement);
+		const dlg = dom.byId(this.dataset.target || (this.getAttribute('href') || '').replace(/^#/, ''), HTMLElement);
 
 		dom.all('.arrowBox').forEach(function(box) {
 			if (box !== dlg) {

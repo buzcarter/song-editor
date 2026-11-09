@@ -1,11 +1,9 @@
 <section id="scalablePrintArea" class="scalablePrintArea">
-  <header>
-    <hgroup class="ugs-songInfo">
-      <h1 id="songTitle" class="ugs-songTitle">Fixture &amp; Friends</h1>
-      <h2 id="songSubtitle" class="ugs-songSubtitle" style="display:none;"></h2>
-      <h2 id="songArtist" class="ugs-songArtist" style="display:block;">Bette &lt;b&gt;M&lt;/b&gt;</h2>
-      <h2 id="songAlbum" class="ugs-songAlbum" style="display:block;">Al</h2>
-    </hgroup>
+  <header class="ugs-songInfo">
+    <h1 id="songTitle" class="ugs-songTitle">Fixture &amp; Friends</h1>
+    <h2 id="songSubtitle" class="ugs-songSubtitle" style="display:none;"></h2>
+    <h2 id="songArtist" class="ugs-songArtist" style="display:block;">Bette &lt;b&gt;M&lt;/b&gt;</h2>
+    <h2 id="songAlbum" class="ugs-songAlbum" style="display:block;">Al</h2>
   </header>
   <div class="metaInfo" id="songMeta"> </div>
   <article id="ukeSongContainer" class="ugsLayoutTwoColumn ugs-song-wrap">
@@ -23,9 +21,9 @@
 </section>
 <!-- EDIT SONG (DIALOG) -->
 <section id="songSourceDlg" class="overlay ">
-  <hgroup>
+  <header class="overlayHeader">
     <h3>Edit Song</h3>
-  </hgroup>
+  </header>
   <div>
     <button type="button" title="close this" class="closeBtn">Close</button>
     <button type="button" title="switch to fullscreen editor" class="resizeBtn">Fullscreen</button>
@@ -49,11 +47,11 @@
 <!-- APP TOOLBAR -->
 <section id="ugsAppToolbar" class="ugsAppMenuBar">
   <ul>
-    <li class="navEdit" data-dialog="songSourceDlg"> <a href="#songSourceDlg" title="View &amp; edit the song source"><span></span>Edit</a> </li>
-    <li class="navLayout showOptionsBox"> <a href="#layoutOptions" title="Resize fonts &amp; chord diagrams. Customize layout &amp; colors."><span></span>Appearance</a></li>
-    <li class="navInstruments showOptionsBox"> <a href="#tuningOptions" title="Transpose song's key &amp; choose your prefered ukulele tuning"><span></span>Transpose</a></li>
-    <li class="navOptions showOptionsBox"> <a href="#optionsDlg" title="Advanced options &amp; settings"><span></span>Options</a> </li>
-    <li class="showDlgBtn showOptionsBox"> <a href="#helpDlg" title="Help &amp; Quick tips on formatting your song">?</a> </li>
+    <li class="navEdit" data-dialog="songSourceDlg"> <button type="button" title="View &amp; edit the song source"><span></span>Edit</button> </li>
+    <li class="navLayout showOptionsBox"> <button type="button" data-target="layoutOptions" title="Resize fonts &amp; chord diagrams. Customize layout &amp; colors."><span></span>Appearance</button> </li>
+    <li class="navInstruments showOptionsBox"> <button type="button" data-target="tuningOptions" title="Transpose song's key &amp; choose your prefered ukulele tuning"><span></span>Transpose</button> </li>
+    <li class="navOptions showOptionsBox"> <button type="button" data-target="optionsDlg" title="Advanced options &amp; settings"><span></span>Options</button> </li>
+    <li class="showDlgBtn showOptionsBox"> <button type="button" data-target="helpDlg" title="Help &amp; Quick tips on formatting your song">?</button> </li>
   </ul>
   <h2 class="ugsLogo">Uke Geeks Song-a-Matic</h2>
 </section>
@@ -194,9 +192,9 @@
 
 <!-- REFORMAT (DIALOG) -->
 <section id="reformatDlg" class="reformatDlg overlay isHidden">
-  <hgroup>
+  <header class="overlayHeader">
     <h3>Use Auto-Formated Version?</h3>
-  </hgroup>
+  </header>
   <div>
     <p class="instructions">Whoa! I didn't find any chords in your song -- it's probably not in ChordPro format. Here's the converted version&hellip;</p>
     <p class="btnBar">
@@ -211,9 +209,9 @@
 
 <!-- CHORD BUILDER (DIALOG) -->
 <section id="cdBldDlg" class="overlay chordBuilderDlg isHidden chordBuilderNarrow">
-  <hgroup>
+  <header class="overlayHeader">
     <h3>Chord Builder</h3>
-  </hgroup>
+  </header>
   <div>
     <button type="button" title="close this" class="closeBtn">Close</button>
     <div id="cdBldChooserPanel">

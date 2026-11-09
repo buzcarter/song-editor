@@ -77,7 +77,7 @@ ugsEditorPlus.optionsDlg = (function() {
 		});
 
 		ugsEditorPlus.dom.all('.overlay').forEach(function(dlg) {
-			ugsEditorPlus.dom.draggable(dlg, 'hgroup');
+			ugsEditorPlus.dom.draggable(dlg, '.overlayHeader, hgroup');
 		});
 	};
 
