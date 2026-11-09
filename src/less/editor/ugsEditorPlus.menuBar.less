@@ -54,7 +54,8 @@
 		float: left;
 		position: relative;
 	}
-	& > ul > li > a {
+	& > ul > li > a,
+	& > ul > li > button {
 		border: solid 1px transparent;
 		color: #f4e19f;
 		cursor: pointer;
@@ -67,14 +68,23 @@
 		text-decoration: none;
 		text-shadow: 1px 2px 0 rgba(86, 3, 5, 0.95);
 	}
-	& > ul > li > a:hover {
+	& > ul > li > button {
+		appearance: none;
+		background: none;
+		font: inherit;
+		margin: 0;
+		text-align: left;
+	}
+	& > ul > li > a:hover,
+	& > ul > li > button:hover {
 		border-color: #600000;
 		background-color: #451212;
 		background: url("../img/editor/editorSprite.png") 0 -145px repeat-x;
 		color: #fdda61;
 		text-shadow: none;
 	}
-	& > ul > .active > a {
+	& > ul > .active > a,
+	& > ul > .active > button {
 		background-color: #451212;
 		background: url("../img/editor/editorSprite.png") 0 -145px repeat-x;
 		color: #fef5e3;
@@ -83,7 +93,8 @@
 }
 /* Icons/Sprits
 -------------------------------- */
-.ugsAppMenuBar > ul > li > a span {
+.ugsAppMenuBar > ul > li > a span,
+.ugsAppMenuBar > ul > li > button span {
 	background-image: url("../img/editor/editorSprite.png");
 	background-repeat: no-repeat;
 	float: left;
@@ -96,7 +107,7 @@
 		background-position: -75px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -75px -50px;
 	}
 }
@@ -105,7 +116,7 @@
 		background-position: -50px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -50px -50px;
 	}
 }
@@ -114,7 +125,7 @@
 		background-position: -25px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -25px -50px;
 	}
 }
@@ -123,7 +134,7 @@
 		background-position: 0px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: 0px -50px;
 	}
 }
@@ -132,7 +143,7 @@
 		background-position: -100px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -100px -50px;
 	}
 }
@@ -141,7 +152,7 @@
 		background-position: -125px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -125px -50px;
 	}
 }
@@ -150,7 +161,7 @@
 		background-position: -150px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -150px -50px;
 	}
 }
@@ -159,7 +170,7 @@
 		background-position: -175px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -175px -50px;
 	}
 }
@@ -168,7 +179,7 @@
 		background-position: -200px 0px;
 	}
 	&.active span,
-	& a:hover span {
+	& :is(a, button):hover span {
 		background-position: -200px -50px;
 	}
 }

@@ -4,6 +4,23 @@
  * Description: All editor's buttons and button-like links.
  */
 
+/* <button>s that look like the links they replaced: the rules below and in the chord builder and
+   overlay files put the look back; this only takes the browser's button styling away
+------------------------------ */
+.alternateBtn,
+.noThanks,
+.closeBtn,
+.resizeBtn,
+.toolChip {
+	appearance: none;
+	background: none;
+	border: 0;
+	box-sizing: content-box;
+	font: inherit;
+	margin: 0;
+	padding: 0;
+}
+
 /* "base button" is rounded & gray with white text */
 .baseBtn {
 	background-color: #999;

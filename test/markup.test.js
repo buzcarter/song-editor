@@ -7,8 +7,9 @@ const { editorHtml } = require('../dist/markup.js');
 
 const fixture = (name) => fs.readFileSync(path.join(__dirname, 'fixtures', name), 'utf8').replace(/\n$/, '');
 
-// The same model the fixtures were captured with, from the Songbook's server/views.js songEditable()
-// (buzcarter/UkeGeeks@8ebc8ba): the markup must not drift from what the Songbook served.
+// The model the fixtures were captured with. They began as the Songbook 1.5 page (server/views.js songEditable(),
+// buzcarter/UkeGeeks@8ebc8ba); 2.0.0 replaced its link-buttons with <button>s, so they are the editor's own snapshots now.
+// When the markup changes on purpose, regenerate them and read the diff.
 const MODEL = {
   imgUrl: '/img/editor/',
   title: 'Fixture & Friends',
@@ -18,12 +19,12 @@ const MODEL = {
   body: '{title: Fixture & Friends}\n{artist: Bette <b>M</b>}\n[C]Some <script>x</script> say &amp; [G7]love\n',
 };
 
-test('matches the Songbook 1.5 editable page, read-only', () => {
-  assert.equal(editorHtml({ ...MODEL, canSave: false }), fixture('songbook-1.5-editable.html'));
+test('matches the read-only fixture', () => {
+  assert.equal(editorHtml({ ...MODEL, canSave: false }), fixture('editor-readonly.html'));
 });
 
-test('matches the Songbook 1.5 editable page, with Save', () => {
-  assert.equal(editorHtml({ ...MODEL, canSave: true }), fixture('songbook-1.5-editable-save.html'));
+test('matches the fixture with Save', () => {
+  assert.equal(editorHtml({ ...MODEL, canSave: true }), fixture('editor-save.html'));
 });
 
 test('escapes song text but keeps entities', () => {
@@ -36,6 +37,22 @@ test('escapes song text but keeps entities', () => {
 test('the Edit Song box holds the exact song text, entities and all', () => {
   const out = editorHtml({ body: 'Lyrics &amp; Music &copy; 1933 & <b>' });
   assert.ok(out.includes('<textarea id="chordProSource" wrap="off">Lyrics &amp;amp; Music &amp;copy; 1933 &amp; &lt;b&gt;</textarea>'));
+});
+
+test('"{{" in a song is shown as written, not treated as a template tag', () => {
+  const out = editorHtml({ title: '{{body}}', body: '{{#if canSave}}x{{/if}} {{imgUrl}}' });
+  assert.ok(out.includes('<h1 id="songTitle" class="ugs-songTitle">{{body}}</h1>'));
+  assert.ok(out.includes('<pre>{{#if canSave}}x{{/if}} {{imgUrl}}</pre>'));
+  assert.ok(!out.includes('id="saveBtn"'));
+});
+
+test('action controls are buttons, not links', () => {
+  const out = editorHtml({ canSave: true });
+  for (const id of ['cdBldOpenBtn', 'reformatNoBtn', 'cdBldCancelBtn', 'cdBldDotsBtn', 'cdBldFingersBtn', 'toolboxSlideUpBtn', 'toolboxSlideDownBtn']) {
+    assert.match(out, new RegExp(`<button type="button" [^>]*id="${id}"`), id);
+  }
+  assert.equal(out.match(/<button type="button" [^>]*class="(closeBtn|resizeBtn)"/g).length, 3);
+  assert.ok(!/href="#(close|resize|dots|fingers|slide-up|slide-down|noThanks|closeBuilder|chordBuilder)"/.test(out));
 });
 
 test('defaults: no Save button, relative image folder, empty song', () => {

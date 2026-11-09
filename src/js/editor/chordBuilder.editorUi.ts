@@ -328,9 +328,9 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	const toggleTool = function(evt: Event) {
 		evt.preventDefault();
-		// the Dots and Fingers buttons are links: #dots and #fingers
+		// the Dots and Fingers buttons say which tool they are in data-tool (Songbook 1.5 pages: links to #dots and #fingers)
 		const button = evt.currentTarget;
-		const useDotTool = button instanceof HTMLAnchorElement && button.href.indexOf('#dots') >= 0;
+		const useDotTool = button instanceof HTMLElement && (button.dataset.tool || button.getAttribute('href') || '').indexOf('dots') >= 0;
 		if (useDotTool === _isDotToolActive) {
 			if (!useDotTool) {
 				updateFinger();
