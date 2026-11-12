@@ -3,8 +3,10 @@
  * Builds the Song-a-Matic editor into dist/:
  *
  *   src/js/**                          -> dist/js/ugsEditorPlus.merged.js + .min.js (browser bundle)
+ *   src/js/editor/chordBuilder*        -> dist/js/ugsChordBuilder.merged.js + .min.js (the Chord Builder alone;
+ *                                         it is in the editor's bundle too)
  *   src/markup.ts + src/templates/*.html -> dist/markup.js (Node; also inside the bundle)
- *   src/types/ugsEditorPlus.d.ts       -> dist/ugsEditorPlus.d.ts, dist/markup.d.ts (type declarations)
+ *   src/types/*.d.ts                   -> dist/ugsEditorPlus.d.ts, dist/ugsChordBuilder.d.ts, dist/markup.d.ts (type declarations)
  *   src/less/ugsEditorPlus_merged.less -> dist/css/ugsEditorPlus.merged.css + .min.css
  *   src/css/ugsEditorPlus.print.css    -> dist/css/ (hand-written, copied)
  *   img/editor/*                       -> dist/img/editor/
@@ -32,38 +34,56 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const DIST = path.join(ROOT, 'dist');
 
-const BUNDLE = {
-  name: 'ugsEditorPlus',
-  dir: 'src/js',
-  files: [
-    'editor/namespace',
-    'editor/dom',
+// The Chord Builder's files, in load order. They use nothing of the editor's (a test checks),
+// so they are also a bundle of their own.
+const CHORD_BUILDER_FILES = [
+  'editor/chordBuilder',
+  'editor/chordBuilder.host',
+  'editor/chordBuilder.songDefinitions',
+  'editor/chordBuilder.chordReader',
+  'editor/chordBuilder.chooserList',
+  'editor/chordBuilder.editorUi',
+  'editor/chordBuilder.mount',
+];
 
-    'editor/options',
-    'editor/songText',
-    'editor/actions',
-    'editor/songUi',
-    'editor/styles',
-    'editor/themes',
-    'editor/optionsDlg',
-    'editor/reformat',
-    'editor/autoReformat',
-    'editor/topMenus',
-    'editor/submenuUi',
-    'editor/updateSong',
-    'editor/aceHelp',
-    'editor/resize',
-    'editor/editor.chordBuilder',
-    '../markup',
-    'editor/songAmatic',
-    'mount',
-    'editor/chordBuilder',
-    'editor/chordBuilder.chooserList',
-    'editor/chordBuilder.editorUi',
-    // used by ugsEditorPlus.resize to load the ACE editor on demand ("Fullscreen" button)
-    'libs/lazyload',
-  ],
-};
+const BUNDLES = [
+  {
+    name: 'ugsEditorPlus',
+    dir: 'src/js',
+    files: [
+      'editor/namespace',
+      'editor/dom',
+
+      'editor/options',
+      'editor/songText',
+      'editor/actions',
+      'editor/songUi',
+      'editor/styles',
+      'editor/themes',
+      'editor/optionsDlg',
+      'editor/reformat',
+      'editor/autoReformat',
+      'editor/topMenus',
+      'editor/submenuUi',
+      'editor/updateSong',
+      'editor/aceHelp',
+      'editor/resize',
+      // the editor's side of the Chord Builder: its host
+      'editor/editor.chordBuilder',
+      '../markup',
+      'editor/songAmatic',
+      'mount',
+      ...CHORD_BUILDER_FILES,
+      // used by ugsEditorPlus.resize to load the ACE editor on demand ("Fullscreen" button)
+      'libs/lazyload',
+    ],
+  },
+  {
+    name: 'ugsChordBuilder',
+    dir: 'src/js',
+    files: CHORD_BUILDER_FILES,
+  },
+];
 
 const LESS_ENTRY = 'src/less/ugsEditorPlus_merged.less';
 const COPIES = {
@@ -72,11 +92,16 @@ const COPIES = {
   // type declarations, hand-written; `npm run typecheck` checks the sources against them
   types: [
     ['src/types/ugsEditorPlus.d.ts', 'ugsEditorPlus.d.ts'],
+    ['src/types/ugsChordBuilder.d.ts', 'ugsChordBuilder.d.ts'],
     ['src/types/markup.d.ts', 'markup.d.ts'],
   ],
 };
-// src/markup.ts holds this in quotes; the build swaps the quotes and all for the template text
-const TEMPLATE_PLACEHOLDER = "'__EDITOR_TEMPLATE__'";
+// A source file holds one of these in quotes; the build swaps the quotes and all for the text of
+// src/templates/<name>.html (src/markup.ts: the editor's page; chordBuilder.mount.ts: the builder's panels)
+const TEMPLATE_PLACEHOLDERS = {
+  "'__EDITOR_TEMPLATE__'": 'editor',
+  "'__CHORD_BUILDER_TEMPLATE__'": 'chordBuilder',
+};
 const IMG_DIR = 'img/editor';
 
 const rel = (p) => path.relative(ROOT, p);
@@ -90,13 +115,27 @@ const sourceFile = (name) => {
   return found[0];
 };
 
+/**
+ * The text of src/templates/<name>.html. A line holding only `{{> other}}` becomes the text of
+ * src/templates/other.html (the editor's page includes the Chord Builder's panels this way).
+ */
+const readTemplate = async (name) => {
+  const html = (await fs.readFile(path.join(ROOT, `src/templates/${name}.html`), 'utf8')).replace(/\r\n?/g, '\n');
+  const parts = html.split(/^[ \t]*\{\{> (\w+)\}\}\n/m);
+  for (let i = 1; i < parts.length; i += 2) {
+    parts[i] = await readTemplate(parts[i]);
+  }
+  return parts.join('');
+};
+
 /** Reads a source file as JavaScript: a .ts file loses its types, nothing else. */
 const readSource = async (file) => {
   let text = await fs.readFile(file, 'utf8');
-  if (text.includes(TEMPLATE_PLACEHOLDER)) {
-    // markup.ts: put src/templates/editor.html in where the placeholder is
-    const html = await fs.readFile(path.join(ROOT, 'src/templates/editor.html'), 'utf8');
-    text = text.replace(TEMPLATE_PLACEHOLDER, () => JSON.stringify(html.replace(/\r\n?/g, '\n').replace(/\n$/, '')));
+  for (const [placeholder, template] of Object.entries(TEMPLATE_PLACEHOLDERS)) {
+    if (text.includes(placeholder)) {
+      const html = await readTemplate(template);
+      text = text.replace(placeholder, () => JSON.stringify(html.replace(/\n$/, '')));
+    }
   }
   if (!file.endsWith('.ts')) {
     return text;
@@ -132,8 +171,19 @@ const copy = async (from, to) => {
 };
 
 async function buildJs() {
+  for (const bundle of BUNDLES) {
+    await buildBundle(bundle);
+  }
+  for (const [from, to] of COPIES.js) {
+    await write(path.join(DIST, to), await readSource(sourceFile(from)));
+  }
+  for (const [from, to] of COPIES.types) {
+    await copy(path.join(ROOT, from), path.join(DIST, to));
+  }
+}
+
+async function buildBundle({ name, dir, files }) {
   const { minify } = require('terser');
-  const { name, dir, files } = BUNDLE;
 
   const sources = await Promise.all(files.map((f) => readSource(sourceFile(path.join(dir, f)))));
 
@@ -151,12 +201,6 @@ async function buildJs() {
 
   await write(path.join(DIST, `js/${name}.merged.js`), merged);
   await write(path.join(DIST, `js/${name}.min.js`), result.code + '\n');
-  for (const [from, to] of COPIES.js) {
-    await write(path.join(DIST, to), await readSource(sourceFile(from)));
-  }
-  for (const [from, to] of COPIES.types) {
-    await copy(path.join(ROOT, from), path.join(DIST, to));
-  }
 }
 
 async function buildCss() {

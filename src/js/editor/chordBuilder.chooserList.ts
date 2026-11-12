@@ -1,38 +1,10 @@
-declare namespace UgsChordBuilder {
-	/** A chord read by Song Formatter (chordImport.runLine) */
-	type Chord = import('@ukegeeks/song-formatter').Chord;
-	/** A {define: ...} in the song, listed in the chooser */
-	interface ChordDefinition {
-		id: number;
-		name: string;
-		definition: string;
-	}
-	/** What the builder's Add/Update button saves */
-	interface SaveData {
-		name: string;
-		startingFret: number;
-		dots: Dot[];
-		definition: string;
-	}
-	interface ChooserList {
-		/** Lists the song's chord definitions; `setChordFunction` opens one in the builder (null: a new chord) */
-		init(setChordFunction: (chord: Chord | null) => void): void;
-		/** Re-reads the song's definitions */
-		reset(): void;
-		/** Shows the chooser (true) or the builder (false) */
-		show(isChooserPanel: boolean): void;
-		/** Adds or updates the definition in the song; false if the name is taken */
-		save(data: SaveData): boolean;
-	}
-}
-interface UgsChordBuilder {
-	chooserList: UgsChordBuilder.ChooserList;
-}
-
 /**
- * The Chord Builder's first panel: lists the song's `{define: ...}` chords, read from the
- * Edit Song box. Opening one (or "new") hands it to the builder; saving writes the definition
- * back into the Edit Song box and redraws the song (actions.run()).
+ * The Chord Builder's first panel: lists the song's `{define: ...}` chords. Opening one (or
+ * "new") hands it to the builder; saving, and the delete button, change the song.
+ *
+ * This is the list and its bookkeeping only. The song's text comes from and goes back to the
+ * host (chordBuilder.host.ts), songDefinitions does the text work, and chordReader reads a
+ * definition as a chord. Song Formatter's chordBrush draws the small diagrams.
  * @class chooserList
  * @namespace ugsChordBuilder
  * @static
@@ -48,9 +20,14 @@ ugsChordBuilder.chooserList = (function() {
 
 	// array of custom chords defined in this song
 	let _chordDictionary: UgsChordBuilder.ChordDefinition[] = [];
-	// the HTML UL element (the editor's checked lookup: ugsEditorPlus.dom loads before the Chord Builder)
+	// dependencies:
+	const host = ugsChordBuilder.host,
+		songDefinitions = ugsChordBuilder.songDefinitions,
+		chordReader = ugsChordBuilder.chordReader;
+
+	// the HTML UL element
 	const chordListEle = function() {
-		return ugsEditorPlus.dom.byId(_ids.chordList, HTMLElement);
+		return host.byId(_ids.chordList, HTMLElement);
 	};
 
 	/**
@@ -66,8 +43,6 @@ ugsChordBuilder.chooserList = (function() {
 
 	// HTML element Ids
 	const _ids = {
-		// ChordPro Song -- the unmodified source
-		source: 'chordProSource',
 		// the UL where we'll be loading the chords
 		chordList: 'cdBldPick',
 		builderPanel: 'cdBldBuilderPanel',
@@ -84,7 +59,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * Handle to the chordBuilder (UI) "setChord" method
 	 * @attribute _setChordMethod
 	 */
-	let _setChordMethod: (chord: UgsChordBuilder.Chord | null) => void = function() {};
+	let _setChordMethod: (chord: UgsChordBuilder.SourceChord | null) => void = function() {};
 
 	/**
 	 * Hanlde to instance of Scriptasaurus chord brush class, to paint the wee little
@@ -156,7 +131,10 @@ ugsChordBuilder.chooserList = (function() {
 	};
 
 	const _start = function() {
-		songGetDefinitions(ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement).value);
+		// last line to first: the list has always shown the song's definitions bottom-up
+		for (const found of songDefinitions.find(host.getSong()).reverse()) {
+			definitionAdd(found.name, found.definition);
+		}
 		listLoad(chordListEle(), _chordDictionary);
 	};
 
@@ -175,11 +153,29 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {bool} isChooserPanel
 	 */
 	_public.show = function(isChooserPanel) {
-		const dom = ugsEditorPlus.dom;
-		const chooserPanel = dom.byId(_ids.chooserPanel, HTMLElement);
-		chooserPanel.style.display = isChooserPanel ? 'block' : 'none';
-		dom.byId(_ids.builderPanel, HTMLElement).style.display = !isChooserPanel ? 'block' : 'none';
-		dom.closest(chooserPanel, '.ugsEditor-overlay', HTMLElement).classList.toggle('ugsEditor-chordBuilderNarrow', isChooserPanel);
+		host.byId(_ids.chooserPanel, HTMLElement).style.display = isChooserPanel ? 'block' : 'none';
+		host.byId(_ids.builderPanel, HTMLElement).style.display = !isChooserPanel ? 'block' : 'none';
+		host.panelChanged(isChooserPanel ? 'chooser' : 'builder');
+	};
+
+	/**
+	 * The definitions listed, in the list's order (copies: changing them changes nothing here).
+	 * @method getDefinitions
+	 * @return {array}
+	 */
+	_public.getDefinitions = function() {
+		return _chordDictionary.map(function(chord) {
+			return { id: chord.id, name: chord.name, definition: chord.definition };
+		});
+	};
+
+	/**
+	 * The definition open in the builder; null for a new chord.
+	 * @method getCurrent
+	 * @return {ChordDefinition}
+	 */
+	_public.getCurrent = function() {
+		return _currentChord ? { id: _currentChord.id, name: _currentChord.name, definition: _currentChord.definition } : null;
 	};
 
 	/**
@@ -190,14 +186,14 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	_public.save = function(data) {
 		if (dictionaryFindDupes(_currentChord == null ? -1 : _currentChord.id, data.name) >= 0) {
-			alert('Hey, this chord name is already being used.');
+			host.alert('Hey, this chord name is already being used.');
 			return false;
 		}
 		let id: number;
 		if (_currentChord == null) {
 			id = definitionAdd(data.name, data.definition);
 			_currentChord = dictionaryFind(id);
-			songAddDefinition(data.definition);
+			host.setSong(songDefinitions.add(host.getSong(), data.definition));
 		}
 		else {
 			const chord = _chordDictionary[dictionaryGetIndex(_currentChord.id)];
@@ -209,7 +205,7 @@ ugsChordBuilder.chooserList = (function() {
 			chord.name = data.name;
 			chord.definition = data.definition;
 			id = chord.id;
-			songReplace(oldDefinition, chord.definition);
+			host.setSong(songDefinitions.replace(host.getSong(), oldDefinition, chord.definition));
 		}
 		listUpdate(id);
 		_public.show(true);
@@ -223,7 +219,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * @return {void}
 	 */
 	const doDelete = function(chord: UgsChordBuilder.ChordDefinition) {
-		if (!confirm('Delete definition for "' + chord.name + '"?')) {
+		if (!host.confirm('Delete definition for "' + chord.name + '"?')) {
 			return;
 		}
 		const item = listGetItem(chord.id);
@@ -231,7 +227,9 @@ ugsChordBuilder.chooserList = (function() {
 			return;
 		}
 		chordListEle().removeChild(item);
-		songReplace(chord.definition, '');
+		_chordDictionary.splice(dictionaryGetIndex(chord.id), 1);
+		_currentChord = null;
+		host.setSong(songDefinitions.remove(host.getSong(), chord.definition));
 
 	};
 
@@ -259,30 +257,13 @@ ugsChordBuilder.chooserList = (function() {
 
 		let chord = null;
 		if (_currentChord != null) {
-			chord = ukeGeeks.chordImport.runLine(_currentChord.definition);
-			if (chord && hasMutedStrings(chord)) {
-				alert('Uh-oh! This chord uses muted strings!\nCurrently the Chord Builder does not support muted strings -- \nsaving edits will result in mutes being lost.');
+			chord = chordReader.read(_currentChord.definition);
+			if (chord && chordReader.hasMutedStrings(chord)) {
+				host.alert('Uh-oh! This chord uses muted strings!\nCurrently the Chord Builder does not support muted strings -- \nsaving edits will result in mutes being lost.');
 			}
 		}
 		_setChordMethod(chord);
 		_public.show(false);
-	};
-
-	/**
-	 * Checks whether any of the Chord's strings have been muted.
-	 * @method hasMutedStrings
-	 * @param  {ugs.chord}  chord
-	 * @return {Boolean}
-	 */
-	const hasMutedStrings = function(chord: UgsChordBuilder.Chord) {
-		if (chord.muted) {
-			for (let i = 0; i < chord.muted.length; i++) {
-				if (chord.muted[i]) {
-					return true;
-				}
-			}
-		}
-		return false;
 	};
 
 	/**
@@ -335,7 +316,7 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	const listHtmlString = function(id: number, name: string, isInner?: boolean) {
 		isInner = (arguments.length > 2) ? isInner : false;
-		const innerHtml = '<span class="ugsEditor-deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + ukeGeeks.toolsLite.escapeHtml(name);
+		const innerHtml = '<span class="ugsEditor-deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + ugsChordBuilder.html.escape(name);
 		return isInner ? innerHtml : '<li data-id="' + id + '" title="Edit this definition" class="ugs-grouped">' + innerHtml + '</li>';
 	};
 
@@ -388,91 +369,16 @@ ugsChordBuilder.chooserList = (function() {
 		if (!element || !defintion) {
 			return;
 		}
+		// Song Formatter's chord for Song Formatter's brush: the small diagram is all its work
 		const chord = ukeGeeks.chordImport.runLine(defintion.definition);
 		if (!chord) {
 			// Song Formatter can't read this {define}: no mini-diagram
 			return;
 		}
-		//var fretBox = ukeGeeks.settings.inlineFretBox;
-		//var fontSettings = ukeGeeks.settings.inlineFretBox.fonts;
 		if (_ugsBrushTool == null) {
 			_ugsBrushTool = new ukeGeeks.chordBrush();
 		}
 		_ugsBrushTool.plot(element, chord, _diagramSettings.dimensions, _diagramSettings.fonts, _diagramSettings.colors);
-	};
-
-	/**
-	 * Replaces every occurrence of searchValue in text with newValue, both taken as plain text.
-	 * (Not String.replace: it reads "$&" or "$$" in newValue as patterns, and a chord name can
-	 * contain them.)
-	 * @method replaceAll
-	 * @param  {string} text
-	 * @param  {string} searchValue
-	 * @param  {string} newValue
-	 * @return {string}
-	 */
-	const replaceAll = function(text: string, searchValue: string, newValue: string): string {
-		return text.split(searchValue).join(newValue);
-	};
-
-	/**
-	 * Updates Source and Runs Scriptasaurus after updaint the definition
-	 * @method songReplace
-	 * @param  {string} oldDefinition
-	 * @param  {string} newDefinition
-	 * @return {void}
-	 */
-	const songReplace = function(oldDefinition: string, newDefinition: string) {
-		const e = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
-		e.value = replaceAll(e.value, oldDefinition, newDefinition);
-		ugsEditorPlus.songText.changed();
-		ugsEditorPlus.actions.run();
-	};
-
-	/**
-	 * Loops over all lines in "text" and extracts any {define:...} statements, adding
-	 * them to the ChordDictionary.
-	 * @method songGetDefinitions
-	 */
-	const songGetDefinitions = function(text: string) {
-		const defineRegEx = /\{define:\s*([^}]+?)\s+frets[^}]+?\}/im;
-		const lines = text.split('\n');
-		// last line to first
-		for (const line of lines.reverse()) {
-			if (!defineRegEx.test(line)) {
-				continue;
-			}
-			definitionAdd(line.replace(defineRegEx, '$1'), line);
-		}
-	};
-
-	/**
-	 * Inserts the passed chord definition into the song (and reruns Sscriptasaurus).
-	 * The chord insertion point is at the end of either the song meta tags or the
-	 * existing chord defintion block. Determined by the _last_ "header" tag line.
-	 * @method songAddDefinition
-	 * @param {string} definition
-	 */
-	const songAddDefinition = function(definition: string) {
-		const choProText = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
-		const instructionRegEx = /\s*\{\s*(title|t|artist|subtitle|st|album|define):.*?\}/im;
-		const lines = choProText.value.split('\n');
-		let html = '';
-		let inserted = false;
-		// last line to first
-		for (const line of lines.reverse()) {
-			if (!inserted && instructionRegEx.test(line)) {
-				html = definition + '\n' + html;
-				inserted = true;
-			}
-			html = line + '\n' + html;
-		}
-		if (!inserted) {
-			html = definition + '\n' + choProText.value;
-		}
-		choProText.value = html;
-		ugsEditorPlus.songText.changed();
-		ugsEditorPlus.actions.run();
 	};
 
 	/**

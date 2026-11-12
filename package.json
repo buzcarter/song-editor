@@ -36,6 +36,10 @@
       "types": "./dist/ugsEditorPlus.d.ts",
       "default": "./dist/js/ugsEditorPlus.min.js"
     },
+    "./chord-builder": {
+      "types": "./dist/ugsChordBuilder.d.ts",
+      "default": "./dist/js/ugsChordBuilder.min.js"
+    },
     "./css": "./dist/css/ugsEditorPlus.min.css",
     "./dist/*": "./dist/*",
     "./package.json": "./package.json"

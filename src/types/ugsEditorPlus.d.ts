@@ -9,7 +9,10 @@
  *
  * Only the parts host pages use are described here; the editor's internal parts are
  * on the same globals, but aren't an API.
+ *
+ * The Chord Builder (`ugsChordBuilder`) has its own file, ugsChordBuilder.d.ts.
  */
+/// <reference path="./ugsChordBuilder.d.ts" />
 
 declare namespace UgsEditorPlus {
   /** Features you can turn on or off; see src/js/editor/ugsEditorPlus.options.ts */
@@ -185,11 +188,4 @@ interface UgsEditorPlus {
   dom: UgsEditorPlus.Dom;
 }
 
-/** The Chord Builder (its dialog is part of the editor). */
-interface UgsChordBuilder {
-  /** The Chord Builder's own version number (not the package's) */
-  version: string;
-}
-
 declare var ugsEditorPlus: UgsEditorPlus;
-declare var ugsChordBuilder: UgsChordBuilder;
