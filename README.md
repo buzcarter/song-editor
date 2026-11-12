@@ -54,7 +54,7 @@ The editor doesn't bundle its two dependencies, so a page never gets a second co
 
 The editor stylesheet **must** have `title="ugsEditorCss"`: the editor changes font and diagram sizes by editing rules in it.
 
-The editor finds its parts by `id`, so a page holds one editor.
+The editor finds its parts by `id`, so a page holds one editor. Its own class names start with `ugsEditor-` and its scripts look only inside `container`, so your page's styles and elements and the editor's don't touch. (It does add a few classes to `<body>`, such as `editableSongPage` and `theme-…`, and its stylesheet styles `html` and `body`.)
 
 ### `ugsEditorPlus.songAmatic.mount(container, options)`
 

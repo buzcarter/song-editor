@@ -1,5 +1,19 @@
 # Changelog
 
+## 2.0.0-beta.2 (2026-11-11)
+
+The editor keeps to itself on a host page: its class names are prefixed, and its scripts look things up inside its own element.
+
+### Breaking
+
+- The editor's own class names start with `ugsEditor-`: `.overlay` is `.ugsEditor-overlay`, `.isHidden` is `.ugsEditor-isHidden`, `.arrowBox`, `.active`, `.checked`, `.selected`, `.baseBtn`, `.closeBtn`, `.pseudoSelect`, the `nav…` toolbar classes and the rest likewise (75 in all). Host CSS or scripts that use the old names need the prefix; pages with their own copy of the markup should take it from `editorHtml()` again. The look is unchanged.
+- Not renamed: the song's classes (Song Formatter's `ugs…` names, `.scalablePrintArea`, and `.metaInfo`, which host pages style), `.ugsAppMenuBar`, `.ugsLogo`, `.ugsChordChooser`, `chordPro-…`, ids, and the classes the editor puts on `<body>` and `<html>` (`editableSongPage`, `pageWidth_…`, `diagramsOnTop`, `diagramsOnSide`, `ugsHideDiagrams`, `theme-…`, `aceEditorActive`).
+- `ugsEditorPlus.dom.one()`, `all()`, `find()` and `on()` with a selector search inside the editor's element once an editor is running, not the whole page. Pass a context (`document`) to search wider. With no editor on the page (the Songbook's song list) they search the page as before.
+
+### Fixed
+
+- A host page's own `.overlay`, `.arrowBox`, `.active`, `.closeBtn`… elements no longer get the editor's styles, and the editor no longer hides them or takes their clicks.
+
 ## 2.0.0-beta.1 (2026-11-11)
 
 A host page can now save and hear about changes without reaching into the editor's page, and the editor's controls are real buttons. The markup changed, so this is a major version: pages that call `mount()` and use only its API need no change; pages that copy the markup, or style or script its parts, do.
