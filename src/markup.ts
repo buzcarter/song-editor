@@ -34,7 +34,7 @@
 
   const esc = (value: unknown) => (value === null || value === undefined || value === false
     ? ''
-    : String(value).replace(BARE_AMP_OR_SPECIAL, (c) => ESCAPES[c]));
+    : String(value).replace(BARE_AMP_OR_SPECIAL, (c) => ESCAPES[c] ?? c));
 
   // The Edit Song box gets every "&" escaped, so it holds the song's exact text: a song with
   // "&amp;" shows (and saves) "&amp;", not "&". (Song Formatter keeps entities when it draws the song.)
@@ -42,7 +42,7 @@
 
   const escText = (value: unknown) => (value === null || value === undefined || value === false
     ? ''
-    : String(value).replace(ALL_SPECIAL, (c) => ESCAPES[c]));
+    : String(value).replace(ALL_SPECIAL, (c) => ESCAPES[c] ?? c));
 
   // The page markup, from src/templates/editor.html. scripts/build.js swaps the placeholder below
   // for the file's text, so there is nothing to load at run time (Node and the browser bundle alike).

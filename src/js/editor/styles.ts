@@ -37,8 +37,9 @@ ugsEditorPlus.styles = (function() {
 	
 	const _getSheet = function(title: string){
 		for (let i = 0; i < document.styleSheets.length; i++){
-			if (document.styleSheets[i].title === title){
-				return document.styleSheets[i];
+			const sheet = document.styleSheets[i];
+			if (sheet && sheet.title === title){
+				return sheet;
 			}
 		}
 		return null;

@@ -144,14 +144,18 @@ ugsEditorPlus.submenuUi = (function(){
 			}];
 
 		for (let i = map.length - 1; i >= 0; i--) {
-			item = document.querySelector('[data-action="' + map[i].action + '"] a[href="#' + cssString(map[i].value) + '"]');
+			const entry = map[i];
+			if (!entry) {
+				continue;
+			}
+			item = document.querySelector('[data-action="' + entry.action + '"] a[href="#' + cssString(entry.value) + '"]');
 			if (!item) {
 				continue;
 			}
 			item = ugsEditorPlus.dom.closest(item, 'li', HTMLElement);
 			id = ugsEditorPlus.dom.closest(item, 'dd', HTMLElement).id;
 			setChecked(item);
-			ugsEditorPlus.dom.find('span', HTMLElement, getLabel(id)).textContent = getLabelText(map[i].action, map[i].value, item);
+			ugsEditorPlus.dom.find('span', HTMLElement, getLabel(id)).textContent = getLabelText(entry.action, entry.value, item);
 		}
 	};
 
@@ -264,7 +268,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @private
 	 * @type {JSON}
 	 */
-	const _desriptions: Record<string, string[]> = {
+	const _desriptions = {
 		'zoomDiagrams' : ['Tiny', 'Small', 'Medium', 'Large', 'Stupid Large'],
 		'layout' : ['Reference diagrams on left', 'Reference diagrams at top', 'No reference diagrams'],
 		'placement' : ['Chord names inline with lyrics', 'Chord names above lyrics', 'Names & diagrams above lyrics'],
@@ -298,8 +302,11 @@ ugsEditorPlus.submenuUi = (function(){
 				const txt = ele.textContent || '';
 				return txt.replace(' ', ' steps - "') + '"';
 			}
-			default:
-			 return _desriptions[action][index];
+			default: {
+				// an action without descriptions, or an item past their end, gets an empty label
+				const descriptions = (_desriptions as Record<string, string[]>)[action];
+				return (descriptions && descriptions[index]) || '';
+			}
 		}
 	};
 

@@ -222,8 +222,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	const convertDots = function(startingFret: number, builderDots: UgsChordBuilder.Chord['dots']) {
 		const offset = startingFret - 1;
 		const ugsDots: UgsChordBuilder.Dot[] = [];
-		for (let i = 0; i < builderDots.length; i++) {
-			const dot = builderDots[i];
+		for (const dot of builderDots) {
 			const fret = (dot.fret || 0) - offset;
 			if (fret < 1) {
 				continue;
@@ -241,8 +240,8 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	const findMaxFret = function(dots: UgsChordBuilder.Chord['dots']) {
 		let max = 0;
-		for (let i = 0; i < dots.length; i++) {
-			const fret = dots[i].fret || 0;
+		for (const dot of dots) {
+			const fret = dot.fret || 0;
 			if (fret > max) {
 				max = fret;
 			}
@@ -310,8 +309,8 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		resetCurrentTool();
 
 		if (dots && dots.length > 0) {
-			for (let i = 0; i < dots.length; i++) {
-				ugsChordBuilder.fretDots.toggleDot(dots[i]);
+			for (const dot of dots) {
+				ugsChordBuilder.fretDots.toggleDot(dot);
 			}
 		}
 
