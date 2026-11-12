@@ -22,6 +22,10 @@
   font: inherit;
 }
 
+.demoBar a {
+  color: #9fc8ff;
+}
+
 .demoLog:empty {
   display: none;
 }

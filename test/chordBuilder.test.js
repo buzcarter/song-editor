@@ -558,6 +558,17 @@ describe('host', () => {
     assert.deepEqual(heard, ['window.confirm a?', 'window.alert b', 'host.confirm c?', 'host.alert d']);
   });
 
+  test('onStateChange is optional', () => {
+    const { window } = loadChordBuilderPage({ songFormatter: false });
+    const { host } = window.ugsChordBuilder;
+    host.use({ getSong: () => '', setSong() {} });
+    host.stateChanged({});
+    const states = [];
+    host.use({ getSong: () => '', setSong() {}, onStateChange: (state) => states.push(state) });
+    host.stateChanged({ name: 'x' });
+    assert.deepEqual(states, [{ name: 'x' }]);
+  });
+
   test('onPanelChange is optional', () => {
     const { window } = loadChordBuilderPage({ songFormatter: false });
     const { host } = window.ugsChordBuilder;
@@ -589,7 +600,7 @@ function mountBuilder(song = '') {
   const page = loadChordBuilderPage({ body: '<main id="builder"></main><ul id="cdBldPick" class="decoy"></ul>' });
   const { window, document } = page;
   const cb = window.ugsChordBuilder;
-  const log = { saved: [], alerts: [], confirms: [], panels: [] };
+  const log = { saved: [], alerts: [], confirms: [], panels: [], states: [] };
   const answers = { confirm: true };
   const state = { song };
   const element = document.getElementById('builder');
@@ -600,6 +611,7 @@ function mountBuilder(song = '') {
     confirm: (message) => { log.confirms.push(message); return answers.confirm; },
     alert: (message) => { log.alerts.push(message); },
     onPanelChange: (panel) => log.panels.push(panel),
+    onStateChange: (current) => log.states.push(plain(current)),
   });
 
   const $ = (id) => element.querySelector(`#${id}`);
@@ -955,6 +967,60 @@ describe('mount(): the toolbox', () => {
     assert.equal(collapsed(), false);
     b.$('cdBldShowOutputBtn').click();
     assert.equal(collapsed(), true);
+  });
+});
+
+describe('mount(): telling the host', () => {
+  /** what changed in each state the host heard, as "key=value" */
+  const heard = (b, since = 0) => {
+    const states = b.log.states.slice(since);
+    return states.map((state, i) => {
+      const before = i === 0 ? b.log.states[since - 1] : states[i - 1];
+      return Object.keys(state).filter((key) => JSON.stringify(state[key]) !== JSON.stringify(before[key])).map((key) => (key === 'dots' ? `dots=${state.dots.length}` : `${key}=${state[key]}`)).join(' ');
+    });
+  };
+
+  test('onStateChange hears each change, with the state getState() gives', () => {
+    const b = mountBuilder(TWO_CHORDS);
+    b.newChord();
+    let from = b.log.states.length;
+    const step = (action) => {
+      from = b.log.states.length;
+      action();
+      assert.deepEqual(b.log.states.slice(-1)[0], plain(b.builder.getState()));
+      return heard(b, from);
+    };
+
+    assert.deepEqual(step(() => b.clickFret(0, 2)), ['dots=1 definition={define: CHORDNAME frets 2 0 0 0 fingers 0 0 0 0}']);
+    assert.deepEqual(step(() => b.typeName('Zs')), ['name=Zs definition={define: Zs frets 2 0 0 0 fingers 0 0 0 0}']);
+    assert.deepEqual(step(() => b.setStartingFret(3)), ['startingFret=3 definition={define: Zs frets 4 0 0 0 fingers 0 0 0 0}']);
+    assert.deepEqual(step(() => b.click('cdBldFingersBtn')), ['tool=fingers']);
+    assert.deepEqual(step(() => b.click('cdBldFingersBtn')), ['finger=2']);
+    assert.deepEqual(step(() => b.clickFret(0, 2)), ['dots=1 definition={define: Zs frets 4 0 0 0 fingers 2 0 0 0}']);
+    assert.deepEqual(step(() => b.click('toolboxSlideDownBtn')), ['dots=1 definition={define: Zs frets 5 0 0 0 fingers 2 0 0 0}']);
+  });
+
+  test('it hears nothing when nothing changes', () => {
+    const b = mountBuilder(TWO_CHORDS);
+    b.newChord();
+    const before = b.log.states.length;
+    b.moveTo(1, 1);
+    b.click('cdBldDotsBtn');
+    b.$('cdBldShowOutputBtn').click();
+    b.$('cdBldCursorCanvas').dispatchEvent(new b.window.MouseEvent('click', { bubbles: true, clientX: 2, clientY: 2 }));
+    b.click('cdBldFingersBtn');
+    b.clickFret(1, 1); // the finger tool, where there is no dot
+    assert.equal(b.log.states.length, before + 1, 'only the change of tool');
+  });
+
+  test('opening a chord ends on that chord; Cancel ends on a blank one', () => {
+    const b = mountBuilder(TWO_CHORDS);
+    b.open('Zq');
+    assert.equal(b.log.states.slice(-1)[0].definition, '{define: Zq frets 0 3 0 0 fingers 0 2 0 0}');
+    assert.equal(b.log.states.slice(-1)[0].isNew, false);
+    b.click('cdBldCancelBtn');
+    assert.equal(b.log.states.slice(-1)[0].definition, '{define: CHORDNAME frets 0 0 0 0 fingers 0 0 0 0}');
+    assert.equal(b.log.states.slice(-1)[0].isNew, true);
   });
 });
 

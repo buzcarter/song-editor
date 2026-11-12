@@ -284,6 +284,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 			if (!useDotTool) {
 				updateFinger();
 				ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
+				changed();
 			}
 			return;
 		}
@@ -296,6 +297,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 
 		_isDotToolActive = useDotTool;
 		ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
+		changed();
 	};
 
 	/**
@@ -437,6 +439,18 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	const exportDefinition = function() {
 		dom.byId(_ids.output, HTMLElement).innerHTML = ugsChordBuilder.export.getDefinitionHtml(_currentName, _startingFret);
+		changed();
+	};
+
+	/**
+	 * Tells the host what the panel holds now. Everything that changes the chord ends in
+	 * exportDefinition(), which calls this; the toolbox calls it for a change of tool or finger.
+	 * @method changed
+	 * @private
+	 * @return {void}
+	 */
+	const changed = (): void => {
+		ugsChordBuilder.host.stateChanged(this.getState());
 	};
 
 	this.reload = function(){

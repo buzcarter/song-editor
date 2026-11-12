@@ -70,6 +70,13 @@ ugsChordBuilder.host = (function() {
       if (host.onPanelChange) {
         host.onPanelChange(panel);
       }
+    },
+
+    stateChanged: function(state) {
+      const host = current();
+      if (host.onStateChange) {
+        host.onStateChange(state);
+      }
     }
   };
 

@@ -74,12 +74,12 @@ Each source file starts with its own interface, then `interface UgsEditorPlus { 
 | `updateSong` | The Save button, and `save()` for the host. |
 | `aceHelp` | The help panel shown beside the Fullscreen editor. |
 | `resize` | Fullscreen: loads Ace, moves the song into it and back. |
-| `chordBuilder` | Connects the Chord Builder to the toolbar. |
+| `chordBuilder` (`editor.chordBuilder.ts`) | The editor's side of the Chord Builder: opens its dialog from the toolbar, and is its host (the song is the Edit Song box). The only file that knows both. |
 | `markup` (`src/markup.ts`) | The editor's HTML. The same file is `dist/markup.js` for Node. |
 | `songAmatic` | `init()`: starts every part in order. |
 | `mount` (`src/js/mount.ts`) | `songAmatic.mount()`: writes the HTML, calls `init()`, and returns the host's handle: `getSong()`, `save()`. |
 
-`ugsChordBuilder` is the Chord Builder: `ugsChordBuilder.ts` (settings, the fretboard and cursor canvases, the dots, `export`), `chooserList` (the list of the song's chords) and `editorUi` (the builder panel). `libs/lazyload.js` loads Ace.
+`ugsChordBuilder` is the Chord Builder, in the `chordBuilder*.ts` files: see [The Chord Builder](#the-chord-builder). `libs/lazyload.js` loads Ace.
 
 ## Starting up
 
@@ -177,7 +177,47 @@ flowchart TD
   box --> run["actions.run(): the song redraws with the new chord"]
 ```
 
-The builder has its own global, `ugsChordBuilder`, from when it was a separate library. It uses the editor's `dom` helpers and calls `actions.run()`, so it loads after the editor's parts.
+The builder has its own global, `ugsChordBuilder`, and uses nothing of the editor's. It is in the editor's bundle and also a bundle of its own, `dist/js/ugsChordBuilder.min.js`, for a page with no editor (`npm run demo`, then `/chord-builder.html`). Its types are `src/types/ugsChordBuilder.d.ts`.
+
+### Its parts
+
+Each layer uses only the ones above it.
+
+| Layer | Part | File | What it does | Needs |
+|---|---|---|---|---|
+| Model | `entities`, `settings` | `chordBuilder.ts` | Dots and positions; sizes, colors and limits. | nothing |
+| | `tracking` | `chordBuilder.ts` | A point on the canvas to a string and fret, and back. | nothing |
+| | `fretDots` | `chordBuilder.ts` | The chord being built: the dots. | nothing |
+| | `export` | `chordBuilder.ts` | The dots as a `{define: ...}`. | nothing |
+| | `html` | `chordBuilder.ts` | Escapes text for markup. | nothing |
+| Text | `songDefinitions` | `chordBuilder.songDefinitions.ts` | The song's text: finds the `{define}` lines; adds, replaces or removes one. Text in, text out. | nothing |
+| | `chordReader` | `chordBuilder.chordReader.ts` | Reads a `{define}` as a chord, and lays it out for the fretboard (starting fret, dots). | Song Formatter, for `read()` |
+| Outside | `host` | `chordBuilder.host.ts` | The builder's one door to the page and the song. | a `Host` |
+| Drawing | `chordCanvas`, `cursorCanvas` | `chordBuilder.ts` | Draw the fretboard, the dots and the cursor on a 2D context they're given. | a canvas |
+| Panels | `chooserList` | `chordBuilder.chooserList.ts` | The list of the song's chords, its delete buttons, and saving. | `host`, Song Formatter's `chordBrush` for the small diagrams |
+| | `editorUi` | `chordBuilder.editorUi.ts` | The fretboard panel: toolbox, name, starting fret, Add/Update, Cancel. `getState()` says what it holds. | `host` |
+| Start | `mount()`, `markup` | `chordBuilder.mount.ts` | Writes the builder's markup (`src/templates/chordBuilder.html`) into an element and starts it. | |
+
+### The host
+
+The builder never touches the page or the song directly. It is given a host (`UgsChordBuilder.Host`):
+
+| | |
+|---|---|
+| `getSong()`, `setSong(text)` | The song's text. `setSong` is called when a definition is added, changed or removed. |
+| `root` | The element holding the builder's markup; every lookup stays inside it. |
+| `confirm(message)`, `alert(message)` | Optional. Asking before a delete, and saying a name is taken; the window's by default. |
+| `onPanelChange(panel)` | Optional. The builder switched between its list and its fretboard. |
+| `onStateChange(state)` | Optional. The chord changed: a dot, a finger, the name, the starting fret, the tool. |
+| `cursorImageUri` | Optional. The Set Fingers tool's cursor picture. |
+
+In the editor, `editor.chordBuilder.ts` is the host: the song is the Edit Song box, `setSong` also calls `songText.changed()` and `actions.run()`, the root is the dialog, and `onPanelChange` narrows the dialog for the list. On its own, `ugsChordBuilder.mount(element, host)` does the same job for any page.
+
+Song Formatter is used in two places only: `chordReader.read()` (its `chordImport.runLine`) and the list's small diagrams (its `chordBrush`).
+
+### Tests
+
+`test/chordBuilder.test.js` runs the builder's own bundle, with no editor on the page, part by part in the table's order, then drives both panels through `mount()` with clicks on the fretboard, the toolbox and the list. jsdom has no canvas, so the test page's canvases write down each drawing call: the tests check what was drawn and where, not how it looks. Its first group reads the source files and fails if a builder file names the editor, looks an element up outside `host`, or uses Song Formatter anywhere new.
 
 ## Song text is untrusted
 
@@ -194,7 +234,7 @@ The tests in `test/mount.test.js` include song text that tries to become markup.
 These are known and kept on purpose for now; see [CHANGELOG](../CHANGELOG.md) and the ROADMAP for the plan.
 
 - **Globals and load order** instead of modules. Moving to ES modules would remove the `var _public = {} as X` lines and the build's file list, but every host page, and the Songbook, loads the bundle as a script.
-- **One editor per page**, because every part finds its elements by `id`.
+- **One editor per page**, because every part finds its elements by `id`. One Chord Builder per page too: its model (`fretDots`) and its host are single objects.
 - **Constructor functions** (`ugsChordBuilder.editorUi`, the `entities`) are typed with casts until they become classes.
 - **The Chord Builder's canvas modules** keep their drawing context in a variable that `init()` sets.
 - The public `dom.on()` handler and `dom.postJson()` result are typed `any`, because the Songbook calls them.

@@ -218,6 +218,12 @@ declare namespace UgsChordBuilder {
     alert?(message: string): void;
     /** Called when the builder switches between its list and its fretboard, e.g. to resize a dialog */
     onPanelChange?(panel: Panel): void;
+    /**
+     * Called each time what the builder panel holds changes: a dot, a finger, the name, the
+     * starting fret, the tool, or a chord opened or cleared. For a host that shows the chord
+     * somewhere else as it's built.
+     */
+    onStateChange?(state: State): void;
     /** The Set Fingers tool's cursor picture. Default: `settings.cursor.imageUri`. */
     cursorImageUri?: string;
   }
@@ -233,6 +239,7 @@ declare namespace UgsChordBuilder {
     confirm(message: string): boolean;
     alert(message: string): void;
     panelChanged(panel: Panel): void;
+    stateChanged(state: State): void;
   }
 
   // ------------------------------------------------------------------

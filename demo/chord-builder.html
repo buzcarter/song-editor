@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Chord Builder demo</title>
+  <link rel="stylesheet" href="css/yuiReset.css" />
+  <!-- the Chord Builder's styles are in the editor's stylesheet -->
+  <link rel="stylesheet" href="dist/css/ugsEditorPlus.min.css" />
+  <link rel="stylesheet" href="chord-builder.css" />
+</head>
+<body class="builderDemo">
+  <header class="builderDemo-header">
+    <h1>Chord Builder</h1>
+    <p>The Song-a-Matic's Chord Builder on a page of its own: no editor, only <code>ugsChordBuilder.min.js</code> and Song Formatter. <a href="./">The whole editor</a></p>
+  </header>
+
+  <main class="builderDemo-columns">
+    <section>
+      <h2>The song</h2>
+      <p>The builder reads this box (<code>getSong</code>) and writes to it (<code>setSong</code>). Edit it, then <button type="button" id="demoReload">Reload the builder</button></p>
+      <textarea id="demoSong" spellcheck="false" wrap="off"></textarea>
+    </section>
+
+    <section>
+      <h2>The builder</h2>
+      <!-- .ugsEditor-chordBuilderDlg: the stylesheet's name for the builder's box -->
+      <div id="chordBuilder" class="ugsEditor-chordBuilderDlg builderDemo-builder"></div>
+    </section>
+
+    <section>
+      <h2>What it holds</h2>
+      <p><code>onStateChange</code>, each time the chord changes:</p>
+      <pre id="demoState" class="builderDemo-readout"></pre>
+      <p>What it asked of this page:</p>
+      <ol id="demoLog" class="builderDemo-log"></ol>
+    </section>
+  </main>
+
+  <script src="vendor/song-formatter/song-formatter.bundle.js"></script>
+  <script src="dist/js/ugsChordBuilder.min.js"></script>
+  <script src="chord-builder.js"></script>
+</body>
+</html>
