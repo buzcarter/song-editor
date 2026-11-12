@@ -352,8 +352,9 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	const slide = function(evt: Event) {
 		evt.preventDefault();
 		let moveAllowed = false;
-		const target = evt.target;
-		const numSteps = target instanceof Element && target.getAttribute('data-direction') === 'up' ? -1 : +1;
+		// (currentTarget: the button, whatever inside it was clicked)
+		const button = evt.currentTarget;
+		const numSteps = button instanceof Element && button.getAttribute('data-direction') === 'up' ? -1 : +1;
 		if (ugsChordBuilder.fretDots.slide(numSteps)) {
 			moveAllowed = true;
 		}
