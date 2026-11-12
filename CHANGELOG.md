@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Chord Builder: clicking a chord's mini-diagram in the list opens that chord. It opened a blank new chord, because the click landed on the diagram's `<svg>` and not on the list item (clicking the chord's name worked). (UGS-0038)
+
 ## 2.0.0-beta.2 (2026-11-11)
 
 The editor keeps to itself on a host page: its class names are prefixed, and its scripts look things up inside its own element.

@@ -242,9 +242,11 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	const onClick = function(evt: MouseEvent) {
 		evt.preventDefault();
-		// the click lands on an item (or its delete button) in the chord list
-		const target = evt.target;
-		if (!(target instanceof Element)) {
+		// The click lands on a list item, its delete button, or something inside the item: its
+		// mini-diagram is an <svg> full of lines and circles. The nearest element with a data-id
+		// says which chord (the delete button carries its own).
+		const target = evt.target instanceof Element ? evt.target.closest('[data-id]') : null;
+		if (!target || !chordListEle().contains(target)) {
 			return;
 		}
 		_currentChord = dictionaryFind(target.getAttribute('data-id'));

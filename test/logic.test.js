@@ -243,6 +243,85 @@ describe('Chord Builder export', () => {
     assert.deepEqual(page.errors, []);
   });
 
+  test('a click anywhere on a chord in the list opens that chord', () => {
+    // Each list item holds the chord's name and its mini-diagram, an <svg> of lines and circles.
+    // A click on any of those must open the item's chord, not a blank "new chord".
+    const page = loadEditorPage({ body: '<div id="editor"></div>' });
+    const { document } = page;
+    page.window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+      song: '{define: Zq frets 0 3 0 0 fingers 0 2 0 0}\n{define: Zr frets 2 0 0 1}\n[Zq]hi [Zr]there\n',
+    });
+    const cb = page.window.ugsChordBuilder;
+    const item = (name) => [...document.querySelectorAll('#cdBldPick li[data-id]')].find((li) => li.textContent.trim() === name);
+    const click = (element) => element.dispatchEvent(new page.window.MouseEvent('click', { bubbles: true }));
+    const builder = () => ({
+      name: document.getElementById('cdBldChordName').value,
+      button: document.getElementById('cdBldSaveBtn').value,
+      dots: [...cb.fretDots.getDots()].map((d) => `${d.string}/${d.fret}/${d.finger}`),
+      showing: document.getElementById('cdBldBuilderPanel').style.display,
+    });
+    const zq = { name: 'Zq', button: 'Update', dots: ['1/3/2'], showing: 'block' };
+    const zr = { name: 'Zr', button: 'Update', dots: ['0/2/0', '3/1/0'], showing: 'block' };
+
+    // the mini-diagram is there to be clicked
+    const svg = item('Zq').querySelector('svg');
+    assert.ok(svg, 'the list item has a diagram');
+    assert.ok(svg.querySelector('circle'), 'the diagram has dots');
+
+    for (const [where, target] of [
+      ['the list item', () => item('Zq')],
+      ['the diagram', () => item('Zq').querySelector('svg')],
+      ["the diagram's dot", () => item('Zq').querySelector('svg circle')],
+      ["the diagram's wrapper", () => item('Zq').querySelector('svg').parentElement],
+    ]) {
+      click(target());
+      assert.deepEqual(builder(), zq, `a click on ${where}`);
+      document.getElementById('cdBldCancelBtn').click();
+    }
+
+    // the other chord, by its diagram
+    click(item('Zr').querySelector('svg circle'));
+    assert.deepEqual(builder(), zr);
+    document.getElementById('cdBldCancelBtn').click();
+
+    // "+ Add New Chord" is still a blank chord
+    click(document.querySelector('#cdBldPick li.ugsEditor-newChord'));
+    assert.deepEqual(builder(), { name: 'CHORDNAME', button: 'Add', dots: [], showing: 'block' });
+    document.getElementById('cdBldCancelBtn').click();
+
+    // a chord opened by its diagram saves over itself, not as a new chord
+    click(item('Zq').querySelector('svg'));
+    cb.fretDots.toggleDot(new cb.entities.Dot(3, 1, 0));
+    document.getElementById('cdBldSaveBtn').click();
+    const song = document.getElementById('chordProSource').value;
+    assert.match(song, /\{define: Zq frets 0 3 0 1 fingers 0 2 0 0\}/);
+    assert.equal(song.match(/\{define: Zq /g).length, 1);
+    assert.deepEqual(page.errors, []);
+  });
+
+  test("a chord's delete button removes that chord and opens nothing", () => {
+    const page = loadEditorPage({ body: '<div id="editor"></div>' });
+    const { document } = page;
+    page.window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+      // (the song doesn't play Zr: deleting a chord the song uses brings up the "I don't know…" alert)
+      song: '{define: Zq frets 0 3 0 0}\n{define: Zr frets 2 0 0 1}\n[Zq]hi there\n',
+    });
+    const asked = [];
+    page.window.confirm = (message) => { asked.push(message); return true; };
+    const names = () => [...document.querySelectorAll('#cdBldPick li[data-id]:not(.ugsEditor-newChord)')].map((li) => li.textContent.trim()).sort();
+    assert.deepEqual(names(), ['Zq', 'Zr']);
+
+    const zr = [...document.querySelectorAll('#cdBldPick li[data-id]')].find((li) => li.textContent.trim() === 'Zr');
+    zr.querySelector('[data-action="delete"]').click();
+    assert.deepEqual(asked, ['Delete definition for "Zr"?']);
+    assert.deepEqual(names(), ['Zq']);
+    const song = document.getElementById('chordProSource').value;
+    assert.doesNotMatch(song, /define: Zr/);
+    assert.match(song, /define: Zq frets 0 3 0 0/);
+    assert.notEqual(document.getElementById('cdBldBuilderPanel').style.display, 'block', 'the builder stays shut');
+    assert.deepEqual(page.errors, []);
+  });
+
   test('a chord renamed with $ in its name saves as typed', () => {
     // String.replace reads "$&", "$$", "$`" and "$'" in its replacement as patterns
     for (const newName of ['Zq$&', 'Zq$$', 'Zq$`', "Zq$'", 'Zq$1']) {
