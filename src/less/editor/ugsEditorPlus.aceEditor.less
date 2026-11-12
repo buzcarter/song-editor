@@ -17,7 +17,7 @@
 		display: block;
 	}
 	.ugsAppMenuBar,
-	.overlay,
+	.ugsEditor-overlay,
 	.scalablePrintArea{
 		display: none;
 	}
@@ -52,7 +52,7 @@
 }
 /*	Show/Hide Sidebar Button
 	------------------------------------------ */
-.aceSideBtn {
+.ugsEditor-aceSideBtn {
 	background-color: rgba(0, 0, 0, 0);
 	border: 1px solid #DDDDDD;
 	border-radius: 4px;
@@ -71,7 +71,7 @@
 		.transition( background-color .3s ease);
 	}
 }
-.aceSideBtn:hover{
+.ugsEditor-aceSideBtn:hover{
 	background-color: #333;
 	span {
 		background-color: #eee;
@@ -96,7 +96,7 @@
 	overflow-y: auto;
 	text-align: left;
 }
-.aceHelp {
+.ugsEditor-aceHelp {
 	border-top: 2px solid #333;
 	padding: 1em .6em;
 
@@ -128,7 +128,7 @@
 	th{
 		font-weight: bold;
 	}
-	.key {
+	.ugsEditor-key {
 		background-color: #666;
 		border: 0 none;
 		border-radius: .22em;
@@ -141,7 +141,7 @@
 		padding: .22em .4em;
 		text-transform: uppercase;
 	}
-	.shortKeys{
+	.ugsEditor-shortKeys{
 		white-space: nowrap;
 		padding-right: 1.4em;
 	}

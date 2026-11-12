@@ -7,6 +7,11 @@ declare namespace UgsEditorPlus {
     find<T extends Element>(selector: string, type: new () => T, context?: ParentNode): T;
     /** The nearest ancestor of `ele` (or `ele` itself) matching the selector. Throws like byId(). */
     closest<T extends Element>(ele: Element, selector: string, type: new () => T): T;
+    /**
+     * The element holding the editor: `one`, `all`, `find` and `on` search inside it unless
+     * given a context. null (the start) searches the whole page.
+     */
+    setRoot(root: ParentNode | null): void;
   }
 }
 
@@ -48,6 +53,19 @@ ugsEditorPlus.dom = (function() {
     [K in keyof CSSStyleDeclaration]: CSSStyleDeclaration[K] extends string ? K : never;
   }[keyof CSSStyleDeclaration] & string;
 
+  /**
+   * Where selectors are looked up when no context is given: the element holding the
+   * editor (set by songAmatic.init()), so the editor never picks up the host page's
+   * elements. null: the whole page (pages that use these helpers without an editor).
+   * @property _root
+   * @private
+   */
+  let _root: ParentNode | null = null;
+
+  _public.setRoot = function(root) {
+    _root = root;
+  };
+
   const toMs = function(speed?: UgsEditorPlus.Speed) {
     if (typeof speed === 'number') {
       return speed;
@@ -59,22 +77,22 @@ ugsEditorPlus.dom = (function() {
    * First element matching the CSS selector (within optional context element)
    * @method one
    * @param selector {string}
-   * @param context {DOM-element} (optional) defaults to document
+   * @param context {DOM-element} (optional) defaults to the editor's element (see setRoot), else document
    * @return {DOM-element|null}
    */
   _public.one = function<E extends HTMLElement = HTMLElement>(selector: string, context?: ParentNode | null) {
-    return (context || document).querySelector<E>(selector);
+    return (context || _root || document).querySelector<E>(selector);
   };
 
   /**
    * All elements matching the CSS selector, as an Array
    * @method all
    * @param selector {string}
-   * @param context {DOM-element} (optional) defaults to document
+   * @param context {DOM-element} (optional) defaults to the editor's element (see setRoot), else document
    * @return {Array}
    */
   _public.all = function(selector: string, context?: ParentNode | null) {
-    return Array.prototype.slice.call((context || document).querySelectorAll(selector));
+    return Array.prototype.slice.call((context || _root || document).querySelectorAll(selector));
   };
 
   /**
@@ -110,11 +128,11 @@ ugsEditorPlus.dom = (function() {
    * @method find
    * @param selector {string}
    * @param type {function} constructor, e.g. HTMLElement
-   * @param context {DOM-element} (optional) defaults to document
+   * @param context {DOM-element} (optional) defaults to the editor's element (see setRoot), else document
    * @return {DOM-element}
    */
   _public.find = function(selector, type, context) {
-    return checked((context || document).querySelector(selector), '"' + selector + '"', type);
+    return checked((context || _root || document).querySelector(selector), '"' + selector + '"', type);
   };
 
   /**

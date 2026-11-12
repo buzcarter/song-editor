@@ -5,7 +5,7 @@
  */
 /* Chord Builder's elements
 ------------------------------ */
-.chordBuilderDlg {
+.ugsEditor-chordBuilderDlg {
 	input[type=text] {
 		border: 1px solid #D7D7D7;
 		border-radius: 5px 5px 5px 5px;
@@ -26,7 +26,7 @@
 	}
 }
 /* ** canvas & editor stack */
-html body .editorSurface {
+html body .ugsEditor-editorSurface {
 	background-color: #fff;
 	border-radius: 5px ;
 	font-size: 0.9em;
@@ -39,7 +39,7 @@ html body .editorSurface {
 	.box-shadow(1px 2px 8px rgba(0, 0, 0, 0.5) inset);
 }
 /* ** stacking order ** */
-.editorSurface canvas {
+.ugsEditor-editorSurface canvas {
 	border:none;
 	cursor:none;
 	left: 0;
@@ -52,11 +52,11 @@ html body .editorSurface {
 #cdBldCursorCanvas {
 	z-index: 2;
 }
-.toolboxEdgeShadow {
+.ugsEditor-toolboxEdgeShadow {
 	z-index: 4;
 }
 /* -- toolbox and its contents -- */
-.chordToolbox{
+.ugsEditor-chordToolbox{
 	border: 0 solid #ccc;
 	background-color: #F0EEF0;/*464646;*/
 	.box-shadow(1px 1px 3px rgba(0, 0, 0, 0.1));
@@ -67,55 +67,55 @@ html body .editorSurface {
 	.transition( background-color 0.4s ease, border-color 0.4s ease, left 0.4s ease-out, right 0.4s ease-out);
 	z-index: 3;
 
-	&.open,
+	&.ugsEditor-open,
 	&:hover {
 		background-color: #fafafa;
 		border-color:#8C8C8C;
 		.box-shadow(4px 6px 9px rgba(0, 0, 0, 0.3));
 	}
-	&.leftEdge {
+	&.ugsEditor-leftEdge {
 		border-radius: 0 7px 7px 0;
 		border-width: 2px 2px 2px 0;
 		left: -110px;
-		&.open,
+		&.ugsEditor-open,
 		&:hover {
 			left: 0;
 		}
 	}
-	&.rightEdge {
+	&.ugsEditor-rightEdge {
 		border-radius: 7px 0 0 7px;
 		border-width: 2px 0 2px 2px;
 		right: -110px;
-		&.open,
+		&.ugsEditor-open,
 		&:hover {
 			right: 0;
 		}
 	}
 }
-.chordToolboxInner{
+.ugsEditor-chordToolboxInner{
 	margin: 10px auto;
 	width: 100px;
 }
 /* forceed shadow over toolbox(es) */
-.toolboxEdgeShadow {
+.ugsEditor-toolboxEdgeShadow {
 	background-color: transparent;
 	height: 255px;
 	position: absolute;
 	top: 26px;
 	width: 10px;
 
-	&.leftEdge{
+	&.ugsEditor-leftEdge{
 		.box-shadow(4px 0 6px rgba(0, 0, 0, 0.3));
 		left: -10px;
 	}
-	&.rightEdge{
+	&.ugsEditor-rightEdge{
 		.box-shadow(-4px 0 6px rgba(0, 0, 0, 0.3));
 		right: -10px;
 	}
 }
 
 /* --- */
-.toolChip {
+.ugsEditor-toolChip {
 	background-color: #fafafa;
 	border: 1px solid #fafafa;
 	border-radius: 5px;
@@ -136,17 +136,17 @@ html body .editorSurface {
 	}
 
 	img,
-	.bigDot {
+	.ugsEditor-bigDot {
 		opacity: .75;
 	}
 
 	&:hover img,
-	&:hover .bigDot {
+	&:hover .ugsEditor-bigDot {
 		opacity: 1;
 	}
 }
-html .selected,
-html .selected:hover {
+html .ugsEditor-selected,
+html .ugsEditor-selected:hover {
 	border-color: #AAA73F;
 	.box-shadow(0 0 5px rgba(0, 0, 0, 0.2));
 }
@@ -155,7 +155,7 @@ html .selected:hover {
 	display: block;
 	font-size: .67em;
 }
-.bigDot {
+.ugsEditor-bigDot {
 	background-color: #E78333;
 	border: 3px solid #973100;
 	border-radius: 23px 23px 23px 23px;
@@ -166,12 +166,12 @@ html .selected:hover {
 }
 
 /* some "active" button (hover) efx */
-.selected img,
-.selected .bigDot {
+.ugsEditor-selected img,
+.ugsEditor-selected .ugsEditor-bigDot {
 	opacity: 1;
 }
 /* hand */
-.fingerToolImage {
+.ugsEditor-fingerToolImage {
 	background: url("../img/editor/hand.png") top center no-repeat;
 	display:block;
 	height: 83px;
@@ -179,7 +179,7 @@ html .selected:hover {
 	position: relative;
 	width: 88px;
 }
-.fingerDot {
+.ugsEditor-fingerDot {
 	background-color: #F9F340;
 	border:solid 2px #AF9607;
 	border-radius: 8px;
@@ -188,48 +188,48 @@ html .selected:hover {
 	position: absolute;
 	width: 8px;
 }
-.finger0 .fingerDot {
+.ugsEditor-finger0 .ugsEditor-fingerDot {
 	display:none;
 }
-.finger1 .fingerDot {
+.ugsEditor-finger1 .ugsEditor-fingerDot {
 	right: 22px;
 	top: 3px;
 }
-.finger2 .fingerDot {
+.ugsEditor-finger2 .ugsEditor-fingerDot {
 	right: 1px;
 	top: 11px;
 }
-.finger3 .fingerDot {
+.ugsEditor-finger3 .ugsEditor-fingerDot {
 	right: 1px;
 	top: 28px;
 }
-.finger4 .fingerDot {
+.ugsEditor-finger4 .ugsEditor-fingerDot {
 	right: 1px;
 	top: 44px;
 }
 /* sliders (up/down arrows) */
 label[for=cdBldStartingFret],
-html .arrowUp,
-html .arrowDown{
+html .ugsEditor-arrowUp,
+html .ugsEditor-arrowDown{
 	min-height: 52px;
 }
-html .arrowUp, html .arrowDown {
+html .ugsEditor-arrowUp, html .ugsEditor-arrowDown {
 	background-repeat: no-repeat;
 	background-position: center 29px;
 }
-html .arrowUp {
+html .ugsEditor-arrowUp {
 	background-image: url("../img/editor/basic-up-arrow.png");
 }
-html .arrowDown {
+html .ugsEditor-arrowDown {
 	background-image: url("../img/editor/basic-down-arrow.png");
 }
 /* output area */
-.outputBox{
+.ugsEditor-outputBox{
 	max-height: 30em;
 	overflow: hidden;
 	.transition( max-height 0.8s ease);
 }
-.outputBox.collapseOutput{
+.ugsEditor-outputBox.ugsEditor-collapseOutput{
 	max-height: 0;
 }
 
@@ -281,13 +281,13 @@ html .arrowDown {
 		color: #f4e19d; /* #ffdb5b; */
 		text-shadow: 0px 2px 0px #551D00;
 	}
-	.newChord {
+	.ugsEditor-newChord {
 		background-color: #b2612d;
 		color: #551d00;
 		font-weight: bold;
 	}
 	// delete button
-	.deleteChord {
+	.ugsEditor-deleteChord {
 		background: url("../img/editor/delete-btn.png") right center no-repeat;
 		display: block;
 		float: right;
@@ -296,7 +296,7 @@ html .arrowDown {
 		width: 36px;
 		.transition(opacity 0.4s ease);
 	}
-	li:hover .deleteChord {
+	li:hover .ugsEditor-deleteChord {
 		opacity: 1;
 	}
 	// mini-diagram: chordBrush draws <span class="ugs-diagrams--chord-img"><svg>

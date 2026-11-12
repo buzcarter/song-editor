@@ -179,7 +179,7 @@ ugsChordBuilder.chooserList = (function() {
 		const chooserPanel = dom.byId(_ids.chooserPanel, HTMLElement);
 		chooserPanel.style.display = isChooserPanel ? 'block' : 'none';
 		dom.byId(_ids.builderPanel, HTMLElement).style.display = !isChooserPanel ? 'block' : 'none';
-		dom.closest(chooserPanel, '.overlay', HTMLElement).classList.toggle('chordBuilderNarrow', isChooserPanel);
+		dom.closest(chooserPanel, '.ugsEditor-overlay', HTMLElement).classList.toggle('ugsEditor-chordBuilderNarrow', isChooserPanel);
 	};
 
 	/**
@@ -333,7 +333,7 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	const listHtmlString = function(id: number, name: string, isInner?: boolean) {
 		isInner = (arguments.length > 2) ? isInner : false;
-		const innerHtml = '<span class="deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + ukeGeeks.toolsLite.escapeHtml(name);
+		const innerHtml = '<span class="ugsEditor-deleteChord" data-id="' + id + '" data-action="delete" title="Remove this definition"></span>' + ukeGeeks.toolsLite.escapeHtml(name);
 		return isInner ? innerHtml : '<li data-id="' + id + '" title="Edit this definition" class="ugs-grouped">' + innerHtml + '</li>';
 	};
 
@@ -348,7 +348,7 @@ ugsChordBuilder.chooserList = (function() {
 		for (const chordDef of chordDefs) {
 			s += listHtmlString(chordDef.id, chordDef.name);
 		}
-		ul.innerHTML = '<li data-id="' + C_NEW_CHORD + '" class="newChord">+ Add New Chord</li>' + s;
+		ul.innerHTML = '<li data-id="' + C_NEW_CHORD + '" class="ugsEditor-newChord">+ Add New Chord</li>' + s;
 
 		const items = ul.getElementsByTagName('li');
 		// last to first, skipping the first item ("+ Add New Chord")

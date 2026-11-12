@@ -51,14 +51,14 @@ test('action controls are buttons, not links', () => {
   for (const id of ['cdBldOpenBtn', 'reformatNoBtn', 'cdBldCancelBtn', 'cdBldDotsBtn', 'cdBldFingersBtn', 'toolboxSlideUpBtn', 'toolboxSlideDownBtn']) {
     assert.match(out, new RegExp(`<button type="button" [^>]*id="${id}"`), id);
   }
-  assert.equal(out.match(/<button type="button" [^>]*class="(closeBtn|resizeBtn)"/g).length, 3);
+  assert.equal(out.match(/<button type="button" [^>]*class="ugsEditor-(closeBtn|resizeBtn)"/g).length, 3);
   assert.ok(!/href="#(close|resize|dots|fingers|slide-up|slide-down|noThanks|closeBuilder|chordBuilder)"/.test(out));
 });
 
 test('defaults: no Save button, relative image folder, empty song', () => {
   const out = editorHtml();
   assert.ok(!out.includes('id="saveBtn"'));
-  assert.ok(out.includes('<section id="songSourceDlg" class="overlay isHidden">'));
+  assert.ok(out.includes('<section id="songSourceDlg" class="ugsEditor-overlay ugsEditor-isHidden">'));
   assert.ok(out.includes('src="img/editor/busy.gif"'));
   assert.ok(out.includes('<textarea id="chordProSource" wrap="off"></textarea>'));
 });
@@ -69,4 +69,13 @@ test('Node ESM can import the functions by name', async () => {
   assert.equal(typeof mod.editorHtml, 'function');
   assert.equal(typeof mod.escapeHtml, 'function');
   assert.equal(mod.default.editorHtml, mod.editorHtml);
+});
+
+// A host page has class names of its own. The editor's are all prefixed, except the song's
+// (Song Formatter's "ugs…" classes and .scalablePrintArea) chordPro-statement, and .metaInfo (the song's meta lines, which the host page styles).
+test("the editor's class names carry its prefix", () => {
+  const out = editorHtml({ canSave: true });
+  const names = new Set(out.match(/class="[^"]*"/g).flatMap((attr) => attr.slice(7, -1).split(/\s+/)).filter(Boolean));
+  const unprefixed = [...names].filter((name) => !/^(ugsEditor-|ugs|scalablePrintArea$|chordPro-|metaInfo$)/.test(name));
+  assert.deepEqual(unprefixed, []);
 });

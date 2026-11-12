@@ -145,7 +145,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 			_finger = 0;
 		}
 		dom.byId(_ids.btnFingerName, HTMLElement).innerHTML = _fingerNames[_finger] + ' (' + _finger + ')';
-		dom.byId(_ids.btnHandPic, HTMLElement).className = 'fingerToolImage finger' + _finger;
+		dom.byId(_ids.btnHandPic, HTMLElement).className = 'ugsEditor-fingerToolImage ugsEditor-finger' + _finger;
 	};
 
 	/**
@@ -155,7 +155,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	const showOutputBox = function() {
 		// (the click is on the show-output checkbox)
-		setClass(dom.byId(_ids.outputBox, HTMLElement), 'collapseOutput', !dom.byId(_ids.showOutputBtn, HTMLInputElement).checked);
+		setClass(dom.byId(_ids.outputBox, HTMLElement), 'ugsEditor-collapseOutput', !dom.byId(_ids.showOutputBtn, HTMLInputElement).checked);
 	};
 
 	/**
@@ -265,7 +265,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		dom.byId(_ids.startingFret, HTMLSelectElement).value = String(_startingFret);
 
 		dom.byId(_ids.showOutputBtn, HTMLInputElement).checked = false;
-		setClass(dom.byId(_ids.outputBox, HTMLElement), 'collapseOutput', true);
+		setClass(dom.byId(_ids.outputBox, HTMLElement), 'ugsEditor-collapseOutput', true);
 
 		dom.byId(_ids.saveBtn, HTMLInputElement).value = isNew ? 'Add' : 'Update';
 	};
@@ -281,10 +281,10 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		_finger = 0;
 		updateFinger();
 		if (_eleDotsBtn && _eleFingerBtn) {
-			setClass(_eleDotsBtn, 'selected', _isDotToolActive);
-			setClass(_eleFingerBtn, 'selected', !_isDotToolActive);
+			setClass(_eleDotsBtn, 'ugsEditor-selected', _isDotToolActive);
+			setClass(_eleFingerBtn, 'ugsEditor-selected', !_isDotToolActive);
 		}
-		setClass(dom.byId(_ids.toolbox, HTMLElement), 'open', !_isDotToolActive);
+		setClass(dom.byId(_ids.toolbox, HTMLElement), 'ugsEditor-open', !_isDotToolActive);
 		ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
 	};
 
@@ -339,10 +339,10 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		}
 
 		if (_eleDotsBtn && _eleFingerBtn) {
-			setClass(_eleDotsBtn, 'selected', useDotTool);
-			setClass(_eleFingerBtn, 'selected', !useDotTool);
+			setClass(_eleDotsBtn, 'ugsEditor-selected', useDotTool);
+			setClass(_eleFingerBtn, 'ugsEditor-selected', !useDotTool);
 		}
-		setClass(dom.byId(_ids.toolbox, HTMLElement), 'open', !useDotTool);
+		setClass(dom.byId(_ids.toolbox, HTMLElement), 'ugsEditor-open', !useDotTool);
 
 		_isDotToolActive = useDotTool;
 		ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
@@ -355,15 +355,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @return {void}
 	 */
 	const setClass = function(element: HTMLElement, className: string, isSet: boolean) {
-		const hasClass = element.className.indexOf(className) >= 0;
-		if (isSet && !hasClass) {
-			// add
-			element.className += ' ' + className;
-		}
-		else if (!isSet && hasClass) {
-			// remove
-			element.className = element.className.replace(className, '').replace(/\s+/g, ' ');
-		}
+		element.classList.toggle(className, isSet);
 	};
 
 	/**

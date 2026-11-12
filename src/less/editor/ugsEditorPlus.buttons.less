@@ -7,11 +7,11 @@
 /* <button>s that look like the links they replaced: the rules below and in the chord builder and
    overlay files put the look back; this only takes the browser's button styling away
 ------------------------------ */
-.alternateBtn,
-.noThanks,
-.closeBtn,
-.resizeBtn,
-.toolChip {
+.ugsEditor-alternateBtn,
+.ugsEditor-noThanks,
+.ugsEditor-closeBtn,
+.ugsEditor-resizeBtn,
+.ugsEditor-toolChip {
 	appearance: none;
 	background: none;
 	border: 0;
@@ -22,7 +22,7 @@
 }
 
 /* "base button" is rounded & gray with white text */
-.baseBtn {
+.ugsEditor-baseBtn {
 	background-color: #999;
 	border: 1px solid #333;
 	-moz-border-radius: 4px;
@@ -46,7 +46,7 @@
 	}
 }
 
-.blueBtn {
+.ugsEditor-blueBtn {
 	background-color: #89b9e3;
 	#gradient > .vertical(#89b9e3, #3d6bbb);
 	border-color: #3765B7;
@@ -59,7 +59,7 @@
 }
 
 /* orange */
-.orange {
+.ugsEditor-orange {
 	color: #fef4e9;
 	border: solid 1px #da7c0c;
 	background: #f78d1d;
@@ -76,10 +76,10 @@
 	}
 }
 
-.btnBar {
+.ugsEditor-btnBar {
 	height: 30px;
 
-	.baseBtn {
+	.ugsEditor-baseBtn {
 		float: right;
 		font-size: 110%;
 		margin-bottom: 5px;
@@ -87,8 +87,8 @@
 }
 /* "Cancel"/"No Thanks" (subtle, alternate) buttons
 ------------------------------ */
-.alternateBtn,
-.noThanks {
+.ugsEditor-alternateBtn,
+.ugsEditor-noThanks {
 	color: #3965B0;
 	float: right;
 	line-height: 33px;
@@ -100,7 +100,7 @@
 	}
 }
 
-.noThanks {
+.ugsEditor-noThanks {
 	background-color: #EFD292;
 	border-radius: 6px;
 	padding: 0 0.4em;
@@ -111,6 +111,6 @@
 	}
 }
 
-.alternateBtn {
+.ugsEditor-alternateBtn {
 
 }

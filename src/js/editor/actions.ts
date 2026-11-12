@@ -490,7 +490,7 @@ ugsEditorPlus.actions = (function() {
 		ugsEditorPlus.submenuUi.resetTransposeLabel();
 
 		for (const item of items) {
-			ukeGeeks.toolsLite.removeClass(item, 'checked');
+			ukeGeeks.toolsLite.removeClass(item, 'ugsEditor-checked');
 			sample = (keyChord.length < 1) ? '' : ukeGeeks.transpose.shift(keyChord, steps);
 			// (shift() returns null for a chord it doesn't know; innerHTML treated that as '')
 			const em = item.getElementsByTagName('em')[0];
@@ -498,7 +498,7 @@ ugsEditorPlus.actions = (function() {
 				em.innerHTML = sample || '';
 			}
 			if (steps === 0) {
-				ukeGeeks.toolsLite.addClass(item, 'checked');
+				ukeGeeks.toolsLite.addClass(item, 'ugsEditor-checked');
 			}
 			steps++;
 		}

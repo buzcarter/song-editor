@@ -65,19 +65,19 @@ ugsEditorPlus.resize = (function(){
 	 */
 	const setup = function(dlgElement: HTMLElement){
 		dlg = dlgElement;
-		// static markup only
-		document.body.insertAdjacentHTML('beforeend', '<div id="aceHeader"><button class="aceSideBtn" title="Show options &amp; help"><span></span><span></span><span></span></button><strong>Edit Song</strong><a href="#exit-fullscreen">Exit fullscreen</a></div><div id="aceEditor"></div><div id="aceHelp"></div>');
+		// static markup only. Fullscreen covers the window, so it goes on <body>, outside the editor's element
+		document.body.insertAdjacentHTML('beforeend', '<div id="aceHeader"><button class="ugsEditor-aceSideBtn" title="Show options &amp; help"><span></span><span></span><span></span></button><strong>Edit Song</strong><a href="#exit-fullscreen">Exit fullscreen</a></div><div id="aceEditor"></div><div id="aceHelp"></div>');
 
 		aceLayer = dom.byId('aceEditor', HTMLElement);
 		dom.hide(aceLayer);
 
 		help = dom.byId('aceHelp', HTMLElement);
 
-		dom.find('#aceHeader a', HTMLElement).addEventListener('click', function(e) {
+		dom.find('#aceHeader a', HTMLElement, document).addEventListener('click', function(e) {
 			e.preventDefault();
 			hideAce();
 		});
-		dom.find('#aceHeader button', HTMLElement).addEventListener('click', onShowHelpClicked);
+		dom.find('#aceHeader button', HTMLElement, document).addEventListener('click', onShowHelpClicked);
 	};
 
 	const onShowHelpClicked = function(e: Event) {
@@ -126,7 +126,7 @@ ugsEditorPlus.resize = (function(){
 		isBig = true;
 
 		document.documentElement.classList.add('aceEditorActive');
-		dom.all('.overlay').forEach(function(overlay) {
+		dom.all('.ugsEditor-overlay').forEach(function(overlay) {
 			dom.fadeOut(overlay, 300);
 		});
 
