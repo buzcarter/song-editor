@@ -61,6 +61,7 @@ Each source file starts with its own interface, then `interface UgsEditorPlus { 
 | `namespace` | Creates the `ugsEditorPlus` global. |
 | `dom` | Small DOM helpers that replaced jQuery: find, show and hide, fades, `draggable`, `postJson`, `trigger`. Also the editor's checked lookups (`byId`, `find`, `closest`), which throw a clear error when the page is missing an element. |
 | `options` | The settings and their defaults. `init()` merges the page's options into it. |
+| `songText` | The song's text wherever it's being edited (the Edit Song box, or Ace during Fullscreen), and the host's `onChange`. Code that sets the text calls `songText.changed()`. |
 | `actions` | The center: listens for `ugs:option` events and applies each setting, and `run()` redraws the song. Also transpose. |
 | `songUi` | Puts the title, artist, album and meta lines on the page. |
 | `styles` | Finds rules in the stylesheet titled `ugsEditorCss`, so `actions` can resize the diagrams by editing them. |
@@ -70,13 +71,13 @@ Each source file starts with its own interface, then `interface UgsEditorPlus { 
 | `autoReformat` | Offers `reformat` when a song has no chords. |
 | `topMenus` | The toolbar: opens and closes menus and dialogs, and the Fullscreen button. |
 | `submenuUi` | The menus' lists (font size, layout, tuning...). A click sends an `ugs:option` event. |
-| `updateSong` | The Save button. |
+| `updateSong` | The Save button, and `save()` for the host. |
 | `aceHelp` | The help panel shown beside the Fullscreen editor. |
 | `resize` | Fullscreen: loads Ace, moves the song into it and back. |
 | `chordBuilder` | Connects the Chord Builder to the toolbar. |
 | `markup` (`src/markup.ts`) | The editor's HTML. The same file is `dist/markup.js` for Node. |
 | `songAmatic` | `init()`: starts every part in order. |
-| `mount` (`src/js/mount.ts`) | `songAmatic.mount()`: writes the HTML, then calls `init()`. |
+| `mount` (`src/js/mount.ts`) | `songAmatic.mount()`: writes the HTML, calls `init()`, and returns the host's handle: `getSong()`, `save()`. |
 
 `ugsChordBuilder` is the Chord Builder: `ugsChordBuilder.ts` (settings, the fretboard and cursor canvases, the dots, `export`), `chooserList` (the list of the song's chords) and `editorUi` (the builder panel). `libs/lazyload.js` loads Ace.
 
