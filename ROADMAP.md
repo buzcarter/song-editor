@@ -25,7 +25,7 @@ Each layer only knows the one below it.
 
 | Piece | Local checkout | GitHub / npm | State |
 |---|---|---|---|
-| Song Editor (this repo) | `~/Code/ukegeeks-unnamed-editor-project` | buzcarter/song-editor · `@ukegeeks/song-editor` | 1.0.0-beta.1, not published |
+| Song Editor (this repo) | `~/Code/ukegeeks-unnamed-editor-project` | buzcarter/song-editor · `@ukegeeks/song-editor` | 2.0.0-beta.1; npm has 1.0.1-beta.1 |
 | Song Formatter | `~/Code/ugs-song-formatter` | buzcarter/song-formatter · `@ukegeeks/song-formatter` | 1.0.0-beta.1, npm `latest` |
 | ACE ChordPro Extension | `~/Code/ugs-ace-chordpro-extension` | buzcarter/ace-chordpro-extension · `@ukegeeks/ace-chordpro-extension` | 1.0.0 |
 | UkeGeeks Songbook | `~/Code/UkeGeeks` | buzcarter/UkeGeeks | v1.5.1; `master` already uses Song Formatter and Ace 1.0.0 |

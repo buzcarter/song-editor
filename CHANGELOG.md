@@ -1,6 +1,35 @@
 # Changelog
 
+## 2.0.0-beta.1 (2026-11-11)
+
+A host page can now save and hear about changes without reaching into the editor's page, and the editor's controls are real buttons. The markup changed, so this is a major version: pages that call `mount()` and use only its API need no change; pages that copy the markup, or style or script its parts, do.
+
+### Breaking
+
+- Action controls are `<button>`s, not `<a href="#…">` links: Close, Fullscreen, Chord Builder, No Thanks, Cancel, the Chord Builder's toolbox (Dots, Fingers, Slide Up, Slide Down) and the five toolbar items. CSS or scripts that target them as `a` need updating. The toolbar buttons name their options box in `data-target`, and Dots/Fingers say which tool they are in `data-tool`.
+- The songsheet's `<hgroup>` is gone: the titles sit directly in `header.ugs-songInfo`. Dialog titles sit in `header.overlayHeader`, which is the drag handle.
+- Pages with their own copy of the markup (Songbook 1.5 style) should take it from `editorHtml()` again. The editor still reads the old link markup, but the stylesheet is written for the new.
+
+### New
+
+- `mount()` option `onChange: (text) => {}`: called each time the song's text changes, by typing (the Edit Song box or Fullscreen) or by the editor (Transpose, Reformat, the Chord Builder). Not called for the song the editor opens with. For an "unsaved changes" mark or autosave, with no timer.
+- `editor.save()` on what `mount()` returns (also `ugsEditorPlus.updateSong.save()`): saves as the Save button does, including Fullscreen's text while it's open, and resolves `true` or `false`. For a host's own Save command or shortcut.
+
+### Fixed
+
+- Chord Builder: a chord renamed with `$` in its name saved wrong, or not at all (`$&` ended in "Maximum call stack size exceeded"); a name with `$` or quotes showed garbled in the output box.
+- Chord Builder: opening a `{define}` whose `add:` leaves out the fret, string or finger no longer erases or doubles a dot.
+- Chord Builder: `{define}` chord names are escaped before they reach the page.
+- Reformat: every tab is expanded to its tab stop, so chords land where they looked; four tab lines at the very end of the text become a tab block.
+
+### Inside
+
+- The page HTML lives in `src/templates/editor.html`; source files lost their `ugsEditorPlus.` prefix (`dist/` file names are unchanged).
+- ESLint with the recommended rules, in CI. TypeScript: no `any`, checked element lookups, `noUncheckedIndexedAccess`.
+
 ## 1.1.0-beta.1 (2026-11-06)
+
+Never published to npm: its changes first reach npm in 2.0.0-beta.1.
 
 The editor's sources are TypeScript now, and the package ships type declarations. Same files, globals and API, so pages need no change.
 

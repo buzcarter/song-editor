@@ -1,6 +1,6 @@
 {
   "name": "@ukegeeks/song-editor",
-  "version": "1.1.0-beta.1",
+  "version": "2.0.0-beta.1",
   "description": "UkeGeeks Song-a-Matic: a browser editor for ChordPro songs with ukulele chord diagrams, menus, transpose and a Chord Builder",
   "license": "GPL-3.0-or-later",
   "author": "Buz Carter <buz@ukegeeks.org>",

@@ -71,6 +71,7 @@ ugsEditorPlus.autoReformat = (function() {
 
 	const doOk = function(){
 		_ele.cpmSource.value = _formatted;
+		ugsEditorPlus.songText.changed();
 		doClose();
 		ugsEditorPlus.actions.run(true);
 	};

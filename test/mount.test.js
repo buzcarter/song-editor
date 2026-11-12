@@ -124,6 +124,7 @@ test('getSong() returns the Fullscreen editor text while it is open', async () =
       setTheme() {}, getSession: () => ({ setMode() {} }), setOptions() {}, gotoLine() {},
       setValue(text) { aceText = text; },
       getValue: () => aceText,
+      on() {},
     }),
   };
   const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
@@ -138,6 +139,141 @@ test('getSong() returns the Fullscreen editor text while it is open', async () =
   assert.equal(document.getElementById('chordProSource').value, aceText);
   assert.equal(editor.getSong(), aceText);
   assert.deepEqual(errors, []);
+});
+
+/** A stand-in for Ace, like the real one: setValue() empties the document, then fills it, firing "change" each time. */
+function fakeAce(window) {
+  let text = '';
+  const handlers = [];
+  const fire = () => handlers.forEach((h) => h());
+  window.LazyLoad.js = (url, callback) => callback();
+  window.ace = {
+    edit: () => ({
+      setTheme() {}, getSession: () => ({ setMode() {} }), setOptions() {}, gotoLine() {},
+      setValue(next) { text = ''; fire(); text = next; fire(); },
+      getValue: () => text,
+      on(name, handler) { if (name === 'change') handlers.push(handler); },
+    }),
+  };
+  return { type(next) { text = next; fire(); } };
+}
+
+const typeInBox = (window, document, text) => {
+  const box = document.getElementById('chordProSource');
+  box.value = text;
+  box.dispatchEvent(new window.Event('input', { bubbles: true }));
+};
+
+test('onChange is called when the song changes, not when it opens', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const changes = [];
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    onChange: (text) => changes.push(text),
+  });
+  assert.deepEqual(changes, [], 'opening the song is not a change');
+
+  typeInBox(window, document, SAMPLE_SONG + '[C]more\n');
+  typeInBox(window, document, SAMPLE_SONG + '[C]more\n'); // the same text: no second call
+  assert.deepEqual(changes, [SAMPLE_SONG + '[C]more\n']);
+  assert.deepEqual(errors, []);
+});
+
+test('onChange hears Transpose and the Chord Builder', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const changes = [];
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    onChange: (text) => changes.push(text),
+  });
+
+  window.ugsEditorPlus.dom.trigger('ugs:option', { action: 'transpose', value: 'up_2' });
+  assert.equal(changes.length, 1, 'Transpose');
+  assert.match(changes[0], /\[D\]Hello \[Bm\]there/);
+  assert.equal(changes[0], editor.getSong());
+
+  // open the song's own chord in the Chord Builder, rename it and save it
+  document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+  const name = document.getElementById('cdBldChordName');
+  name.value = 'Zz9';
+  name.dispatchEvent(new window.Event('keyup'));
+  document.getElementById('cdBldSaveBtn').click();
+  assert.equal(changes.length, 2, 'Chord Builder');
+  assert.match(changes[1], /\{define: Zz9 frets/);
+  assert.deepEqual(errors, []);
+});
+
+test('onChange hears typing in Fullscreen, not Fullscreen opening or closing', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const ace = fakeAce(window);
+  const changes = [];
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    onChange: (text) => changes.push(text),
+  });
+
+  document.querySelector('.resizeBtn').click(); // open Fullscreen
+  assert.deepEqual(changes, [], 'opening');
+  ace.type(SAMPLE_SONG + '[G]typed\n');
+  assert.deepEqual(changes, [SAMPLE_SONG + '[G]typed\n']);
+  document.querySelector('#aceHeader a').click(); // Exit fullscreen
+  document.querySelector('.resizeBtn').click(); // and open it again
+  assert.equal(changes.length, 1, 'closing and reopening');
+  assert.deepEqual(errors, []);
+});
+
+test('an onChange that throws does not stop the editor', () => {
+  const { window, document } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    onChange: () => { throw new Error('host bug'); },
+  });
+  typeInBox(window, document, '[C]still works\n');
+  assert.equal(editor.getSong(), '[C]still works\n');
+});
+
+test('editor.save() saves like the Save button and says whether it worked', async () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const saved = [];
+  let fail = false;
+  window.alert = () => {};
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    save: async (text) => {
+      if (fail) throw new Error('disk full');
+      saved.push(text);
+      return 'Saved it!';
+    },
+  });
+
+  const both = [editor.save(), editor.save()]; // the second joins the first
+  assert.deepEqual(await Promise.all(both), [true, true]);
+  assert.deepEqual(saved, [SAMPLE_SONG]);
+  assert.equal(document.getElementById('sourceFeedback').textContent, 'Saved it!');
+
+  fail = true;
+  assert.equal(await editor.save(), false);
+  assert.deepEqual(errors, []);
+});
+
+test('editor.save() saves the Fullscreen text while Fullscreen is open', async () => {
+  const { window, document } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const ace = fakeAce(window);
+  const saved = [];
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    save: (text) => { saved.push(text); },
+  });
+  document.querySelector('.resizeBtn').click();
+  ace.type(SAMPLE_SONG + '[G]typed in Fullscreen\n');
+  assert.equal(await editor.save(), true);
+  assert.deepEqual(saved, [SAMPLE_SONG + '[G]typed in Fullscreen\n']);
+});
+
+test('editor.save() without a save callback resolves false', async () => {
+  const { window, document } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
+  assert.equal(await editor.save(), false);
 });
 
 // Song text is untrusted: a song file can come from anywhere. None of it may become markup.

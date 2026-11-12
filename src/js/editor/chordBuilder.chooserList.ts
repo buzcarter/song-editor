@@ -423,6 +423,7 @@ ugsChordBuilder.chooserList = (function() {
 	const songReplace = function(oldDefinition: string, newDefinition: string) {
 		const e = ugsEditorPlus.dom.byId(_ids.source, HTMLTextAreaElement);
 		e.value = replaceAll(e.value, oldDefinition, newDefinition);
+		ugsEditorPlus.songText.changed();
 		ugsEditorPlus.actions.run();
 	};
 
@@ -468,6 +469,7 @@ ugsChordBuilder.chooserList = (function() {
 			html = definition + '\n' + choProText.value;
 		}
 		choProText.value = html;
+		ugsEditorPlus.songText.changed();
 		ugsEditorPlus.actions.run();
 	};
 

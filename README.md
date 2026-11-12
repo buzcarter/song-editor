@@ -45,6 +45,9 @@ The editor doesn't bundle its two dependencies, so a page never gets a second co
       // write the song wherever your app keeps it
       return 'Saved.';
     },
+    onChange: (text) => {
+      // the song has unsaved changes
+    },
   });
 </script>
 ```
@@ -55,17 +58,25 @@ The editor finds its parts by `id`, so a page holds one editor.
 
 ### `ugsEditorPlus.songAmatic.mount(container, options)`
 
-Writes the editor into `container` (an empty element), renders the song and returns `{ getSong() }`.
+Writes the editor into `container` (an empty element), renders the song and returns the editor: `{ getSong(), save() }`.
 
 | Option | Default | |
 |---|---|---|
 | `song` | `''` | The ChordPro text to open. |
 | `save` | none | `(text) => message`, or a promise of one. Called by the Save button; the message shows next to it. A rejection shows a "problem saving" alert. **Without `save` there's no Save button**, for read-only pages. |
+| `onChange` | none | `(text) => {}`, called each time the song's text changes: typing in the Edit Song box or Fullscreen, Transpose, Reformat, the Chord Builder. Not called for the song the editor opens with. Use it for an "unsaved changes" mark or autosave. |
 | `aceUrl` | `ace/` in the folder `ugsEditorPlus.min.js` was loaded from | Folder (with trailing slash) holding `ace-chordpro.min.js`. |
 | `imgUrl` | `../img/editor/` from the folder `ugsEditorPlus.min.js` was loaded from | Folder holding `busy.gif`. |
-| any of `ugsEditorPlus.options` | | `showEditOnLoad`, `fontSize`, `diagramSize`, `diagramPosition`, `lyricStyle`, `paper`, `theme`, `tuning`, `hideChordEnclosures`, `sortAlphabetical`, `ignoreCommonChords`, `commonChords`. See `src/js/editor/ugsEditorPlus.options.ts`. |
+| any of `ugsEditorPlus.options` | | `showEditOnLoad`, `fontSize`, `diagramSize`, `diagramPosition`, `lyricStyle`, `paper`, `theme`, `tuning`, `hideChordEnclosures`, `sortAlphabetical`, `ignoreCommonChords`, `commonChords`. See `src/js/editor/options.ts`. |
 
-`editor.getSong()` returns the text in the Edit Song box.
+The editor it returns:
+
+| | |
+|---|---|
+| `editor.getSong()` | The ChordPro text being edited: the Fullscreen editor's while it's open, else the Edit Song box's. |
+| `editor.save()` | Saves now, as the Save button does, for a host's own Save command or shortcut: the text goes to `save`, and its message or the "problem saving" alert shows as usual. Returns a promise of `true` when it saved, `false` when `save` rejected or there's no `save`. |
+
+Use these instead of reaching into the editor's page (its `#saveBtn`, `#chordProSource` or Ace): the markup changes between versions.
 
 ### Server-rendered pages
 
@@ -115,7 +126,7 @@ Live: **https://buzcarter.github.io/song-editor/**
 npm run demo    # builds, then serves http://localhost:8098/
 ```
 
-`demo/index.html` is a plain host page that calls `mount()` with one of the 16 sample songs from the Songbook (`demo/songs/`). The controls at the bottom right pick the song and turn the Save button on or off (`?song=…&save=0`). The demo's `save()` writes nothing: it logs the song to the console and returns a message. In the console, `demoEditor.getSong()` returns the current text.
+`demo/index.html` is a plain host page that calls `mount()` with one of the 16 sample songs from the Songbook (`demo/songs/`). The controls at the bottom right pick the song and turn the Save button on or off (`?song=…&save=0`). The demo's `save()` writes nothing: it logs the song to the console and returns a message. Its `onChange()` shows in the same corner. In the console, `demoEditor.getSong()` returns the current text and `demoEditor.save()` saves.
 
 `scripts/site.js` lays the site out: the page at the root, this package's build in `dist/`, and the two peer packages in `vendor/`. The local server (`scripts/demo.js`, no dependencies, 127.0.0.1 only) serves that layout straight from `demo/`, `dist/` and `node_modules/`; set `PORT` to use another port. `npm run build:site` writes the same layout to `.site/` as static files.
 

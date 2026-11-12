@@ -59,12 +59,21 @@ declare namespace UgsEditorPlus {
   /** The message to show next to the Save button; nothing (null, undefined) shows "Saved." */
   type SaveResult = string | null | undefined | void;
 
-  /** `mount()`'s options: these three plus any of the `Options` */
+  /**
+   * The host's change callback: called with the ChordPro text each time it changes, by
+   * typing (the Edit Song box or Fullscreen) or by the editor (Transpose, Reformat, the
+   * Chord Builder). Not called for the song the editor opens with.
+   */
+  type ChangeHandler = (song: string) => void;
+
+  /** `mount()`'s options: these four plus any of the `Options` */
   interface MountOptions extends Partial<Options> {
     /** The ChordPro text to open. Default `''`. */
     song?: string;
     /** Without it there's no Save button. */
     save?: SaveHandler;
+    /** Called with the ChordPro text each time it changes: for an "unsaved changes" mark, autosave... */
+    onChange?: ChangeHandler;
     /** Folder holding the editor images. Default "../img/editor/" from the bundle's folder. */
     imgUrl?: string;
   }
@@ -73,6 +82,12 @@ declare namespace UgsEditorPlus {
   interface Editor {
     /** The ChordPro text being edited: the Fullscreen editor's while it's open, else the Edit Song box's */
     getSong(): string;
+    /**
+     * Saves now, as the Save button does: the text being edited (Fullscreen's too) goes to
+     * `save`, and its message or the "problem saving" alert shows as usual. Resolves true
+     * when it saved; false when `save` rejected, or `mount()` got no `save`.
+     */
+    save(): Promise<boolean>;
   }
 
   /** Starts the editor: `mount()` for new pages, `init()` for pages that already have its markup */
@@ -89,6 +104,8 @@ declare namespace UgsEditorPlus {
     init(ajaxUri: string, filename: string): void;
     /** Wires the Save button to a save callback (server-rendered pages). */
     setSaveHandler(save: SaveHandler): void;
+    /** Saves now, as the Save button does (`mount()`'s `editor.save()`). Resolves true when it saved. */
+    save(): Promise<boolean>;
   }
 
   /** The editor's HTML: the same `editorHtml()` and `escapeHtml()` as `require('@ukegeeks/song-editor')` */

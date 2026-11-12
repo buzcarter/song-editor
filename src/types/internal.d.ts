@@ -52,13 +52,14 @@ declare var ace: {
   edit(elementId: string): AceEditor;
 };
 
-/** The parts of Ace's Editor that Fullscreen uses (src/js/editor/ugsEditorPlus.resize.ts) */
+/** The parts of Ace's Editor that Fullscreen uses (src/js/editor/resize.ts) */
 interface AceEditor {
   setTheme(theme: string): void;
   getSession(): { setMode(mode: string): void };
   setOptions(options: Record<string, unknown>): void;
   setValue(text: string, cursorPos?: number): string;
   getValue(): string;
+  on(eventName: 'change', handler: () => void): void;
   gotoLine(lineNumber: number, column?: number, animate?: boolean): void;
 }
 
