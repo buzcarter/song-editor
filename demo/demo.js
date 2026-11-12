@@ -44,7 +44,11 @@
         return 'Saved (demo: nothing was written).';
       }
       : undefined,
+    // a real host would mark the song as having unsaved changes here
+    onChange: (text) => {
+      log.textContent = `onChange() got ${text.split('\n').length} lines at ${new Date().toLocaleTimeString()}`;
+    },
   });
 
-  window.demoEditor = editor; // try demoEditor.getSong() in the console
+  window.demoEditor = editor; // try demoEditor.getSong() or demoEditor.save() in the console
 })();

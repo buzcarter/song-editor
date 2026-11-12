@@ -54,6 +54,9 @@ ugsEditorPlus.resize = (function(){
 
 	let isHelpOpen = false;
 
+	/** true while copySongToAce() puts the song into Ace */
+	let isCopying = false;
+
 	/**
 	 * Initializer: preps handles and sets state varables.
 	 * @method setup
@@ -149,6 +152,12 @@ ugsEditorPlus.resize = (function(){
 					enableSnippets: true
 				});
 				copySongToAce();
+				editor.on('change', function() {
+					// (not while the song is being copied in: Ace empties itself first)
+					if (!isCopying) {
+						ugsEditorPlus.songText.changed();
+					}
+				});
 
 				if (help) {
 					help.innerHTML = ugsEditorPlus.aceHelpHtml;
@@ -162,7 +171,9 @@ ugsEditorPlus.resize = (function(){
 			return;
 		}
 		dom.fadeIn(aceLayer, FADE_SPEED);
+		isCopying = true;
 		editor.setValue(dom.byId('chordProSource', HTMLTextAreaElement).value);
+		isCopying = false;
 		editor.gotoLine(1);
 		dom.show(help);
 	};

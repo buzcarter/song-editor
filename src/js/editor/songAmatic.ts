@@ -30,6 +30,7 @@ ugsEditorPlus.songAmatic = (function() {
 		// opts.useLegacyIe here (the old library's "isIeFamily" flag), which init() ignored.
 		ukeGeeks.scriptasaurus.init();
 
+		ugsEditorPlus.songText.init();
 		ugsEditorPlus.actions.init();
 		ugsEditorPlus.topMenus.init();
 		ugsEditorPlus.submenuUi.init();

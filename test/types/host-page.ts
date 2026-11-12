@@ -12,8 +12,10 @@ const editor: UgsEditorPlus.Editor = ugsEditorPlus.songAmatic.mount(document.get
   tuning: 'baritone',
   commonChords: ['A', 'G'],
   save: async (text: string) => `Saved ${text.length} characters.`,
+  onChange: (text) => { document.title = `${text.length} characters, edited`; },
 });
 const text: string = editor.getSong();
+const saved: Promise<boolean> = editor.save();
 
 // a save callback with no message
 ugsEditorPlus.songAmatic.mount(document.body, { save: async () => {} });
@@ -34,4 +36,4 @@ ugsEditorPlus.dom.postJson('/ajax', { a: 1 }).then((data) => data.Message);
 // @ts-expect-error not an option
 ugsEditorPlus.songAmatic.mount(document.body, { tuning: 'banjo' });
 
-export { html, theme };
+export { html, saved, theme };

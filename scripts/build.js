@@ -40,6 +40,7 @@ const BUNDLE = {
     'editor/dom',
 
     'editor/options',
+    'editor/songText',
     'editor/actions',
     'editor/songUi',
     'editor/styles',

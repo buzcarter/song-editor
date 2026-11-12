@@ -468,6 +468,7 @@ ugsEditorPlus.actions = (function() {
 
 		// manipulations done, ready to...
 		_ele.cpmSource.value = s;
+		ugsEditorPlus.songText.changed();
 		_public.run();
 
 	};

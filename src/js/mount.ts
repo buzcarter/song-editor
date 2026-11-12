@@ -5,11 +5,13 @@
  *   const editor = ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
  *     song: chordProText,
  *     save: async (text) => 'Saved.', // optional; without it there's no Save button
+ *     onChange: (text) => {},          // optional: the song's text changed
  *     aceUrl: '/js/ace/',              // optional
  *     imgUrl: '/img/editor/',          // optional
  *     fontSize: 14,                    // ...and any other ugsEditorPlus.options
  *   });
  *   editor.getSong();
+ *   editor.save(); // what the Save button does
  *
  * The editor finds its elements by id, so a page holds one editor.
  *
@@ -41,10 +43,11 @@
    *   a rejection shows the "problem saving" alert. Without it there's no Save button.
    * @param [options.imgUrl] {string} folder holding the editor images; default "../img/editor/" from the bundle's folder
    * @param [options.aceUrl] {string} folder holding ace-chordpro.min.js; default "ace/" in the bundle's folder
-   * @return {Object} `{ getSong() }`
+   * @param [options.onChange] {Function} called with the ChordPro text each time it changes
+   * @return {Object} `{ getSong(), save() }`
    */
   ugsEditorPlus.songAmatic.mount = (container: HTMLElement, options?: UgsEditorPlus.MountOptions) => {
-    const { song = '', save, imgUrl, ...editorOptions } = options || {};
+    const { song = '', save, onChange, imgUrl, ...editorOptions } = options || {};
     const canSave = typeof save === 'function';
 
     container.innerHTML = ugsEditorPlus.markup.editorHtml({
@@ -59,12 +62,14 @@
       ugsEditorPlus.updateSong.setSaveHandler(save);
     }
 
+    // after init(), so what it does to the song as it opens isn't reported as a change
+    ugsEditorPlus.songText.setChangeHandler(onChange || null);
+
     return {
       /** @return {string} the ChordPro text: the Fullscreen editor's while it's open, else the Edit Song box's */
-      getSong: () => {
-        const fullscreenText = ugsEditorPlus.resize.getText();
-        return fullscreenText !== null ? fullscreenText : ugsEditorPlus.dom.byId('chordProSource', HTMLTextAreaElement).value;
-      },
+      getSong: ugsEditorPlus.songText.get,
+      /** @return {Promise<boolean>} saves as the Save button does; true when it saved */
+      save: ugsEditorPlus.updateSong.save,
     };
   };
 })();

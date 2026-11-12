@@ -29,8 +29,7 @@ ugsEditorPlus.updateSong = (function() {
 		messageBox : '#messageBox',
 		message : '#sourceFeedback',
 		button : '#saveBtn',
-		spinner : '#loadingSpinner',
-		song : '#chordProSource'
+		spinner : '#loadingSpinner'
 	};
 
 	/**
@@ -39,6 +38,13 @@ ugsEditorPlus.updateSong = (function() {
 	 * @type {Boolean}
 	 */
 	let _isUpdating = false;
+
+	/**
+	 * the save in progress
+	 * @property _pending
+	 * @type {Promise}
+	 */
+	let _pending: Promise<boolean> = Promise.resolve(false);
 
 	/**
 	 * Saves by posting to the UkeGeeks Songbook server (the original behavior).
@@ -75,6 +81,17 @@ ugsEditorPlus.updateSong = (function() {
 		});
 
 		ugsEditorPlus.dom.hide(ele('messageBox'));
+	};
+
+	/**
+	 * Saves the song now, as the Save button does: the text being edited (Fullscreen's
+	 * while it's open) goes to the save callback, and its message or the "problem saving"
+	 * alert shows as usual. A save already under way is the one you get.
+	 * @method save
+	 * @return {Promise} of true when it saved; false when it failed, or there's no save callback
+	 */
+	_public.save = function() {
+		return _save ? doUpdate() : Promise.resolve(false);
 	};
 
 	/**
@@ -118,25 +135,29 @@ ugsEditorPlus.updateSong = (function() {
 
 	const doUpdate = function() {
 		if (_isUpdating){
-			return;
+			return _pending;
 		}
 
 		_isUpdating = true;
 		showBusy();
-		Promise.resolve()
+		_pending = Promise.resolve()
 			.then(function() {
 				// (setSaveHandler() sets _save before it wires the button)
-				return _save ? _save(ugsEditorPlus.dom.find(_selectors.song, HTMLTextAreaElement).value) : undefined;
+				return _save ? _save(ugsEditorPlus.songText.get()) : undefined;
 			})
 			.then(function(message) {
 				showMessage(message === undefined || message === null ? 'Saved.' : String(message));
+				return true;
 			}, function() {
 				alert('Encountered a problem saving your Song. Please copy your song to another program until this issue is resolved.');
+				return false;
 			})
-			.then(function() {
+			.then(function(isSaved) {
 				hideMessage();
 				_isUpdating = false;
+				return isSaved;
 			});
+		return _pending;
 	};
 
 	// ---------------------------------------
