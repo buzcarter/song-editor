@@ -229,7 +229,7 @@ ugsEditorPlus.actions = (function() {
 			if (isDoBackup || (_originalSource === null)) {
 				_originalSource = _ele.cpmSource.value;
 				_originalChords = _song.chords;
-				const key = _song.key !== '' ? _song.key : (_song.chords.length < 1 ? '' : _song.chords[0]);
+				const key = _song.key !== '' ? _song.key : (_song.chords[0] ?? '');
 				resetTranspose(key);
 			}
 		}
@@ -404,7 +404,7 @@ ugsEditorPlus.actions = (function() {
 	 */
 	const doTranspose = function(value: string){
 		const sign = value[0] === 'u' ? 1 : -1;
-		const steps = parseInt(value[value.length - 1], 10);
+		const steps = parseInt(value.slice(-1), 10);
 		transpose(sign * steps);
 	};
 
@@ -419,12 +419,12 @@ ugsEditorPlus.actions = (function() {
 			i;
 
 		// find "shiftable" chords
-		for (i = 0; i < _originalChords.length; i++) {
-			if (_regEx.safe.test(_originalChords[i])) {
-				safeChords.push(_originalChords[i]);
+		for (const chord of _originalChords) {
+			if (_regEx.safe.test(chord)) {
+				safeChords.push(chord);
 			}
 			else {
-				bad += _originalChords[i] + ', ';
+				bad += chord + ', ';
 			}
 		}
 
@@ -458,7 +458,7 @@ ugsEditorPlus.actions = (function() {
 		rEx = /^\s*\{\s*(key|k)\s*:\s*(\S*?)\s*\}\s*$/im;
 		const m = s.match(rEx);
 		if (m) {
-			const key = m[2];
+			const key = m[2] ?? '';
 			// (shift() knows every "safe" chord)
 			const newKey = (key !== '') && _regEx.safe.test(key) ? ukeGeeks.transpose.shift(key, steps) : null;
 			if (newKey !== null) {
@@ -488,13 +488,16 @@ ugsEditorPlus.actions = (function() {
 
 		ugsEditorPlus.submenuUi.resetTransposeLabel();
 
-		for (let i = 0; i < items.length; i++) {
-			ukeGeeks.toolsLite.removeClass(items[i], 'checked');
+		for (const item of items) {
+			ukeGeeks.toolsLite.removeClass(item, 'checked');
 			sample = (keyChord.length < 1) ? '' : ukeGeeks.transpose.shift(keyChord, steps);
 			// (shift() returns null for a chord it doesn't know; innerHTML treated that as '')
-			items[i].getElementsByTagName('em')[0].innerHTML = sample || '';
+			const em = item.getElementsByTagName('em')[0];
+			if (em) {
+				em.innerHTML = sample || '';
+			}
 			if (steps === 0) {
-				ukeGeeks.toolsLite.addClass(items[i], 'checked');
+				ukeGeeks.toolsLite.addClass(item, 'checked');
 			}
 			steps++;
 		}
@@ -547,8 +550,8 @@ ugsEditorPlus.actions = (function() {
 			const inputList = chordList.split(/[ ,]+/);
 		const cleanList = [];
 
-		for (let i = 0; i < inputList.length; i++) {
-			const c = ukeGeeks.toolsLite.trim(inputList[i]);
+		for (const input of inputList) {
+			const c = ukeGeeks.toolsLite.trim(input);
 			if (c.length > 0){
 				cleanList.push(c);
 			}

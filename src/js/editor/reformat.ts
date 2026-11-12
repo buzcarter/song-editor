@@ -120,16 +120,16 @@ ugsEditorPlus.reformat = (function() {
 	const read = function(text: string){
 		const lineAry: UgsEditorPlus.ReformatLine[] = [];
 		const lines = text.split('\n').map(expandTabs);
-		for (let i = 0; i < lines.length; i++) {
-			const words = lines[i].match(_re.words);
+		for (const line of lines) {
+			const words = line.match(_re.words);
 			const l = new LineObj();
-			l.source = lines[i];
+			l.source = line;
 			if ((words != null) && (words.length > 0)){
 				l.wordCount = words.length;
 				l.words = words;
 				l.chordCount = countChords(words);
 			}
-			const spaces = lines[i].match(_re.spaces);
+			const spaces = line.match(_re.spaces);
 			if ((spaces != null) && (spaces.length > 0)){
 				l.spaceCount = spaces.length;
 			}
@@ -200,8 +200,8 @@ ugsEditorPlus.reformat = (function() {
 	 */
 	const countChords = function(words: string[]){
 		let count = 0;
-		for (let i = 0; i < words.length; i++) {
-			if (words[i].match(_re.chordNames)) {
+		for (const word of words) {
+			if (word.match(_re.chordNames)) {
 				count++;
 			}
 		}
@@ -216,11 +216,13 @@ ugsEditorPlus.reformat = (function() {
 	 */
 	const merge = function(lines: UgsEditorPlus.ReformatLine[]){
 		let s = '';
-		let thisLine, nextLine;
 		for (let i = 0; i < lines.length; ) {
-			thisLine = lines[i];
-			nextLine = lines[i+1];
+			const thisLine = lines[i];
+			const nextLine = lines[i+1];
 			i++;
+			if (!thisLine){
+				continue;
+			}
 			// If this line's blank or its the last line...
 			if (!nextLine || (thisLine.lineType === _enums.lineTypes.blank)){
 				s += thisLine.source + '\n';
@@ -228,8 +230,12 @@ ugsEditorPlus.reformat = (function() {
 			}
 
 			// OK, we've complicated things a bit by adding tabs, so we'll handle this in a helper...
-			if ((thisLine.lineType === _enums.lineTypes.tabs) && isTabBlock(lines, i)){
-				s += '{start_of_tab}\n' + thisLine.source.replace(_re.leadingSpace, '') + '\n' + nextLine.source.replace(_re.leadingSpace, '') + '\n' + lines[i + 1].source.replace(_re.leadingSpace, '') + '\n' + lines[i + 2].source.replace(_re.leadingSpace, '') + '\n' + '{end_of_tab}\n';
+			// (the block is this line and the three after it; nextLine is the first of those)
+			const tabBlock = thisLine.lineType === _enums.lineTypes.tabs ? tabBlockAt(lines, i) : null;
+			if (tabBlock){
+				s += '{start_of_tab}\n' + [thisLine].concat(tabBlock).map(function(line){
+					return line.source.replace(_re.leadingSpace, '') + '\n';
+				}).join('') + '{end_of_tab}\n';
 				i+= 3;
 				continue;
 			}
@@ -248,24 +254,20 @@ ugsEditorPlus.reformat = (function() {
 	};
 
 	/**
-	 * TRUE if the three lines from index on are tab lines too, making a block of four with the
-	 * line before them (merge() has already moved past that one)
-	 * @method isTabBlock
+	 * The three lines from index on, if they're tab lines too, making a block of four with the
+	 * line before them (merge() has already moved past that one); else null
+	 * @method tabBlockAt
 	 * @param lines {array of Lines}
 	 * @param index {int} index of the line after the first tab line
-	 * @return [bool]
+	 * @return [array of Lines] or null
 	 */
-	const isTabBlock = function(lines: UgsEditorPlus.ReformatLine[], index: number){
-		// (the block can end the song: the last of the three is lines[index + 2])
-		if (index + 2 >= lines.length){
-			return false;
-		}
-		for (let i = index; i < index + 3; i++){
-			if (lines[i].lineType !== _enums.lineTypes.tabs){
-				return false;
-			}
-		}
-		return true;
+	const tabBlockAt = function(lines: UgsEditorPlus.ReformatLine[], index: number){
+		// (the block can end the song: slice() just comes back short then)
+		const block = lines.slice(index, index + 3);
+		const allTabs = block.every(function(line){
+			return line.lineType === _enums.lineTypes.tabs;
+		});
+		return block.length === 3 && allTabs ? block : null;
 	};
 
 	/**
@@ -288,9 +290,9 @@ ugsEditorPlus.reformat = (function() {
 			s += lyricsLine.substr(offset, lead[0].length);
 			offset = lead[0].length;
 		}
-		for (let j = 0; j < blocks.length; j++) {
-			s += '[' + blocks[j].replace(_re.spaces, '') + ']' + lyricsLine.substr(offset, blocks[j].length);
-			offset += blocks[j].length;
+		for (const block of blocks) {
+			s += '[' + block.replace(_re.spaces, '') + ']' + lyricsLine.substr(offset, block.length);
+			offset += block.length;
 		}
 		if (offset < lyricsLine.length){
 			s += lyricsLine.substr(offset, lyricsLine.length);
@@ -307,9 +309,9 @@ ugsEditorPlus.reformat = (function() {
 	const wrapChords = function(chordLine: string){
 		const chords = chordLine.replace(_re.spaces, ' ').split(' ');
 		let s = '';
-		for (let i = 0; i < chords.length; i++) {
-			if (chords[i].length > 0){
-				s += '[' + chords[i] + '] ';
+		for (const chord of chords) {
+			if (chord.length > 0){
+				s += '[' + chord + '] ';
 			}
 		}
 		return s;

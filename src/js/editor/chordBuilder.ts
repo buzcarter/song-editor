@@ -389,15 +389,15 @@ ugsChordBuilder.fretDots = (function() {
 		if (!inRange(numSteps)) {
 			return false;
 		}
-		for (let i = 0; i < _dots.length; i++) {
-			_dots[i].fret = _dots[i].fret + numSteps;
+		for (const dot of _dots) {
+			dot.fret = dot.fret + numSteps;
 		}
 		return true;
 	};
 
 	const inRange = function(numSteps: number) {
-		for (let i = 0; i < _dots.length; i++) {
-			if ((_dots[i].fret + numSteps < 1) || (_dots[i].fret + numSteps > opts_board.numFrets)) {
+		for (const dot of _dots) {
+			if ((dot.fret + numSteps < 1) || (dot.fret + numSteps > opts_board.numFrets)) {
 				return false;
 			}
 		}
@@ -420,12 +420,12 @@ ugsChordBuilder.fretDots = (function() {
 	};
 
 	_public.toggleFinger = function(dot, finger) {
-		const index = find(dot);
-		if (index < 0) {
+		const found = _dots[find(dot)];
+		if (!found) {
 			return false;
 		}
 
-		_dots[index].finger = _dots[index].finger === finger ? 0 : finger;
+		found.finger = found.finger === finger ? 0 : finger;
 		return true;
 	};
 
@@ -447,7 +447,8 @@ ugsChordBuilder.fretDots = (function() {
 	 */
 	const find = function(dot: UgsChordBuilder.Dot) {
 		for (let i = _dots.length - 1; i >= 0; i--) {
-			if (_dots[i].string === dot.string && _dots[i].fret === dot.fret) {
+			const other = _dots[i];
+			if (other && other.string === dot.string && other.fret === dot.fret) {
 				return i;
 			}
 		}
@@ -462,7 +463,8 @@ ugsChordBuilder.fretDots = (function() {
 	 */
 	const clearColumn = function(string: number) {
 		for (let i = _dots.length - 1; i >= 0; i--) {
-			if (_dots[i].string === string) {
+			const dot = _dots[i];
+			if (dot && dot.string === string) {
 				_dots.splice(i, 1);
 			}
 		}
@@ -494,10 +496,14 @@ ugsChordBuilder.fretDots = (function() {
 
 	_public.draw = function(context) {
 		for (let i = _dots.length - 1; i >= 0; i--) {
-			const pos = getPosition(_dots[i]);
+			const dot = _dots[i];
+			if (!dot) {
+				continue;
+			}
+			const pos = getPosition(dot);
 			drawDot(context, pos);
-			if (_dots[i].finger > 0) {
-				addLabel(context, pos, _dots[i].finger);
+			if (dot.finger > 0) {
+				addLabel(context, pos, dot.finger);
 			}
 	}
 };
@@ -683,8 +689,8 @@ ugsChordBuilder.chordCanvas = (function() {
 			anchor_pos.y - 0.25 * opt_fLabel.fontSize
 		);
 
-		for (let i = 0; i < opts_board.stringNames.length; i++) {
-			addStringName(opts_board.stringNames[i], pos);
+		for (const stringName of opts_board.stringNames) {
+			addStringName(stringName, pos);
 			pos.x += opts_board.stringSpace;
 		}
 	};
@@ -777,18 +783,19 @@ ugsChordBuilder.export = (function() {
 
 	const getStringDots = function() {
 		// initialize empty string array
-		let stringNumber;
 		const aryStringDots: UgsChordBuilder.StringDots[] = [];
-		for (stringNumber = 1; stringNumber <= opts_board.stringNames.length; stringNumber++) {
+		for (let stringNumber = 1; stringNumber <= opts_board.stringNames.length; stringNumber++) {
 			aryStringDots.push(new StringDots(stringNumber));
 		}
 
 		// add dots
 		const dots = ugsChordBuilder.fretDots.getDots();
-		for (stringNumber = aryStringDots.length - 1; stringNumber >= 0; stringNumber--) {
-			for (let i = dots.length - 1; i >= 0; i--) {
-				if (aryStringDots[stringNumber].string === dots[i].string + 1) {
-					aryStringDots[stringNumber].dots.push(dots[i]);
+		// (each string gets its dots last to first, as getFinger() expects)
+		const lastToFirst = dots.slice().reverse();
+		for (const stringDots of aryStringDots) {
+			for (const dot of lastToFirst) {
+				if (stringDots.string === dot.string + 1) {
+					stringDots.dots.push(dot);
 				}
 			}
 		}
@@ -805,12 +812,12 @@ ugsChordBuilder.export = (function() {
 	const getMinMax = function(ary: UgsChordBuilder.Dot[]) {
 		let max = 0;
 		let min = 900;
-		for (let i = ary.length - 1; i >= 0; i--) {
-			if (ary[i].fret > max) {
-				max = ary[i].fret;
+		for (const dot of ary) {
+			if (dot.fret > max) {
+				max = dot.fret;
 			}
-			if (ary[i].fret < min) {
-				min = ary[i].fret;
+			if (dot.fret < min) {
+				min = dot.fret;
 			}
 		}
 		return {
@@ -838,9 +845,9 @@ ugsChordBuilder.export = (function() {
 	 * @return {int}
 	 */
 	const getFinger = function(dots: UgsChordBuilder.Dot[], fret: number) {
-		for (let i = 0; i < dots.length; i++) {
-			if (dots[i].fret === fret) {
-				return dots[i].finger;
+		for (const dot of dots) {
+			if (dot.fret === fret) {
+				return dot.finger;
 			}
 		}
 		return 0;
@@ -857,8 +864,8 @@ ugsChordBuilder.export = (function() {
 		_fretOffset = startingFret - 1;
 		const dotsPerString = getStringDots();
 		const primaries = [];
-		for (let i = 0; i < dotsPerString.length; i++) {
-			const minMax = getMinMax(dotsPerString[i].dots);
+		for (const stringDots of dotsPerString) {
+			const minMax = getMinMax(stringDots.dots);
 			primaries.push(fretNumber(minMax.max));
 		}
 		return primaries;
@@ -880,12 +887,12 @@ ugsChordBuilder.export = (function() {
 
 		_fretOffset = startingFret - 1;
 		const dotsPerString = getStringDots();
-		for (let i = 0; i < dotsPerString.length; i++) {
-			const minMax = getMinMax(dotsPerString[i].dots);
+		for (const stringDots of dotsPerString) {
+			const minMax = getMinMax(stringDots.dots);
 			fretsStr += fretNumber(minMax.max) + ' ';
-			fingersString += getFinger(dotsPerString[i].dots, minMax.max) + ' ';
+			fingersString += getFinger(stringDots.dots, minMax.max) + ' ';
 			if (minMax.max !== minMax.min) {
-				addsString += ' add: string ' + dotsPerString[i].string + ' fret ' + fretNumber(minMax.min) + ' finger ' + getFinger(dotsPerString[i].dots, minMax.min);
+				addsString += ' add: string ' + stringDots.string + ' fret ' + fretNumber(minMax.min) + ' finger ' + getFinger(stringDots.dots, minMax.min);
 			}
 		}
 

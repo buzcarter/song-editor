@@ -185,7 +185,8 @@ ugsEditorPlus.dom = (function() {
     const fades = running(ele).filter(function(anim) {
       return !!anim.fade;
     });
-    return fades.length ? fades[0].fade : null;
+    const first = fades[0];
+    return first ? first.fade : null;
   };
 
   const isHidden = function(ele: HTMLElement) {
@@ -214,17 +215,17 @@ ugsEditorPlus.dom = (function() {
     const computed = window.getComputedStyle(ele);
     // (Object.keys can't type its result: props' keys are CSS property names, as `animate` documents)
     const names = Object.keys(props) as CssProperty[];
-    const ends: Record<string, [string, string]> = {};
 
-    // snapshot the starting values BEFORE dropping any running transition
-    names.forEach(function(name) {
-      const value = props[name];
-      ends[name] = Array.isArray(value) ? value : [computed[name], value];
+    // snapshot the starting values BEFORE dropping any running transition: [property, start, end]
+    const ends = names.map(function(name): [CssProperty, string, string] {
+      // (never undefined: `names` are props' own keys)
+      const value = props[name] ?? '';
+      return Array.isArray(value) ? [name, value[0], value[1]] : [name, computed[name], value];
     });
     // drop running transitions of these properties, jump to the start values
     stop(ele, names);
-    names.forEach(function(name) {
-      ele.style[name] = ends[name][0];
+    ends.forEach(function([name, start]) {
+      ele.style[name] = start;
     });
     // force a reflow so the browser "sees" the start values before transitioning
     void ele.offsetWidth;
@@ -237,8 +238,8 @@ ugsEditorPlus.dom = (function() {
     };
     _running.set(ele, running(ele).concat(anim));
     setTransition(ele);
-    names.forEach(function(name) {
-      ele.style[name] = ends[name][1];
+    ends.forEach(function([name, , end]) {
+      ele.style[name] = end;
     });
 
     anim.id = setTimeout(function() {

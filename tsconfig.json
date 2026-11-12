@@ -16,6 +16,8 @@
     "noFallthroughCasesInSwitch": true,
     "noImplicitOverride": true,
     "noImplicitReturns": true,
+    // array[i] and record[key] may be undefined: check before use
+    "noUncheckedIndexedAccess": true,
     // only the declarations in src/types, no @types packages
     "types": []
   },

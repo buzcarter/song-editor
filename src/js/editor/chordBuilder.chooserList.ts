@@ -200,16 +200,16 @@ ugsChordBuilder.chooserList = (function() {
 			songAddDefinition(data.definition);
 		}
 		else {
-			const i = dictionaryGetIndex(_currentChord.id);
-			if (i < 0) {
+			const chord = _chordDictionary[dictionaryGetIndex(_currentChord.id)];
+			if (!chord) {
 				// console.log('error: not found');
 				return false;
 			}
-			const oldDefinition = _chordDictionary[i].definition;
-			_chordDictionary[i].name = data.name;
-			_chordDictionary[i].definition = data.definition;
-			id = _chordDictionary[i].id;
-			songReplace(oldDefinition, _chordDictionary[i].definition);
+			const oldDefinition = chord.definition;
+			chord.name = data.name;
+			chord.definition = data.definition;
+			id = chord.id;
+			songReplace(oldDefinition, chord.definition);
 		}
 		listUpdate(id);
 		_public.show(true);
@@ -315,9 +315,9 @@ ugsChordBuilder.chooserList = (function() {
 	 */
 	const listGetItem = function(id: number | string | null) {
 		const items = chordListEle().getElementsByTagName('li');
-		for (let i = 0; i < items.length; i++) {
-			if (items[i].getAttribute('data-id') === ('' + id)) {
-				return items[i];
+		for (const item of items) {
+			if (item.getAttribute('data-id') === ('' + id)) {
+				return item;
 			}
 		}
 		return null;
@@ -344,18 +344,19 @@ ugsChordBuilder.chooserList = (function() {
 	 * @param {array} chordDefs
 	 */
 	const listLoad = function(ul: HTMLElement, chordDefs: UgsChordBuilder.ChordDefinition[]) {
-		let i, s = '';
-		for (i = 0; i < chordDefs.length; i++) {
-			s += listHtmlString(chordDefs[i].id, chordDefs[i].name);
+		let s = '';
+		for (const chordDef of chordDefs) {
+			s += listHtmlString(chordDef.id, chordDef.name);
 		}
 		ul.innerHTML = '<li data-id="' + C_NEW_CHORD + '" class="newChord">+ Add New Chord</li>' + s;
 
 		const items = ul.getElementsByTagName('li');
-		for (i = items.length - 1; i >= 0; i--) {
-			if (i < 1) {
-				continue;
+		// last to first, skipping the first item ("+ Add New Chord")
+		for (let i = items.length - 1; i >= 1; i--) {
+			const item = items[i];
+			if (item) {
+				listAddDiagram(item.getAttribute('data-id'));
 			}
-			listAddDiagram(items[i].getAttribute('data-id'));
 		}
 	};
 
@@ -368,7 +369,10 @@ ugsChordBuilder.chooserList = (function() {
 	const listAddItem = function(id: number, name: string) {
 		const temp = document.createElement('ul');
 		temp.innerHTML = listHtmlString(id, name);
-		chordListEle().appendChild(temp.childNodes[0]);
+		const item = temp.firstChild;
+		if (item) {
+			chordListEle().appendChild(item);
+		}
 	};
 
 	/**
@@ -430,11 +434,12 @@ ugsChordBuilder.chooserList = (function() {
 	const songGetDefinitions = function(text: string) {
 		const defineRegEx = /\{define:\s*([^}]+?)\s+frets[^}]+?\}/im;
 		const lines = text.split('\n');
-		for (let i = lines.length - 1; i >= 0; i--) {
-			if (!defineRegEx.test(lines[i])) {
+		// last line to first
+		for (const line of lines.reverse()) {
+			if (!defineRegEx.test(line)) {
 				continue;
 			}
-			definitionAdd(lines[i].replace(defineRegEx, '$1'), lines[i]);
+			definitionAdd(line.replace(defineRegEx, '$1'), line);
 		}
 	};
 
@@ -451,12 +456,13 @@ ugsChordBuilder.chooserList = (function() {
 		const lines = choProText.value.split('\n');
 		let html = '';
 		let inserted = false;
-		for (let i = lines.length - 1; i >= 0; i--) {
-			if (!inserted && instructionRegEx.test(lines[i])) {
+		// last line to first
+		for (const line of lines.reverse()) {
+			if (!inserted && instructionRegEx.test(line)) {
 				html = definition + '\n' + html;
 				inserted = true;
 			}
-			html = lines[i] + '\n' + html;
+			html = line + '\n' + html;
 		}
 		if (!inserted) {
 			html = definition + '\n' + choProText.value;
@@ -472,12 +478,9 @@ ugsChordBuilder.chooserList = (function() {
 	 * @return {int}
 	 */
 	const dictionaryGetIndex = function(id: number | string | null) {
-		for (let i = 0; i < _chordDictionary.length; i++) {
-			if ('' + _chordDictionary[i].id === '' + id) {
-				return i;
-			}
-		}
-		return -1;
+		return _chordDictionary.findIndex(function(chord) {
+			return '' + chord.id === '' + id;
+		});
 	};
 
 	/**
@@ -492,7 +495,8 @@ ugsChordBuilder.chooserList = (function() {
 	const dictionaryFindDupes = function(id: number, name: string) {
 		const search = name.toLowerCase();
 		for (let i = _chordDictionary.length - 1; i >= 0; i--) {
-			if (('' + _chordDictionary[i].id !== '' + id) && (_chordDictionary[i].name.toLowerCase() === search)) {
+			const chord = _chordDictionary[i];
+			if (chord && ('' + chord.id !== '' + id) && (chord.name.toLowerCase() === search)) {
 				return i;
 			}
 		}
@@ -507,8 +511,7 @@ ugsChordBuilder.chooserList = (function() {
 	 * @return {ChordDefinition}
 	 */
 	const dictionaryFind = function(id: number | string | null) {
-		const i = dictionaryGetIndex(id);
-		return i >= 0 ? _chordDictionary[i] : null;
+		return _chordDictionary[dictionaryGetIndex(id)] ?? null;
 	};
 
 	/**

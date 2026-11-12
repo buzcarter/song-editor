@@ -263,7 +263,8 @@ ugsEditorPlus.themes = (function() {
 	 * @return {string}
 	 */
 	_public.getDescription = function(themeName) {
-		return _colorSchemes[themeName].selectText;
+		const scheme = _colorSchemes[themeName];
+		return scheme ? scheme.selectText : '';
 	};
 
 
@@ -276,19 +277,17 @@ ugsEditorPlus.themes = (function() {
 	_public.loadList = function(selector, selectedValue) {
 		const ul = ugsEditorPlus.dom.find(selector, HTMLElement);
 		ul.textContent = '';
-		for (const key in _colorSchemes) {
-			if (Object.prototype.hasOwnProperty.call(_colorSchemes, key)) {
-				const li = document.createElement('li');
-				const a = document.createElement('a');
-				if (key === selectedValue) {
-					li.className = 'checked';
-				}
-				a.href = '#' + key;
-				a.title = _colorSchemes[key].description;
-				a.textContent = _colorSchemes[key].name;
-				li.appendChild(a);
-				ul.appendChild(li);
+		for (const [key, scheme] of Object.entries(_colorSchemes)) {
+			const li = document.createElement('li');
+			const a = document.createElement('a');
+			if (key === selectedValue) {
+				li.className = 'checked';
 			}
+			a.href = '#' + key;
+			a.title = scheme.description;
+			a.textContent = scheme.name;
+			li.appendChild(a);
+			ul.appendChild(li);
 		}
 	};
 
@@ -301,6 +300,10 @@ ugsEditorPlus.themes = (function() {
 		setBody(themeName);
 
 		const c = _colorSchemes[themeName];
+		if (!c) {
+			// not a theme: the page keeps the colors it has
+			return;
+		}
 		ukeGeeks.settings.colors = c.song;
 		ukeGeeks.settings.tabs.lineColor = c.tabs.lines;
 		ukeGeeks.settings.tabs.dotColor = c.tabs.dots;
