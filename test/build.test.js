@@ -14,6 +14,9 @@ test('dist has the bundle, CSS, markup and images', () => {
   for (const file of [
     'js/ugsEditorPlus.merged.js',
     'js/ugsEditorPlus.min.js',
+    'js/ugsChordBuilder.merged.js',
+    'js/ugsChordBuilder.min.js',
+    'ugsChordBuilder.d.ts',
     'markup.js',
     'markup.d.ts',
     'ugsEditorPlus.d.ts',

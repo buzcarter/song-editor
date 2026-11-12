@@ -1,94 +1,10 @@
-declare namespace UgsChordBuilder {
-	interface Position {
-		x: number;
-		y: number;
-	}
-	interface Dimensions {
-		width: number;
-		height: number;
-	}
-	interface BoundingBox extends Position, Dimensions {
-	}
-	/** A finger dot on the fretboard; strings count from 0 (G on a GCEA uke) */
-	interface Dot {
-		string: number;
-		fret: number;
-		finger: number;
-	}
-	/** One string's dots (see export) */
-	interface StringDots {
-		string: number;
-		dots: Dot[];
-	}
-	/** Constructors (plain functions, called with `new`) */
-	interface Entities {
-		BoundingBox: new (pos?: Position | null, dimensions?: Dimensions) => BoundingBox;
-		Dot: new (string: number, fret?: number, finger?: number) => Dot;
-		Position: new (x?: number, y?: number) => Position;
-	}
-	interface Font {
-		fontFamily: string;
-		/** pixels */
-		fontSize: number;
-	}
-	interface Settings {
-		/** top left of the fretboard */
-		anchorPos: Position;
-		cursor: { fillColor: string, strokeWidth: number, strokeColor: string, radius: number, imageUri: string };
-		fretBoard: { numFrets: number, maxFret: number, stringNames: string[], strokeWidth: number, strokeColor: string, fretSpace: number, stringSpace: number };
-		dot: Font & { fillColor: string, radius: number, strokeWidth: number, strokeColor: string, fontWeight: string, fontColor: string };
-		fretLabel: Font & { color: string, lightColor: string };
-		stringLabel: Font & { color: string };
-		chord: { nameMaxLength: number };
-		/** size of the box around one fret on one string */
-		targetDimensions(): Dimensions;
-		targetAnchorPos(): Position;
-		/** centers the fretboard on the canvas */
-		centerAnchor(canvas: HTMLCanvasElement): void;
-	}
-	interface Tracking {
-		/** the fretboard spot under the cursor, or null */
-		toDot(pos: Position): Dot | null;
-	}
-	interface FretDots {
-		getDots(): Dot[];
-		/** moves every dot numSteps frets; false if one would fall off the board */
-		slide(numSteps: number): boolean;
-		/** adds or removes a dot (fret 0 clears the string) */
-		toggleDot(dot: Dot): void;
-		toggleFinger(dot: Dot, finger: number): boolean;
-		reset(): void;
-		draw(context: CanvasRenderingContext2D): void;
-	}
-	interface CursorCanvas {
-		init(ctx: CanvasRenderingContext2D): void;
-		setCursor(isDot: boolean, finger: number): void;
-		draw(pos: Position): void;
-	}
-	interface ChordCanvas {
-		init(ctx: CanvasRenderingContext2D, ele: HTMLCanvasElement): void;
-		draw(pos: Position, startingFret: number): void;
-	}
-	interface Export {
-		getPrimaryFrets(startingFret: number): number[];
-		/** the ChordPro {define: ...} tag */
-		getDefinition(chordName: string, startingFret: number): string;
-		/** getDefinition(), syntax-highlighted */
-		getDefinitionHtml(chordName: string, startingFret: number): string;
-	}
-}
-interface UgsChordBuilder {
-	entities: UgsChordBuilder.Entities;
-	settings: UgsChordBuilder.Settings;
-	tracking: UgsChordBuilder.Tracking;
-	fretDots: UgsChordBuilder.FretDots;
-	cursorCanvas: UgsChordBuilder.CursorCanvas;
-	chordCanvas: UgsChordBuilder.ChordCanvas;
-	export: UgsChordBuilder.Export;
-}
-
 /**
  * Library for an HTML5 WYSIWYG editor to build ChordPro chord define tags.
+ *
+ * This file is the builder's model and its drawing: entities, settings, tracking, fretDots,
+ * export and html need no page at all; cursorCanvas and chordCanvas draw on a 2D context
+ * they're given. Nothing here knows about the song, the page's elements or the editor
+ * (that's chordBuilder.host.ts). The types are in src/types/ugsChordBuilder.d.ts.
  * @module  ugsChordBuilder
  * @namespace ugsChordBuilder
  * @main  ugsChordBuilder
@@ -148,6 +64,32 @@ ugsChordBuilder.entities = {
 		}
 	}
 };
+
+/**
+ * Text into markup.
+ * @class html
+ * @namespace ugsChordBuilder
+ * @static
+ * @singleton
+ */
+ugsChordBuilder.html = (function() {
+	const ESCAPES: Record<string, string> = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+
+	return {
+		/**
+		 * Text made safe to put in markup. A chord's name comes from the song, and a song can come
+		 * from anywhere.
+		 * @method escape
+		 * @param  {string} text
+		 * @return {string}
+		 */
+		escape: function(text: string) {
+			return String(text).replace(/[&<>"']/g, function(c) {
+				return ESCAPES[c] ?? c;
+			});
+		}
+	};
+}());
 
 /**
  * "Properties, Options, Preferences" such as fretboard size and colors; dot attributes, the cursors, fonts etc.
@@ -260,7 +202,7 @@ ugsChordBuilder.settings = (function() {
 	 * @param  {element} canvas
 	 * @return {void}
 	 */
-	const centerAnchor = function(canvas: HTMLCanvasElement) {
+	const centerAnchor = function(canvas: UgsChordBuilder.Dimensions) {
 		anchorPos.x = (0.5 * canvas.width) - (0.5 * (fretBoard.stringNames.length - 1) * fretBoard.stringSpace) - fretBoard.strokeWidth;
 		anchorPos.y = (0.5 * canvas.height) - (0.5 * fretBoard.numFrets * fretBoard.stringSpace);
 	};
@@ -346,6 +288,20 @@ ugsChordBuilder.tracking = (function() {
 		);
 	};
 
+	/**
+	 * The middle of a dot on the canvas: the opposite of toDot(). chordCanvas draws the dot here.
+	 * @method toPosition
+	 * @param  {dot} dot
+	 * @return {position}
+	 */
+	_public.toPosition = function(dot) {
+		const board = settings.fretBoard;
+		return new ents.Position(
+			settings.anchorPos.x + 0.47 * board.strokeWidth + dot.string * board.stringSpace,
+			settings.anchorPos.y + 0.47 * board.strokeWidth + (dot.fret - 0.5) * board.fretSpace
+		);
+	};
+
 	// ---------------------------------------
 	// return public interface
 	// ---------------------------------------
@@ -359,6 +315,8 @@ ugsChordBuilder.tracking = (function() {
  * the actual fret on the instrument... beware.
  *
  * Unless otherwise stated all "dot" parames are of type ugsChordBuilder.entities.dot
+ *
+ * This is the chord being built, and only that: chordCanvas draws it, export writes it out.
  * @class fretDots
  * @namespace ugsChordBuilder
  * @static
@@ -366,10 +324,7 @@ ugsChordBuilder.tracking = (function() {
  */
 ugsChordBuilder.fretDots = (function() {
 	// dependencies:
-	const ents = ugsChordBuilder.entities,
-		anchor_pos = ugsChordBuilder.settings.anchorPos,
-		opts_board = ugsChordBuilder.settings.fretBoard,
-		opts_dot = ugsChordBuilder.settings.dot;
+	const opts_board = ugsChordBuilder.settings.fretBoard;
 
 	/**
 	 * attach public members to this object
@@ -469,44 +424,6 @@ ugsChordBuilder.fretDots = (function() {
 			}
 		}
 	};
-
-	const getPosition = function(dot: UgsChordBuilder.Dot) {
-		return new ents.Position(
-			anchor_pos.x + 0.47 * opts_board.strokeWidth + dot.string * opts_board.stringSpace,
-			anchor_pos.y + 0.47 * opts_board.strokeWidth + (dot.fret - 0.5) * opts_board.fretSpace
-		);
-	};
-
-	const drawDot = function(context: CanvasRenderingContext2D, pos: UgsChordBuilder.Position) {
-		context.beginPath();
-		context.arc(pos.x, pos.y, opts_dot.radius, 0, 2 * Math.PI, false);
-		context.fillStyle = opts_dot.fillColor;
-		context.fill();
-		context.lineWidth = opts_dot.strokeWidth;
-		context.strokeStyle = opts_dot.strokeColor;
-		context.stroke();
-	};
-
-	const addLabel = function(context: CanvasRenderingContext2D, pos: UgsChordBuilder.Position, text: number) {
-		context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
-		context.textAlign = 'center';
-		context.fillStyle = opts_dot.fontColor;
-		context.fillText(String(text), pos.x, pos.y + 0.3 * opts_dot.fontSize);
-	};
-
-	_public.draw = function(context) {
-		for (let i = _dots.length - 1; i >= 0; i--) {
-			const dot = _dots[i];
-			if (!dot) {
-				continue;
-			}
-			const pos = getPosition(dot);
-			drawDot(context, pos);
-			if (dot.finger > 0) {
-				addLabel(context, pos, dot.finger);
-			}
-	}
-};
 
 	// ---------------------------------------
 	// return public interface
@@ -633,7 +550,8 @@ ugsChordBuilder.chordCanvas = (function() {
 		anchor_pos = ugsChordBuilder.settings.anchorPos,
 		opt_fLabel = ugsChordBuilder.settings.fretLabel,
 		opt_sLabel = ugsChordBuilder.settings.stringLabel,
-		opts_board = ugsChordBuilder.settings.fretBoard;
+		opts_board = ugsChordBuilder.settings.fretBoard,
+		opts_dot = ugsChordBuilder.settings.dot;
 
 	/**
 	 * attach public members to this object
@@ -726,13 +644,41 @@ ugsChordBuilder.chordCanvas = (function() {
 		_context.closePath();
 	};
 
-	_public.draw = function(pos, startingFret) {
+	const drawDot = function(pos: UgsChordBuilder.Position) {
+		_context.beginPath();
+		_context.arc(pos.x, pos.y, opts_dot.radius, 0, 2 * Math.PI, false);
+		_context.fillStyle = opts_dot.fillColor;
+		_context.fill();
+		_context.lineWidth = opts_dot.strokeWidth;
+		_context.strokeStyle = opts_dot.strokeColor;
+		_context.stroke();
+	};
+
+	const addFingerNumber = function(pos: UgsChordBuilder.Position, finger: number) {
+		_context.font = opts_dot.fontWeight + ' ' + opts_dot.fontSize + 'px ' + opts_dot.fontFamily;
+		_context.textAlign = 'center';
+		_context.fillStyle = opts_dot.fontColor;
+		_context.fillText(String(finger), pos.x, pos.y + 0.3 * opts_dot.fontSize);
+	};
+
+	const drawDots = function(dots: UgsChordBuilder.Dot[]) {
+		// last to first, so the first dot placed is drawn on top
+		for (const dot of dots.slice().reverse()) {
+			const pos = ugsChordBuilder.tracking.toPosition(dot);
+			drawDot(pos);
+			if (dot.finger > 0) {
+				addFingerNumber(pos, dot.finger);
+			}
+		}
+	};
+
+	_public.draw = function(pos, startingFret, dots) {
 		erase();
 		// ugsChordBuilder.debugTargets.drawTargets(_context);
 		addLabels(startingFret);
 		addStringNames();
 		drawFretboard();
-		ugsChordBuilder.fretDots.draw(_context);
+		drawDots(dots || ugsChordBuilder.fretDots.getDots());
 	};
 
 	// ---------------------------------------
@@ -919,7 +865,7 @@ ugsChordBuilder.export = (function() {
 		html = html.replace(/\b(define|add)\b/g, '<span class="chordPro-X07MX001keyword">$1</span>');
 		// the name can come from the song's {define}: escape it (the rest is numbers and keywords).
 		// A function, not a string, puts it in: replace() would read a "$&" or "$$" in the name as a pattern.
-		const nameHtml = '<span class="chordPro-string">' + ukeGeeks.toolsLite.escapeHtml(chordName) + '</span>';
+		const nameHtml = '<span class="chordPro-string">' + ugsChordBuilder.html.escape(chordName) + '</span>';
 		return html
 			.replace('X07Myq791wso01', function() {
 				return nameHtml;

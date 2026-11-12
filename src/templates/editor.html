@@ -208,45 +208,6 @@
   </header>
   <div>
     <button type="button" title="close this" class="ugsEditor-closeBtn">Close</button>
-    <div id="cdBldChooserPanel">
-      <ul id="cdBldPick" class="ugsChordChooser"></ul>
-    </div>
-    <div id="cdBldBuilderPanel" style="display:none">
-      <p class="">
-        <label for="cdBldChordName">Chord Name: <input class="ugsEditor-chordName" type="text" id="cdBldChordName" value="CHORDNAME" /></label>
-      </p>
-      <div class="ugsEditor-editorSurface" id="cdBldEditorSurface">
-        <div class="ugsEditor-toolboxEdgeShadow ugsEditor-leftEdge"></div>
-        <div id="cdBldToolbox" class="ugsEditor-chordToolbox ugsEditor-leftEdge">
-          <div class="ugsEditor-chordToolboxInner">
-            <button type="button" id="cdBldDotsBtn" class="ugsEditor-toolChip ugsEditor-selected" data-tool="dots">Add Dots <span class="ugsEditor-bigDot"></span></button>
-            <button type="button" id="cdBldFingersBtn" class="ugsEditor-toolChip" data-tool="fingers">Set Fingers <span id="cdBldBtnDiagram" class="ugsEditor-fingerToolImage ugsEditor-finger1"><span class="ugsEditor-fingerDot"></span></span><span id="cdBldBtnFingerName"></span></button>
-          </div>
-        </div>
-        <div class="ugsEditor-toolboxEdgeShadow ugsEditor-rightEdge"></div>
-        <div class="ugsEditor-chordToolbox ugsEditor-rightEdge">
-          <div class="ugsEditor-chordToolboxInner">
-            <label for="cdBldStartingFret" class="ugsEditor-toolChip">Starting Fret
-              <select id="cdBldStartingFret"></select>
-            </label>
-            <button type="button" id="toolboxSlideUpBtn" class="ugsEditor-toolChip ugsEditor-arrowUp" data-direction="up" title="move all dots -1 fret">Slide Up</button>
-            <button type="button" id="toolboxSlideDownBtn" class="ugsEditor-toolChip ugsEditor-arrowDown" data-direction="down" title="move all dots +1 fret">Slide Down</button>
-          </div>
-        </div>
-        <canvas id="cdBldCursorCanvas" width="462" height="300"></canvas>
-        <canvas id="cdBldDiagramCanvas" width="462" height="300"></canvas>
-      </div>
-
-      <p class="">
-        <label for="cdBldShowOutputBtn"><input id="cdBldShowOutputBtn" type="checkbox" value="0" /> Show ChordPro output</label>
-      </p>
-      <p class="ugsEditor-btnBar">
-        <input type="button" value="Add" class="ugsEditor-baseBtn ugsEditor-blueBtn" id="cdBldSaveBtn">
-        <button type="button" id="cdBldCancelBtn" class="ugsEditor-noThanks">Cancel</button>
-      </p>
-      <div id="cdBldOutputBox" class="ugsEditor-outputBox ugsEditor-collapseOutput" style="clear:right;">
-        <pre id="cdBldOutput" class="chordPro-statement" title="Your ChordPro define tag"></pre>
-      </div>
-    </div>
+    {{> chordBuilder}}
   </div>
 </section>

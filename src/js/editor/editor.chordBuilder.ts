@@ -11,6 +11,10 @@ interface UgsEditorPlus {
 /**
  * Connects the Chord Builder (the `ugsChordBuilder` global) to the editor: makes the builder
  * and opens its dialog from the toolbar button, reloading the song's chords each time.
+ *
+ * This is the only file that knows both. It is the builder's host (UgsChordBuilder.Host):
+ * the song is the Edit Song box's text, a changed song redraws (actions.run()), and the
+ * dialog is narrower while the list shows. The builder never calls the editor.
  * Dependencies: ugsChordBuilder classes
  * @class chordBuilder
  * @namespace ugsEditorPlus
@@ -32,10 +36,28 @@ ugsEditorPlus.chordBuilder = (function() {
 	 */
 	_public.init = function() {
 		const dom = ugsEditorPlus.dom;
+		const dialog = dom.byId('cdBldDlg', HTMLElement);
+		const songBox = function() {
+			return dom.byId('chordProSource', HTMLTextAreaElement);
+		};
 		const fingerToolImage = window.getComputedStyle(dom.find('.ugsEditor-fingerToolImage', HTMLElement)).backgroundImage;
-		ugsChordBuilder.settings.cursor.imageUri = fingerToolImage.replace(/url\("(.*)hand.png"\)/i, '$1hand-cursor.png');
+
 		_builder = new ugsChordBuilder.editorUi();
-		_builder.init();
+		_builder.init({
+			root: dialog,
+			getSong: function() {
+				return songBox().value;
+			},
+			setSong: function(text) {
+				songBox().value = text;
+				ugsEditorPlus.songText.changed();
+				ugsEditorPlus.actions.run();
+			},
+			onPanelChange: function(panel) {
+				dialog.classList.toggle('ugsEditor-chordBuilderNarrow', panel === 'chooser');
+			},
+			cursorImageUri: fingerToolImage.replace(/url\("(.*)hand.png"\)/i, '$1hand-cursor.png')
+		});
 
 		dom.byId('cdBldOpenBtn', HTMLElement).addEventListener('click', onShowDlgBtnClick);
 	};

@@ -1,5 +1,27 @@
 # Changelog
 
+## Unreleased
+
+The Chord Builder stands on its own: it uses nothing of the editor's, has its own bundle and types, and is tested part by part.
+
+### New
+
+- `dist/js/ugsChordBuilder.min.js`: the Chord Builder without the editor, and `ugsChordBuilder.mount(element, host)` to start it. The host says where the song is (`getSong`, `setSong`) and can listen (`onPanelChange`, `onStateChange`) or answer (`confirm`, `alert`). Package export `@ukegeeks/song-editor/chord-builder`. The demo has a page for it, `/chord-builder.html`.
+- `dist/ugsChordBuilder.d.ts`: types for every part of `ugsChordBuilder`. `ugsEditorPlus.d.ts` refers to it, so a page that types the editor gets them too.
+- `ugsChordBuilder.songDefinitions` (`find`, `add`, `replace`, `remove` on a song's text), `chordReader` (a `{define}` laid out for the fretboard), `tracking.toPosition()`, `html.escape()`, `editorUi.getState()`, `chooserList.getDefinitions()` and `getCurrent()`.
+
+### Changed
+
+- The Chord Builder reaches the page and the song only through its host (`ugsChordBuilder.host`). In the editor nothing looks different; `editorUi.init()` now takes the host.
+- `chordCanvas` draws the dots. `fretDots.draw()` is gone: `fretDots` is only the chord.
+- Deleting a definition removes its line from the song; it used to leave an empty line. Adding one no longer adds an empty line at the end of the song.
+
+### Fixed
+
+- Chord Builder: clicking a chord's mini-diagram in the list opens that chord. It opened a blank new chord, because the click landed on the diagram's `<svg>` and not on the list item (clicking the chord's name worked). (UGS-0038)
+- Chord Builder: a deleted chord's name can be used again without reopening the builder. It was refused as "already being used".
+- Chord Builder: a `{define}` with spaces before it is listed by its name alone.
+
 ## 2.0.0-beta.2 (2026-11-11)
 
 The editor keeps to itself on a host page: its class names are prefixed, and its scripts look things up inside its own element.

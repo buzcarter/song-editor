@@ -12,5 +12,5 @@
     "types": [],
     "preserveSymlinks": true
   },
-  "files": ["host-page.ts", "server.cts"]
+  "files": ["host-page.ts", "chord-builder-page.ts", "server.cts"]
 }

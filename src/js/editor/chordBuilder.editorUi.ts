@@ -1,21 +1,11 @@
-declare namespace UgsChordBuilder {
-	/** The builder's UI: canvases, toolbox, name and fret fields, Add/Cancel */
-	interface EditorUi {
-		/** false when the browser has no canvas */
-		init(): boolean;
-		/** Back to a new chord, showing the chooser */
-		reload(): void;
-	}
-}
-interface UgsChordBuilder {
-	editorUi: new () => UgsChordBuilder.EditorUi;
-}
-
-
 /**
  * The Chord Builder's second panel: two stacked canvases (the fretboard and dots underneath,
  * the cursor on top), the toolbox (dot or finger tool, slide up/down), the name and starting
  * fret fields, and the {define} it makes. Add/Update hands that to chooserList.save().
+ *
+ * This is the panel's controls and nothing else: the chord is in fretDots, export writes its
+ * {define}, chordReader lays out a chord being opened, the canvas modules draw, and the page's
+ * elements come from the host (chordBuilder.host.ts). getState() says what it holds.
  * @class editorUi
  * @constructor
  * @namespace ugsChordBuilder
@@ -51,8 +41,8 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 		// 		openBtn: 'cdBldOpenBtn'
 	};
 
-	// the editor's checked lookups (ugsEditorPlus.dom loads before the Chord Builder)
-	const dom = ugsEditorPlus.dom;
+	// the host's checked lookups, inside its root element
+	const dom = ugsChordBuilder.host;
 
 	// these elements are found by init(); everything that uses them runs after it
 	let _cursorCanvas: HTMLCanvasElement | null = null,
@@ -64,6 +54,8 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 
 	let _isDotToolActive = true;
 	let _finger = 0;
+	// true: Add makes a new definition; false: Update changes the one opened from the list
+	let _isNew = true;
 
 	/**
 	 * A "reverse Enum" dictionary of finger number to description
@@ -81,9 +73,11 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	/**
 	 * Returns FALSE if canvas is not supported
 	 * @method init
+	 * @param {Host} host where the builder's elements and the song's text are
 	 * @return {bool}
 	 */
-	this.init = function() {
+	this.init = function(host) {
+		ugsChordBuilder.host.use(host);
 		_cursorCanvas = dom.byId(_ids.cursorCanvas, HTMLCanvasElement);
 		if (!_cursorCanvas.getContext) {
 			return false;
@@ -193,60 +187,15 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @method setChord
 	 * @param {Chord} chord
 	 */
-	const setChord = function(chord: UgsChordBuilder.Chord | null) {
+	const setChord = function(chord: UgsChordBuilder.SourceChord | null) {
 		if (chord == null) {
 			// a new chord
 			reset();
 			return;
 		}
 
-		const maxFret = findMaxFret(chord.dots);
-		const startingFret = (maxFret > ugsChordBuilder.settings.fretBoard.numFrets) ? maxFret - ugsChordBuilder.settings.fretBoard.numFrets + 1 : 1;
-		reset(chord.name, startingFret, convertDots(startingFret, chord.dots), false);
-	};
-
-	/**
-	 * Converts Song Formatter's dots to the builder's: frets counted from the starting fret.
-	 * An `add:` that leaves out a value gives a dot with a null in it; these are read the way
-	 * Song Formatter draws them on the songsheet:
-	 *  - no string: the first string
-	 *  - no finger: no finger number
-	 *  - no fret: dropped. The builder has no "fret 0" dot (loading one would clear its string,
-	 *    erasing the chord's real dot there), and the songsheet draws it off the fretboard.
-	 * Dots below the starting fret are dropped too, for the same reason.
-	 * @method convertDots
-	 * @param {int} startingFret
-	 * @param  {array} builderDots
-	 * @return {array}
-	 */
-	const convertDots = function(startingFret: number, builderDots: UgsChordBuilder.Chord['dots']) {
-		const offset = startingFret - 1;
-		const ugsDots: UgsChordBuilder.Dot[] = [];
-		for (const dot of builderDots) {
-			const fret = (dot.fret || 0) - offset;
-			if (fret < 1) {
-				continue;
-			}
-			ugsDots.push(new ugsChordBuilder.entities.Dot(dot.string || 0, fret, dot.finger || 0));
-		}
-		return ugsDots;
-	};
-
-	/**
-	 * Loops over dots to find the largest fret value
-	 * @method findMaxFret
-	 * @param  {array} dots
-	 * @return {ing}
-	 */
-	const findMaxFret = function(dots: UgsChordBuilder.Chord['dots']) {
-		let max = 0;
-		for (const dot of dots) {
-			const fret = dot.fret || 0;
-			if (fret > max) {
-				max = fret;
-			}
-		}
-		return max;
+		const builderChord = ugsChordBuilder.chordReader.toBuilder(chord);
+		reset(builderChord.name, builderChord.startingFret, builderChord.dots, false);
 	};
 
 	/**
@@ -258,6 +207,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 * @return {void}
 	 */
 	const resetInputs = function(name: string | undefined, startingFret: number | undefined, isNew: boolean) {
+		_isNew = isNew;
 		_currentName = (name && name.length > 0) ? name : 'CHORDNAME';
 		dom.byId(_ids.chordName, HTMLInputElement).value = _currentName;
 
@@ -334,6 +284,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 			if (!useDotTool) {
 				updateFinger();
 				ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
+				changed();
 			}
 			return;
 		}
@@ -346,6 +297,7 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 
 		_isDotToolActive = useDotTool;
 		ugsChordBuilder.cursorCanvas.setCursor(_isDotToolActive, _finger);
+		changed();
 	};
 
 	/**
@@ -402,8 +354,9 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	const slide = function(evt: Event) {
 		evt.preventDefault();
 		let moveAllowed = false;
-		const target = evt.target;
-		const numSteps = target instanceof Element && target.getAttribute('data-direction') === 'up' ? -1 : +1;
+		// (currentTarget: the button, whatever inside it was clicked)
+		const button = evt.currentTarget;
+		const numSteps = button instanceof Element && button.getAttribute('data-direction') === 'up' ? -1 : +1;
 		if (ugsChordBuilder.fretDots.slide(numSteps)) {
 			moveAllowed = true;
 		}
@@ -486,12 +439,43 @@ ugsChordBuilder.editorUi = function(this: UgsChordBuilder.EditorUi) {
 	 */
 	const exportDefinition = function() {
 		dom.byId(_ids.output, HTMLElement).innerHTML = ugsChordBuilder.export.getDefinitionHtml(_currentName, _startingFret);
+		changed();
+	};
+
+	/**
+	 * Tells the host what the panel holds now. Everything that changes the chord ends in
+	 * exportDefinition(), which calls this; the toolbox calls it for a change of tool or finger.
+	 * @method changed
+	 * @private
+	 * @return {void}
+	 */
+	const changed = (): void => {
+		ugsChordBuilder.host.stateChanged(this.getState());
 	};
 
 	this.reload = function(){
 		reset();
 		ugsChordBuilder.chooserList.reset();
 		ugsChordBuilder.chooserList.show(true);
+	};
+
+	/**
+	 * What the panel holds right now: for a host that wants to show it, and for tests.
+	 * @method getState
+	 * @return {State}
+	 */
+	this.getState = function() {
+		return {
+			name: _currentName,
+			startingFret: _startingFret,
+			dots: ugsChordBuilder.fretDots.getDots().map(function(dot) {
+				return new ugsChordBuilder.entities.Dot(dot.string, dot.fret, dot.finger);
+			}),
+			tool: _isDotToolActive ? 'dots' : 'fingers',
+			finger: _finger,
+			isNew: _isNew,
+			definition: ugsChordBuilder.export.getDefinition(_currentName, _startingFret)
+		};
 	};
 
 } as unknown as new () => UgsChordBuilder.EditorUi;

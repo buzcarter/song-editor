@@ -16,11 +16,12 @@ npm install @ukegeeks/ace-chordpro-extension   # optional: the Fullscreen editor
 | File | What it is |
 |---|---|
 | `dist/js/ugsEditorPlus.min.js` | The editor, as a browser script. Defines `window.ugsEditorPlus` and `window.ugsChordBuilder`. Also `ugsEditorPlus.merged.js`, unminified. |
+| `dist/js/ugsChordBuilder.min.js` | The Chord Builder alone, for a page without the editor (it is inside the editor's script too). Defines `window.ugsChordBuilder`. See [The Chord Builder on its own](#the-chord-builder-on-its-own). |
 | `dist/css/ugsEditorPlus.min.css` | The editor's styles (also `.merged.css`). |
 | `dist/css/ugsEditorPlus.print.css` | Print styles. |
 | `dist/img/editor/` | Images the CSS uses. `dist/` is laid out like a web page's `js/`, `css/` and `img/` folders: copy them side by side, since the CSS and `mount()` look for images at `../img/editor/`. |
 | `dist/markup.js` | The editor's HTML, for server-rendered pages (Node: `require('@ukegeeks/song-editor')`). |
-| `dist/ugsEditorPlus.d.ts`, `dist/markup.d.ts` | TypeScript declarations. `editorHtml()`'s come with `require` or `import`; for the browser globals, add `/// <reference types="@ukegeeks/song-editor/browser" />`. |
+| `dist/ugsEditorPlus.d.ts`, `dist/ugsChordBuilder.d.ts`, `dist/markup.d.ts` | TypeScript declarations. `editorHtml()`'s come with `require` or `import`; for the browser globals, add `/// <reference types="@ukegeeks/song-editor/browser" />` (the editor and the Chord Builder) or `/// <reference types="@ukegeeks/song-editor/chord-builder" />` (the Chord Builder alone). |
 
 The editor doesn't bundle its two dependencies, so a page never gets a second copy:
 
@@ -106,6 +107,41 @@ Every value is HTML-escaped. The songsheet keeps existing entities such as `&amp
 
 Pages built for the UkeGeeks Songbook 1.5 keep working: the markup copied into the page, then `ugsEditorPlus.songAmatic.init(options)` and `ugsEditorPlus.updateSong.init(ajaxUri, filename)`, which posts the song to the Songbook server.
 
+## The Chord Builder on its own
+
+The Chord Builder makes ChordPro `{define: ...}` chord definitions on a clickable fretboard and keeps them in a song's text. It doesn't need the editor: give it an element and say where the song is.
+
+```html
+<link rel="stylesheet" href="css/ugsEditorPlus.min.css" />
+<div id="chordBuilder" class="ugsEditor-chordBuilderDlg"></div>
+<textarea id="song"></textarea>
+
+<script src="js/song-formatter.bundle.js"></script>
+<script src="js/ugsChordBuilder.min.js"></script>
+<script>
+  const song = document.getElementById('song');
+  const builder = ugsChordBuilder.mount(document.getElementById('chordBuilder'), {
+    getSong: () => song.value,
+    setSong: (text) => { song.value = text; },
+  });
+</script>
+```
+
+| Host option | |
+|---|---|
+| `getSong()` | Required. The song's ChordPro text, as it is now. |
+| `setSong(text)` | Required. Called with the whole song when a definition is added, changed or removed. |
+| `confirm(message)`, `alert(message)` | Asking before a delete; saying a name is taken. Default: the window's. |
+| `onPanelChange(panel)` | `'chooser'` (the list) or `'builder'` (the fretboard) is now showing. |
+| `onStateChange(state)` | The chord being built changed. `state` is what `builder.getState()` returns. |
+| `cursorImageUri` | The Set Fingers cursor: `img/editor/hand-cursor.png` from this package. |
+
+`mount()` returns `{ reload(), getState(), getDefinitions() }`, or `null` in a browser without canvas. Call `reload()` when the song changed elsewhere. `getState()` gives `{ name, startingFret, dots, tool, finger, isNew, definition }`.
+
+The parts that need no page work by themselves: `ugsChordBuilder.songDefinitions` (`find`, `add`, `replace`, `remove` on a song's text), `fretDots` and `export` (dots to a `{define}`), `tracking` (canvas point to string and fret). [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md#the-chord-builder) lists every part and what it depends on.
+
+Not separate yet: the styles are in the editor's stylesheet, and the builder still needs Song Formatter on the page. One builder per page.
+
 ## Develop
 
 ```
@@ -127,6 +163,8 @@ npm run demo    # builds, then serves http://localhost:8098/
 ```
 
 `demo/index.html` is a plain host page that calls `mount()` with one of the 16 sample songs from the Songbook (`demo/songs/`). The controls at the bottom right pick the song and turn the Save button on or off (`?song=…&save=0`). The demo's `save()` writes nothing: it logs the song to the console and returns a message. Its `onChange()` shows in the same corner. In the console, `demoEditor.getSong()` returns the current text and `demoEditor.save()` saves.
+
+`demo/chord-builder.html` (http://localhost:8098/chord-builder.html) is the Chord Builder with no editor: the song in a text box, the builder, and a readout of what the builder tells its host.
 
 `scripts/site.js` lays the site out: the page at the root, this package's build in `dist/`, and the two peer packages in `vendor/`. The local server (`scripts/demo.js`, no dependencies, 127.0.0.1 only) serves that layout straight from `demo/`, `dist/` and `node_modules/`; set `PORT` to use another port. `npm run build:site` writes the same layout to `.site/` as static files.
 
