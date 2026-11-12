@@ -26,9 +26,9 @@ Buz Carter (GitHub `buzcarter`) and Ludlow Brown (GitHub `ludlowbrown`) both wor
 | Area | Owner |
 |---|---|
 | Studio, the Songbook, the website, Song Formatter, ACE extension | Buz |
-| TypeScript conversion of this editor (`src/`, types, build) | Ludlow |
+| This editor, its TypeScript conversion (`src/`, types, build) included | Buz, since 2026-11-11 (it was Ludlow's, who isn't expected to be available) |
 
-Anything not listed: ask. If a task needs a change in an area that belongs to the other person, write it up as an issue for them; don't edit it.
+So, for now, editor work is done in Buz's sessions like any other item; the rules below are for when a partner is working again. Anything not listed: ask. If a task needs a change in an area that belongs to the other person, write it up as an issue for them; don't edit it.
 
 **Sending work**
 

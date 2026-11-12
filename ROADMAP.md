@@ -77,7 +77,8 @@ Keep the existing global (`window.ugsEditorPlus`) and `init()` working, so exist
 ### Ground rules for phase 1
 
 - **Move, don't rewrite.** Same code and behavior in a new home. Modernizing (modules, TypeScript, dropping LESS) is a later phase, once the editor stands on its own.
-  - 2026-11-06: the sources are TypeScript (types only, same bundle; branch `feature/typescript`). Still to do: ES modules, then `noUncheckedIndexedAccess` and `noUnusedLocals`, then dropping LESS.
+  - 2026-11-06: the sources are TypeScript (types only, same bundle; branch `feature/typescript`). Still to do: ES modules, `noUnusedLocals`, then dropping LESS.
+  - 2026-11-11: `noUncheckedIndexedAccess` is on (UGS-0030).
 - New code uses 2-space indentation with no tabs. The moved legacy files use tabs: match the file.
 - Generated files (merged and min JS/CSS) come from a build script; never hand-edit them.
 - Check the editor side by side with the Songbook's current `master` on the 16 sample songs in `~/Code/UkeGeeks/cpm/`: same chords, diagrams, transpose, tunings (GCEA, DGBE, ADF#B), mini-diagrams, Chord Builder, fullscreen and print.
