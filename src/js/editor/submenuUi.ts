@@ -37,12 +37,12 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return {[type]} [description]
 	 */
 	_public.init = function() {
-		ugsEditorPlus.themes.loadList('#colorPicker .pseudoSelect', ugsEditorPlus.options.theme);
+		ugsEditorPlus.themes.loadList('#colorPicker .ugsEditor-pseudoSelect', ugsEditorPlus.options.theme);
 		const dom = ugsEditorPlus.dom;
-		dom.on('.enablePseudoSelects label', 'click', onLabelClick);
-		dom.on('.pseudoSelect li', 'click', onOptionClick);
+		dom.on('.ugsEditor-enablePseudoSelects label', 'click', onLabelClick);
+		dom.on('.ugsEditor-pseudoSelect li', 'click', onOptionClick);
 		dom.on(document.body, 'click', closeAll);
-		dom.on('.arrowBox', 'click', doCollapseAllLists);
+		dom.on('.ugsEditor-arrowBox', 'click', doCollapseAllLists);
 
 		syncOptions(ugsEditorPlus.options);
 	};
@@ -73,7 +73,7 @@ ugsEditorPlus.submenuUi = (function(){
 		// now bubble out the info -- update display to show selected value ...
 		const label = getLabel(id);
 		dom.find('span', HTMLElement, label).textContent = getLabelText(actionName, value, this);
-		dom.closest(label, 'dt', HTMLElement).classList.remove('active');
+		dom.closest(label, 'dt', HTMLElement).classList.remove('ugsEditor-active');
 
 		// lastly, execute the action
 		ugsEditorPlus.dom.trigger('ugs:option', {
@@ -93,9 +93,9 @@ ugsEditorPlus.submenuUi = (function(){
 		}
 		const siblings = item.parentElement ? item.parentElement.children : [];
 		Array.prototype.forEach.call(siblings, function(sibling: Element) {
-			sibling.classList.remove('checked');
+			sibling.classList.remove('ugsEditor-checked');
 		});
-		item.classList.add('checked');
+		item.classList.add('ugsEditor-checked');
 	};
 
 	/**
@@ -148,7 +148,7 @@ ugsEditorPlus.submenuUi = (function(){
 			if (!entry) {
 				continue;
 			}
-			item = document.querySelector('[data-action="' + entry.action + '"] a[href="#' + cssString(entry.value) + '"]');
+			item = ugsEditorPlus.dom.one('[data-action="' + entry.action + '"] a[href="#' + cssString(entry.value) + '"]');
 			if (!item) {
 				continue;
 			}
@@ -195,10 +195,10 @@ ugsEditorPlus.submenuUi = (function(){
 	 */
 	_public.reset = function(dlg){
 		ugsEditorPlus.dom.all('dt', dlg).forEach(function(dt) {
-			dt.classList.remove('active');
+			dt.classList.remove('ugsEditor-active');
 		});
-		ugsEditorPlus.dom.all('.event-userSelecting', dlg).forEach(function(ele) {
-			ele.classList.remove('event-userSelecting');
+		ugsEditorPlus.dom.all('.ugsEditor-event-userSelecting', dlg).forEach(function(ele) {
+			ele.classList.remove('ugsEditor-event-userSelecting');
 		});
 	};
 
@@ -206,10 +206,10 @@ ugsEditorPlus.submenuUi = (function(){
 		const dom = ugsEditorPlus.dom;
 		Array.prototype.forEach.call(dom.closest(label, 'dl', HTMLElement).children, function(child: Element) {
 			if (child.tagName === 'DT') {
-				child.classList.remove('active');
+				child.classList.remove('ugsEditor-active');
 			}
 		});
-		dom.closest(label, 'dt', HTMLElement).classList.add('active');
+		dom.closest(label, 'dt', HTMLElement).classList.add('ugsEditor-active');
 	};
 
 	/**
@@ -221,9 +221,9 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @return void
 	 */
 	const onListActive = function(ele: Element, isInUse: boolean){
-		const wrap = ele.closest('.enablePseudoSelects');
+		const wrap = ele.closest('.ugsEditor-enablePseudoSelects');
 		if (wrap) {
-			wrap.classList.toggle('event-userSelecting', isInUse);
+			wrap.classList.toggle('ugsEditor-event-userSelecting', isInUse);
 		}
 	};
 
@@ -248,7 +248,7 @@ ugsEditorPlus.submenuUi = (function(){
 	 * @param  {event} e
 	 */
 	const closeAll = function(){
-		ugsEditorPlus.dom.all('.arrowBox').forEach(function(box) {
+		ugsEditorPlus.dom.all('.ugsEditor-arrowBox').forEach(function(box) {
 			ugsEditorPlus.dom.fadeOut(box, 270);
 		});
 		ugsEditorPlus.topMenus.makeAllInactive();

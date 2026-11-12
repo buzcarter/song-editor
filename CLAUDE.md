@@ -7,6 +7,7 @@ The Song-a-Matic: a browser editor for ChordPro songs (menus, dialogs, Chord Bui
 - **Build and check:** `npm run build` (writes `dist/`), `npm run typecheck`, `npm test` (tests run against `dist/`, so build first), `npm run demo` (builds, then serves http://localhost:8098/). `npm run lint` needs ESLint installed (`npm ci`).
 - **Generated files:** never hand-edit `dist/`. Edit `src/` and rebuild.
 - **The page HTML** is `src/templates/editor.html` (`{{name}}`, `{{name|text}}`, `{{#if x}}…{{/if}}`); `src/markup.ts` fills it in and `scripts/build.js` inlines it. `test/fixtures/editor-*.html` are snapshots of its output: when the markup changes on purpose, regenerate them and read the diff.
+- **Class names:** the editor's own start with `ugsEditor-`, in the template, the LESS and the scripts alike (a test checks the template). The song's classes (`ugs…`, `.scalablePrintArea`, `.metaInfo`) and ids don't. Look elements up with `ugsEditorPlus.dom` (it searches inside the editor's element), not `document.querySelector`.
 - **Controls are real elements:** buttons for actions, links only for links. Don't add `<a href="#…">` as a button.
 - **Indentation:** match the file (older files use tabs). New files: 2 spaces.
 - **Markdown:** a blank line between paragraphs.

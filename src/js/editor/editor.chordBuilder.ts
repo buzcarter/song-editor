@@ -32,7 +32,7 @@ ugsEditorPlus.chordBuilder = (function() {
 	 */
 	_public.init = function() {
 		const dom = ugsEditorPlus.dom;
-		const fingerToolImage = window.getComputedStyle(dom.find('.fingerToolImage', HTMLElement)).backgroundImage;
+		const fingerToolImage = window.getComputedStyle(dom.find('.ugsEditor-fingerToolImage', HTMLElement)).backgroundImage;
 		ugsChordBuilder.settings.cursor.imageUri = fingerToolImage.replace(/url\("(.*)hand.png"\)/i, '$1hand-cursor.png');
 		_builder = new ugsChordBuilder.editorUi();
 		_builder.init();

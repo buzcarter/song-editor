@@ -129,7 +129,7 @@ test('getSong() returns the Fullscreen editor text while it is open', async () =
   };
   const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
 
-  document.querySelector('.resizeBtn').click(); // open Fullscreen
+  document.querySelector('.ugsEditor-resizeBtn').click(); // open Fullscreen
   assert.equal(aceText, SAMPLE_SONG, 'Ace gets the song');
   aceText = SAMPLE_SONG + '[G]typed in Fullscreen\n';
   assert.equal(editor.getSong(), aceText);
@@ -193,7 +193,7 @@ test('onChange hears Transpose and the Chord Builder', () => {
   assert.equal(changes[0], editor.getSong());
 
   // open the song's own chord in the Chord Builder, rename it and save it
-  document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+  document.querySelector('#cdBldPick li[data-id]:not(.ugsEditor-newChord)').click();
   const name = document.getElementById('cdBldChordName');
   name.value = 'Zz9';
   name.dispatchEvent(new window.Event('keyup'));
@@ -212,12 +212,12 @@ test('onChange hears typing in Fullscreen, not Fullscreen opening or closing', (
     onChange: (text) => changes.push(text),
   });
 
-  document.querySelector('.resizeBtn').click(); // open Fullscreen
+  document.querySelector('.ugsEditor-resizeBtn').click(); // open Fullscreen
   assert.deepEqual(changes, [], 'opening');
   ace.type(SAMPLE_SONG + '[G]typed\n');
   assert.deepEqual(changes, [SAMPLE_SONG + '[G]typed\n']);
   document.querySelector('#aceHeader a').click(); // Exit fullscreen
-  document.querySelector('.resizeBtn').click(); // and open it again
+  document.querySelector('.ugsEditor-resizeBtn').click(); // and open it again
   assert.equal(changes.length, 1, 'closing and reopening');
   assert.deepEqual(errors, []);
 });
@@ -264,7 +264,7 @@ test('editor.save() saves the Fullscreen text while Fullscreen is open', async (
     song: SAMPLE_SONG,
     save: (text) => { saved.push(text); },
   });
-  document.querySelector('.resizeBtn').click();
+  document.querySelector('.ugsEditor-resizeBtn').click();
   ace.type(SAMPLE_SONG + '[G]typed in Fullscreen\n');
   assert.equal(await editor.save(), true);
   assert.deepEqual(saved, [SAMPLE_SONG + '[G]typed in Fullscreen\n']);
@@ -274,6 +274,50 @@ test('editor.save() without a save callback resolves false', async () => {
   const { window, document } = loadEditorPage({ body: '<div id="editor"></div>' });
   const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
   assert.equal(await editor.save(), false);
+});
+
+test("the host page's elements are left alone, and don't confuse the editor", () => {
+  // the host has elements with the editor's old generic class names, and one with a current one
+  const host = '<div id="hostOverlay" class="overlay arrowBox active">host</div>'
+    + '<ul id="hostMenu" class="ugsEditor-arrowBox pseudoSelect"><li id="hostItem"><a href="#14">host item</a></li></ul>'
+    + '<button id="hostClose" class="ugsEditor-closeBtn closeBtn">x</button>';
+  const { window, document, errors } = loadEditorPage({ body: `${host}<div id="editor"></div>` });
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
+  const hostMenu = document.getElementById('hostMenu');
+
+  // open and close the Appearance menu: the editor shows and hides its own boxes only
+  document.querySelector('#editor .ugsEditor-navLayout button').click();
+  document.body.click();
+  assert.equal(hostMenu.style.display, '', 'a host element with the editor\'s class is not hidden');
+
+  // the host's look-alike controls do nothing to the editor
+  const fontSize = window.ugsEditorPlus.options.fontSize;
+  document.getElementById('hostItem').click();
+  document.getElementById('hostClose').click();
+  assert.equal(window.ugsEditorPlus.options.fontSize, fontSize);
+  assert.equal(document.getElementById('hostOverlay').className, 'overlay arrowBox active');
+  assert.deepEqual(errors, []);
+});
+
+test('the DOM helpers search the whole page when no editor is mounted (the Songbook\'s song list)', () => {
+  const { window } = loadEditorPage({ body: '<ul id="songList"><li>a</li><li>b</li></ul>' });
+  assert.equal(window.ugsEditorPlus.dom.all('#songList li').length, 2);
+  assert.ok(window.ugsEditorPlus.dom.one('#songList'));
+});
+
+test('diagram size changes the stylesheet rules it looks up; font size works', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
+  const rule = (selector) => [...document.styleSheets[0].cssRules].find((r) => r.selectorText === selector);
+  for (const selector of ['.scalablePrintArea .ugs-diagrams-wrap svg', '.scalablePrintArea .ugs-diagrams-wrap', '.scalablePrintArea .ugs-source-wrap']) {
+    assert.ok(rule(selector), `the stylesheet has "${selector}"`);
+  }
+  window.ugsEditorPlus.dom.trigger('ugs:option', { action: 'zoomDiagrams', value: '40' });
+  assert.equal(rule('.scalablePrintArea .ugs-diagrams-wrap').style.width, '90px');
+  assert.equal(rule('.scalablePrintArea .ugs-source-wrap').style.marginLeft, '115px');
+  window.ugsEditorPlus.dom.trigger('ugs:option', { action: 'zoomFonts', value: '8' });
+  assert.equal(document.getElementById('scalablePrintArea').style.fontSize, '8pt');
+  assert.deepEqual(errors, []);
 });
 
 // Song text is untrusted: a song file can come from anywhere. None of it may become markup.
@@ -298,7 +342,7 @@ test("a {define} chord name doesn't become markup in the Chord Builder", () => {
   });
 
   // the chord list is filled when the editor mounts
-  const item = document.querySelector('#cdBldPick li[data-id]:not(.newChord)');
+  const item = document.querySelector('#cdBldPick li[data-id]:not(.ugsEditor-newChord)');
   assert.equal(item.textContent, name);
   assert.equal(document.querySelectorAll('[data-injected]').length, 0, 'chord list');
 

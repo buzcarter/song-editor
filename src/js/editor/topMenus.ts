@@ -28,11 +28,11 @@ ugsEditorPlus.topMenus = (function() {
 		const dom = ugsEditorPlus.dom;
 		// (a, button: Songbook 1.5 pages have links here)
 		dom.on('#ugsAppToolbar > ul li:not([data-dialog]) > button, #ugsAppToolbar > ul li:not([data-dialog]) > a', 'click', _onMenuItemClick);
-		dom.on('.showOptionsBox > button, .showOptionsBox > a', 'click', _onShowOptionsClick);
+		dom.on('.ugsEditor-showOptionsBox > button, .ugsEditor-showOptionsBox > a', 'click', _onShowOptionsClick);
 
 		dom.on('#ugsAppToolbar > ul li[data-dialog]', 'click', _onShowDlgBtnClick);
-		dom.on('.closeBtn', 'click', _onCloseBtnClick);
-		dom.on('.resizeBtn', 'click', _onResizeBtnClick);
+		dom.on('.ugsEditor-closeBtn', 'click', _onCloseBtnClick);
+		dom.on('.ugsEditor-resizeBtn', 'click', _onResizeBtnClick);
 	};
 
 	/**
@@ -47,12 +47,12 @@ ugsEditorPlus.topMenus = (function() {
 		if (!parent) {
 			return;
 		}
-		const isOpen = parent.classList.contains('active');
+		const isOpen = parent.classList.contains('ugsEditor-active');
 		_makeAllInactive();
 		if (isOpen) {
 			return;
 		}
-		parent.classList.add('active');
+		parent.classList.add('ugsEditor-active');
 	};
 
 	/**
@@ -63,7 +63,7 @@ ugsEditorPlus.topMenus = (function() {
 	 */
 	const _makeAllInactive = function() {
 		ugsEditorPlus.dom.all('#ugsAppToolbar > ul > li').forEach(function(li) {
-			li.classList.remove('active');
+			li.classList.remove('ugsEditor-active');
 		});
 	};
 
@@ -76,7 +76,7 @@ ugsEditorPlus.topMenus = (function() {
 	const _closeAll = function() {
 		// hide any drop-down/arrow boxes currently open
 		_makeAllInactive();
-		ugsEditorPlus.dom.all('.arrowBox').forEach(ugsEditorPlus.dom.hide);
+		ugsEditorPlus.dom.all('.ugsEditor-arrowBox').forEach(ugsEditorPlus.dom.hide);
 	};
 
 	/**
@@ -108,7 +108,7 @@ ugsEditorPlus.topMenus = (function() {
 	 * @return {bool} false to kill event bubbling
 	 */
 	const _onCloseBtnClick = function(this: HTMLElement, e: Event) {
-		ugsEditorPlus.dom.fadeOut(this.closest<HTMLElement>('.overlay'));
+		ugsEditorPlus.dom.fadeOut(this.closest<HTMLElement>('.ugsEditor-overlay'));
 		// prevent event bubbling
 		e.preventDefault();
 		e.stopPropagation();
@@ -116,7 +116,7 @@ ugsEditorPlus.topMenus = (function() {
 
 	const _onResizeBtnClick = function(this: HTMLElement, e: Event) {
 		_closeAll();
-		ugsEditorPlus.resize.toggle(ugsEditorPlus.dom.closest(this, '.overlay', HTMLElement));
+		ugsEditorPlus.resize.toggle(ugsEditorPlus.dom.closest(this, '.ugsEditor-overlay', HTMLElement));
 		e.preventDefault();
 		e.stopPropagation();
 	};
@@ -132,7 +132,7 @@ ugsEditorPlus.topMenus = (function() {
 		const dom = ugsEditorPlus.dom;
 		const dlg = dom.byId(this.dataset.target || (this.getAttribute('href') || '').replace(/^#/, ''), HTMLElement);
 
-		dom.all('.arrowBox').forEach(function(box) {
+		dom.all('.ugsEditor-arrowBox').forEach(function(box) {
 			if (box !== dlg) {
 				dom.hide(box);
 			}

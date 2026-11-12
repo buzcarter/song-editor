@@ -72,12 +72,12 @@ ugsEditorPlus.optionsDlg = (function() {
 		};
 
 		// ugh! Event bubbling!
-		ugsEditorPlus.dom.on('.checkboxBlock label, input[type=checkbox]', 'click', function(e: Event) {
+		ugsEditorPlus.dom.on('.ugsEditor-checkboxBlock label, input[type=checkbox]', 'click', function(e: Event) {
 			e.stopPropagation();
 		});
 
-		ugsEditorPlus.dom.all('.overlay').forEach(function(dlg) {
-			ugsEditorPlus.dom.draggable(dlg, '.overlayHeader, hgroup');
+		ugsEditorPlus.dom.all('.ugsEditor-overlay').forEach(function(dlg) {
+			ugsEditorPlus.dom.draggable(dlg, '.ugsEditor-overlayHeader, hgroup');
 		});
 	};
 

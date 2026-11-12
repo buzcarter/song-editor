@@ -22,6 +22,7 @@ ugsEditorPlus.songAmatic = (function() {
 	 */
 	_public.init = function(options?: Partial<UgsEditorPlus.Options>) {
 		const opts = mergeOptions(options);
+		ugsEditorPlus.dom.setRoot(findRoot());
 
 		ukeGeeks.settings.opts.retainBrackets = !opts.hideChordEnclosures;
 		ugsEditorPlus.dom.toggle(document.getElementById('songSourceDlg'), opts.showEditOnLoad);
@@ -37,6 +38,25 @@ ugsEditorPlus.songAmatic = (function() {
 		ugsEditorPlus.optionsDlg.init();
 		ugsEditorPlus.chordBuilder.init();
 		ugsEditorPlus.actions.run();
+	};
+
+	/**
+	 * The element holding the editor's markup: what mount() filled, or on a server-rendered
+	 * page the parent of editorHtml()'s output. The editor's lookups stay inside it.
+	 * @method findRoot
+	 * @private
+	 * @return {DOM-element|null} null (search the whole page) when the editor's parts aren't together
+	 */
+	const findRoot = function(): ParentNode | null {
+		const root = document.getElementById('ugsAppToolbar')?.parentElement;
+		if (!root) {
+			return null;
+		}
+		const together = ['scalablePrintArea', 'songSourceDlg', 'cdBldDlg'].every(function(id) {
+			const part = document.getElementById(id);
+			return !part || root.contains(part);
+		});
+		return together ? root : null;
 	};
 
 	const mergeOptions = function(options?: Partial<UgsEditorPlus.Options>) {

@@ -59,7 +59,7 @@ Each source file starts with its own interface, then `interface UgsEditorPlus { 
 | Part | Job |
 |---|---|
 | `namespace` | Creates the `ugsEditorPlus` global. |
-| `dom` | Small DOM helpers that replaced jQuery: find, show and hide, fades, `draggable`, `postJson`, `trigger`. Also the editor's checked lookups (`byId`, `find`, `closest`), which throw a clear error when the page is missing an element. |
+| `dom` | Small DOM helpers that replaced jQuery (selectors are looked up inside the editor's element, which `songAmatic.init()` hands to `dom.setRoot()`; only Fullscreen's layer sits on `<body>`): find, show and hide, fades, `draggable`, `postJson`, `trigger`. Also the editor's checked lookups (`byId`, `find`, `closest`), which throw a clear error when the page is missing an element. |
 | `options` | The settings and their defaults. `init()` merges the page's options into it. |
 | `songText` | The song's text wherever it's being edited (the Edit Song box, or Ace during Fullscreen), and the host's `onChange`. Code that sets the text calls `songText.changed()`. |
 | `actions` | The center: listens for `ugs:option` events and applies each setting, and `run()` redraws the song. Also transpose. |

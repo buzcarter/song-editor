@@ -5,7 +5,7 @@
  */
 /* FLOATIN EDITOR
 -------------------------------- */
-.overlay {
+.ugsEditor-overlay {
 	position:fixed;
 	top:45px;
 	right:20px;
@@ -19,14 +19,14 @@
 	width: 490px;
 	z-index:0;
 }
-.overlay > div {
+.ugsEditor-overlay > div {
 	background: url("../img/editor/woodChip.png") repeat scroll 0 0 transparent;
 	border-radius: 0 0 13px 13px;
 	overflow: hidden;
 	padding: 10px;
 }
 
-// .overlay div div{
+// .ugsEditor-overlay div div{
 // 	background-image: none;
 // 	border-radius:0;
 // 	padding: 0;
@@ -34,13 +34,13 @@
 
 /* MOVED FROM PAGE: SECTION 4
 ------------------------------ */
-.isHidden {
+.ugsEditor-isHidden {
 	display:none;
 }
 
 /* Form inputs,
 ----------------------------------- */
-.overlay {
+.ugsEditor-overlay {
 	select{
 		font-size: 1.1em;
 	}
@@ -98,7 +98,7 @@
 		padding: 0 20px;
 		text-shadow: 1px 2px 0 #592108;
 	}
-	.closeBtn {
+	.ugsEditor-closeBtn {
 		background: url("../img/editor/closeBtn.png") no-repeat 0 0 transparent;
 		display: block;
 		height: 30px;
@@ -109,7 +109,7 @@
 		top: 14px;
 		width: 30px;
 	}
-	.resizeBtn {
+	.ugsEditor-resizeBtn {
 		background: url("../img/editor/resizeBtn.png") no-repeat 0 0 transparent;
 		display: block;
 		height: 20px;
@@ -122,40 +122,40 @@
 	}
 }
 /* _________ Specific Overlays _________ */
-html .helpDlg {
+html .ugsEditor-helpDlg {
 	top:75px;
 	right:70px;
 	width: 300px;
 	z-index:1;
 }
-html .optionsDlg {
+html .ugsEditor-optionsDlg {
 	top:100px;
 	right:210px;
 	width: 380px;
 	z-index:2;
 }
-.optionsDlg div {
+.ugsEditor-optionsDlg div {
 	font-size:.91em;
 }
-.optionsDlg div li {
+.ugsEditor-optionsDlg div li {
 	padding-bottom:.82em;
 }
 /* _________ Chord Builder Dialog _________ */
-.chordBuilderDlg {
+.ugsEditor-chordBuilderDlg {
 	right: 210px;
 	top: 70px;
 	width: 490px;
 	.transition(width 0.6s ease);
 }
-html .chordBuilderNarrow{
+html .ugsEditor-chordBuilderNarrow{
 	width: 345px;
 }
 /* STANDARD appearance HTML for Help Section
 -------------------------------- */
-.helpDlg {
+.ugsEditor-helpDlg {
 	font-size:.9em;
 }
-.normalHtml {
+.ugsEditor-normalHtml {
 	p,
 	ul,
 	ol {
@@ -173,30 +173,30 @@ html .chordBuilderNarrow{
 }
 /* Reformat Dialog
 ------------------------------ */
-.reformatDlg {
+.ugsEditor-reformatDlg {
 	right: 25%;
 	top: 100px;
 	width: 480px;
 	z-index: 3;
 }
-.instructions {
+.ugsEditor-instructions {
 	width: 28em;
 	padding:0 0 .7em;
 	color:#563324;
 }
-.instructions.small {
+.ugsEditor-instructions.ugsEditor-small {
 	clear:both;
 	font-size:.8em;
 	display:block;
 	width: 35em;
 }
-html .reformatDlg textarea{
+html .ugsEditor-reformatDlg textarea{
 	height: 15em;
 }
 
 /* postitioning the drop-down menus & arrows
 -------------------------------------- */
-.layoutOptions {
+.ugsEditor-layoutOptions {
 	left: 50px;
 	&:after,
 	&:before {
@@ -204,7 +204,7 @@ html .reformatDlg textarea{
 	}
 }
 
-.tuningOptions {
+.ugsEditor-tuningOptions {
 	left:150px;
 }
 
@@ -214,25 +214,25 @@ html .reformatDlg textarea{
 	font-size: 0.86em;
 }
 
-.otherOptions {
+.ugsEditor-otherOptions {
 	left: 250px;
 }
-.helpOptions {
+.ugsEditor-helpOptions {
 	left: 320px;
 }
 
 .hasSongbookLink {
-	.layoutOptions:after,
-	.layoutOptions:before {
+	.ugsEditor-layoutOptions:after,
+	.ugsEditor-layoutOptions:before {
 		left: 72%;
 	}
 
-	.tuningOptions {
+	.ugsEditor-tuningOptions {
 		left: 250px;
 	}
 
 	// OTHER
-	.otherOptions {
+	.ugsEditor-otherOptions {
 		left: 300px;
 		&:after,
 		&:before {
@@ -241,7 +241,7 @@ html .reformatDlg textarea{
 	}
 
 	// HELP
-	.helpOptions {
+	.ugsEditor-helpOptions {
 		left: 340px;
 		&:after,
 		&:before {

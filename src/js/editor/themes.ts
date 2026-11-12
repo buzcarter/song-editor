@@ -281,7 +281,7 @@ ugsEditorPlus.themes = (function() {
 			const li = document.createElement('li');
 			const a = document.createElement('a');
 			if (key === selectedValue) {
-				li.className = 'checked';
+				li.className = 'ugsEditor-checked';
 			}
 			a.href = '#' + key;
 			a.title = scheme.description;

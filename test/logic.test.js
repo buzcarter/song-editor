@@ -176,7 +176,7 @@ describe('Chord Builder export', () => {
     const open = (define) => {
       const page = loadEditorPage({ body: '<div id="editor"></div>' });
       page.window.ugsEditorPlus.songAmatic.mount(page.document.getElementById('editor'), { song: define + '\n[Zq]hi\n' });
-      page.document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+      page.document.querySelector('#cdBldPick li[data-id]:not(.ugsEditor-newChord)').click();
       const cb = page.window.ugsChordBuilder;
       return {
         dots: [...cb.fretDots.getDots()].map((d) => `${d.string}/${d.fret}/${d.finger}`).sort(),
@@ -203,7 +203,7 @@ describe('Chord Builder export', () => {
     page.window.ugsEditorPlus.songAmatic.mount(page.document.getElementById('editor'), {
       song: '{define: Zq frets 0 0 0 3 fingers 0 0 0 3 add: fret 2 finger 1}\n[Zq]hi\n',
     });
-    page.document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+    page.document.querySelector('#cdBldPick li[data-id]:not(.ugsEditor-newChord)').click();
     const cb = page.window.ugsChordBuilder;
     cb.fretDots.toggleDot(new cb.entities.Dot(0, 2, 0)); // what clicking it with the dot tool does
     assert.deepEqual([...cb.fretDots.getDots()].map((d) => `${d.string}/${d.fret}`), ['3/3']);
@@ -218,17 +218,17 @@ describe('Chord Builder export', () => {
     });
     const cb = page.window.ugsChordBuilder;
     const song = () => document.getElementById('chordProSource').value;
-    const listNames = () => [...document.querySelectorAll('#cdBldPick li[data-id]:not(.newChord)')].map((li) => li.textContent.trim());
+    const listNames = () => [...document.querySelectorAll('#cdBldPick li[data-id]:not(.ugsEditor-newChord)')].map((li) => li.textContent.trim());
 
     // edit the song's chord: opened by its list item, saved by its dictionary id
-    document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+    document.querySelector('#cdBldPick li[data-id]:not(.ugsEditor-newChord)').click();
     cb.fretDots.toggleDot(new cb.entities.Dot(3, 1, 0));
     document.getElementById('cdBldSaveBtn').click();
     assert.match(song(), /^\{define: Zq frets 0 3 0 1 fingers 0 2 0 0\}\n/);
     assert.doesNotMatch(song(), /frets 0 3 0 0/);
 
     // a new chord: added to the song and the list
-    document.querySelector('#cdBldPick li.newChord').click();
+    document.querySelector('#cdBldPick li.ugsEditor-newChord').click();
     const name = document.getElementById('cdBldChordName');
     name.value = 'Zr';
     name.dispatchEvent(new page.window.Event('keyup'));
@@ -253,7 +253,7 @@ describe('Chord Builder export', () => {
       page.window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
         song: '{define: Zq frets 0 3 0 0 fingers 0 2 0 0}\n[Zq]hi\n',
       });
-      document.querySelector('#cdBldPick li[data-id]:not(.newChord)').click();
+      document.querySelector('#cdBldPick li[data-id]:not(.ugsEditor-newChord)').click();
       const name = document.getElementById('cdBldChordName');
       name.value = newName;
       name.dispatchEvent(new page.window.Event('keyup'));
