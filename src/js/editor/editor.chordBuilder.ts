@@ -10,7 +10,7 @@ interface UgsEditorPlus {
 
 /**
  * Connects the Chord Builder (the `ugsChordBuilder` global) to the editor: makes the builder
- * and opens its dialog from the toolbar's Chords button, reloading the song's chords each time.
+ * and opens its dialog from the toolbar button, reloading the song's chords each time.
  *
  * This is the only file that knows both. It is the builder's host (UgsChordBuilder.Host):
  * the song is the Edit Song box's text, a changed song redraws (actions.run()), and the
@@ -59,14 +59,21 @@ ugsEditorPlus.chordBuilder = (function() {
 			cursorImageUri: fingerToolImage.replace(/url\("(.*)hand.png"\)/i, '$1hand-cursor.png')
 		});
 
-		// the toolbar's Chords button; Songbook 1.5 pages have a Chord Builder button in the Edit Song box
-		dom.byId('cdBldOpenBtn', HTMLElement).addEventListener('click', function() {
-			// (the builder is made just above)
-			if (_builder) {
-				_builder.reload();
-			}
-			dom.fadeIn(dialog);
-		});
+		dom.byId('cdBldOpenBtn', HTMLElement).addEventListener('click', onShowDlgBtnClick);
+	};
+
+	/**
+	 * Button/Link click handler (shows the Chord Builder Overlay)
+	 * @method onShowDlgBtnClick
+	 * @param  {event} evt
+	 */
+	const onShowDlgBtnClick = function(this: HTMLElement, evt: Event){
+		evt.preventDefault();
+		// (init() makes the builder before it listens for this click)
+		if (_builder) {
+			_builder.reload();
+		}
+		ugsEditorPlus.dom.fadeIn(document.getElementById(this.getAttribute('data-dialog') || ''));
 	};
 
 	// ---------------------------------------
