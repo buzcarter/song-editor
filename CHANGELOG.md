@@ -2,16 +2,13 @@
 
 ## Unreleased
 
-The Chord Builder is on the toolbar, as Chords, and a host page can edit the song its own way (UGS-0039).
+Hooks for a host page that edits the song its own way (UGS-0039). Nothing changes for pages that don't use them: the markup, the toolbar and the Edit Song box are as before.
 
 ### New
 
-- `mount()` option `onEdit: () => {}`: the toolbar's Edit button calls it instead of showing the Edit Song box, which then stays closed. For a host that edits the song in a window or panel of its own.
-- `editor.setSong(text, { render })` on what `mount()` returns: replaces the song's text and redraws the songsheet, as typing and Update would. `{ render: false }` changes the text only, for text that's half-typed. Once the "Use Auto-Formated Version?" offer is declined, `setSong()` doesn't show it again (the Update button still does).
-
-### Changed
-
-- The Chord Builder opens from **Chords** on the toolbar, next to Edit. Its button in the Edit Song box is gone. The markup changed: pages with their own copy should take it from `editorHtml()` again (an old copy's button still works).
+- `mount()` option `editMenu: [{ label, onSelect, checked }]`, and `editor.setEditMenu(items)` to change it: the toolbar's Edit button shows the host's items in a drop-down instead of the Edit Song box, which then stays closed.
+- `editor.setSong(text, { render })`: replaces the song's text and redraws the songsheet, as typing and Update would. `{ render: false }` changes the text only, for text that's half-typed. Once the "Use Auto-Formated Version?" offer is declined, `setSong()` doesn't show it again (the Update button still does).
+- `editor.openChordBuilder()`: opens the Chord Builder, as its button in the Edit Song box does.
 
 ## 2.0.0-beta.5 (2026-11-12)
 

@@ -70,11 +70,17 @@ declare namespace UgsEditorPlus {
   type ChangeHandler = (song: string) => void;
 
   /**
-   * The host's edit callback: called when the toolbar's Edit button is clicked, instead of
-   * showing the Edit Song box. For a host page that edits the song its own way (an editor
-   * in a window of its own, say) and passes the text back with `editor.setSong()`.
+   * An item of the host's own Edit menu (`mount()`'s `editMenu`, `editor.setEditMenu()`):
+   * the toolbar's Edit button shows the items in a drop-down instead of the Edit Song box.
    */
-  type EditHandler = () => void;
+  interface EditMenuItem {
+    /** The item's text (plain text, not HTML) */
+    label: string;
+    /** Called when the item is chosen; the menu has closed by then */
+    onSelect(): void;
+    /** Shows a check mark beside the item. Default `false`. */
+    checked?: boolean;
+  }
 
   /** `setSong()`'s options */
   interface SetSongOptions {
@@ -94,10 +100,11 @@ declare namespace UgsEditorPlus {
     /** Called with the ChordPro text each time it changes: for an "unsaved changes" mark, autosave... */
     onChange?: ChangeHandler;
     /**
-     * The toolbar's Edit button calls this instead of showing the Edit Song box, which then
-     * stays closed (`showEditOnLoad` is ignored).
+     * The host's own Edit menu: the toolbar's Edit button shows these items instead of the
+     * Edit Song box, which then stays closed (`showEditOnLoad` is ignored). For a host that
+     * edits the song its own way and passes the text back with `editor.setSong()`.
      */
-    onEdit?: EditHandler;
+    editMenu?: EditMenuItem[];
     /** Folder holding the editor images. Default "../img/editor/" from the bundle's folder. */
     imgUrl?: string;
   }
@@ -114,6 +121,13 @@ declare namespace UgsEditorPlus {
      * calling `onChange`.
      */
     setSong(text: string, options?: SetSongOptions): void;
+    /**
+     * Replaces the Edit button's menu: call it again when a label or check mark changes.
+     * `null` or an empty list brings back the Edit Song box.
+     */
+    setEditMenu(items: EditMenuItem[] | null): void;
+    /** Opens the Chord Builder with the song's chords, as its button in the Edit Song box does. */
+    openChordBuilder(): void;
     /**
      * Saves now, as the Save button does: the text being edited (Fullscreen's too) goes to
      * `save`, and its message or the "problem saving" alert shows as usual. Resolves true

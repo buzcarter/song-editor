@@ -6,7 +6,7 @@
  *     song: chordProText,
  *     save: async (text) => 'Saved.', // optional; without it there's no Save button
  *     onChange: (text) => {},          // optional: the song's text changed
- *     onEdit: () => {},                // optional: the Edit button calls this; no Edit Song box
+ *     editMenu: [{ label: 'Edit Song', onSelect: () => {} }], // optional: the Edit button's own menu
  *     aceUrl: '/js/ace/',              // optional
  *     imgUrl: '/img/editor/',          // optional
  *     fontSize: 14,                    // ...and any other ugsEditorPlus.options
@@ -14,6 +14,8 @@
  *   editor.getSong();
  *   editor.save(); // what the Save button does
  *   editor.setSong(text); // the host's own editor changed the song
+ *   editor.setEditMenu(items); // new items (a changed label or check mark)
+ *   editor.openChordBuilder();
  *
  * The editor finds its elements by id, so a page holds one editor.
  *
@@ -46,16 +48,17 @@
    * @param [options.imgUrl] {string} folder holding the editor images; default "../img/editor/" from the bundle's folder
    * @param [options.aceUrl] {string} folder holding ace-chordpro.min.js; default "ace/" in the bundle's folder
    * @param [options.onChange] {Function} called with the ChordPro text each time it changes
-   * @param [options.onEdit] {Function} called when the toolbar's Edit button is clicked, instead of showing the
-   *   Edit Song box (which then stays closed): for a host page that edits the song its own way and
-   *   passes the text back with `setSong()`
-   * @return {Object} `{ getSong(), setSong(), save() }`
+   * @param [options.editMenu] {Array} `{ label, onSelect, checked }` items: the toolbar's Edit button shows them
+   *   in a drop-down menu instead of the Edit Song box (which then stays closed). For a host page that edits
+   *   the song its own way and passes the text back with `setSong()`
+   * @return {Object} `{ getSong(), setSong(), save(), setEditMenu(), openChordBuilder() }`
    */
   ugsEditorPlus.songAmatic.mount = (container: HTMLElement, options?: UgsEditorPlus.MountOptions) => {
-    const { song = '', save, onChange, onEdit, imgUrl, ...editorOptions } = options || {};
+    const { song = '', save, onChange, editMenu, imgUrl, ...editorOptions } = options || {};
     const canSave = typeof save === 'function';
-    const hostEdits = typeof onEdit === 'function';
-    if (hostEdits) {
+    const hasEditMenu = Array.isArray(editMenu) && editMenu.length > 0;
+    if (hasEditMenu) {
+      // the host edits the song its own way: the Edit Song box has no button to bring it back
       editorOptions.showEditOnLoad = false;
     }
 
@@ -66,8 +69,9 @@
     });
     document.body.classList.add('editableSongPage', 'pageWidth_screen');
 
-    ugsEditorPlus.topMenus.setEditHandler(hostEdits ? onEdit : null);
     ugsEditorPlus.songAmatic.init(editorOptions);
+    // (after init(): the menu's box goes inside the editor's element)
+    ugsEditorPlus.topMenus.setEditMenu(hasEditMenu ? editMenu : null);
     if (canSave) {
       ugsEditorPlus.updateSong.setSaveHandler(save);
     }
@@ -80,6 +84,10 @@
       getSong: ugsEditorPlus.songText.get,
       /** Replaces the song's text and redraws the songsheet (`{ render: false }`: the text only) */
       setSong: ugsEditorPlus.songText.set,
+      /** Replaces the Edit button's menu (see the `editMenu` option); null or none brings back the Edit Song box */
+      setEditMenu: ugsEditorPlus.topMenus.setEditMenu,
+      /** Opens the Chord Builder, as its button in the Edit Song box does */
+      openChordBuilder: ugsEditorPlus.chordBuilder.open,
       /** @return {Promise<boolean>} saves as the Save button does; true when it saved */
       save: ugsEditorPlus.updateSong.save,
     };
