@@ -61,7 +61,7 @@ Each source file starts with its own interface, then `interface UgsEditorPlus { 
 | `namespace` | Creates the `ugsEditorPlus` global. |
 | `dom` | Small DOM helpers that replaced jQuery (selectors are looked up inside the editor's element, which `songAmatic.init()` hands to `dom.setRoot()`; only Fullscreen's layer sits on `<body>`): find, show and hide, fades, `draggable`, `postJson`, `trigger`. Also the editor's checked lookups (`byId`, `find`, `closest`), which throw a clear error when the page is missing an element. |
 | `options` | The settings and their defaults. `init()` merges the page's options into it. |
-| `songText` | The song's text wherever it's being edited (the Edit Song box, or Ace during Fullscreen), and the host's `onChange`. Code that sets the text calls `songText.changed()`. |
+| `songText` | The song's text wherever it's being edited (the Edit Song box, or Ace during Fullscreen), and the host's `onChange`. Code that sets the text calls `songText.changed()`; the host's `setSong()` is `songText.set()`. |
 | `actions` | The center: listens for `ugs:option` events and applies each setting, and `run()` redraws the song. Also transpose. |
 | `songUi` | Puts the title, artist, album and meta lines on the page. |
 | `styles` | Finds rules in the stylesheet titled `ugsEditorCss`, so `actions` can resize the diagrams by editing them. |
@@ -69,15 +69,15 @@ Each source file starts with its own interface, then `interface UgsEditorPlus { 
 | `optionsDlg` | The Other Options dialog's checkboxes and the Update button. Makes the dialogs draggable. |
 | `reformat` | Converts "chord line above lyric line" text to ChordPro. |
 | `autoReformat` | Offers `reformat` when a song has no chords. |
-| `topMenus` | The toolbar: opens and closes menus and dialogs, and the Fullscreen button. |
+| `topMenus` | The toolbar: opens and closes menus and dialogs, and the Fullscreen button. With the host's `onEdit`, the Edit button calls that instead of opening the Edit Song box. |
 | `submenuUi` | The menus' lists (font size, layout, tuning...). A click sends an `ugs:option` event. |
 | `updateSong` | The Save button, and `save()` for the host. |
 | `aceHelp` | The help panel shown beside the Fullscreen editor. |
 | `resize` | Fullscreen: loads Ace, moves the song into it and back. |
-| `chordBuilder` (`editor.chordBuilder.ts`) | The editor's side of the Chord Builder: opens its dialog from the toolbar, and is its host (the song is the Edit Song box). The only file that knows both. |
+| `chordBuilder` (`editor.chordBuilder.ts`) | The editor's side of the Chord Builder: opens its dialog from the toolbar's Chords button, and is its host (the song is the Edit Song box). The only file that knows both. |
 | `markup` (`src/markup.ts`) | The editor's HTML. The same file is `dist/markup.js` for Node. |
 | `songAmatic` | `init()`: starts every part in order. |
-| `mount` (`src/js/mount.ts`) | `songAmatic.mount()`: writes the HTML, calls `init()`, and returns the host's handle: `getSong()`, `save()`. |
+| `mount` (`src/js/mount.ts`) | `songAmatic.mount()`: writes the HTML, calls `init()`, and returns the host's handle: `getSong()`, `setSong()`, `save()`. |
 
 `ugsChordBuilder` is the Chord Builder, in the `chordBuilder*.ts` files: see [The Chord Builder](#the-chord-builder). `libs/lazyload.js` loads Ace.
 
@@ -169,7 +169,7 @@ The Fullscreen button (in the Edit Song dialog) calls `resize.toggle()`. The fir
 
 ```mermaid
 flowchart TD
-  btn["Toolbar: Chord Builder"] --> reload["editorUi.reload()"]
+  btn["Toolbar: Chords"] --> reload["editorUi.reload()"]
   reload --> list["chooserList: lists the song's {define: ...} lines,<br/>re-read from the Edit Song box each time"]
   list -- "pick one, or New" --> builder["editorUi: draw dots and fingers on the canvas"]
   builder -- "export.getDefinition()" --> def["{define: Name frets ... fingers ...}"]

@@ -69,7 +69,23 @@ declare namespace UgsEditorPlus {
    */
   type ChangeHandler = (song: string) => void;
 
-  /** `mount()`'s options: these four plus any of the `Options` */
+  /**
+   * The host's edit callback: called when the toolbar's Edit button is clicked, instead of
+   * showing the Edit Song box. For a host page that edits the song its own way (an editor
+   * in a window of its own, say) and passes the text back with `editor.setSong()`.
+   */
+  type EditHandler = () => void;
+
+  /** `setSong()`'s options */
+  interface SetSongOptions {
+    /**
+     * Redraw the songsheet with the new text. Default `true`. Pass `false` while the text is
+     * half-typed (an open `[` or `{`), then call `setSong()` again once it isn't.
+     */
+    render?: boolean;
+  }
+
+  /** `mount()`'s options: these five plus any of the `Options` */
   interface MountOptions extends Partial<Options> {
     /** The ChordPro text to open. Default `''`. */
     song?: string;
@@ -77,6 +93,11 @@ declare namespace UgsEditorPlus {
     save?: SaveHandler;
     /** Called with the ChordPro text each time it changes: for an "unsaved changes" mark, autosave... */
     onChange?: ChangeHandler;
+    /**
+     * The toolbar's Edit button calls this instead of showing the Edit Song box, which then
+     * stays closed (`showEditOnLoad` is ignored).
+     */
+    onEdit?: EditHandler;
     /** Folder holding the editor images. Default "../img/editor/" from the bundle's folder. */
     imgUrl?: string;
   }
@@ -85,6 +106,14 @@ declare namespace UgsEditorPlus {
   interface Editor {
     /** The ChordPro text being edited: the Fullscreen editor's while it's open, else the Edit Song box's */
     getSong(): string;
+    /**
+     * Replaces the song's text, as if it had been typed (`onChange` hears it) and Update
+     * clicked: the songsheet, the diagrams and the Transpose menu follow. With
+     * `{ render: false }` only the text changes, so `getSong()` and Save have it, and the
+     * songsheet waits for the next `setSong()`. Setting the same text again redraws without
+     * calling `onChange`.
+     */
+    setSong(text: string, options?: SetSongOptions): void;
     /**
      * Saves now, as the Save button does: the text being edited (Fullscreen's too) goes to
      * `save`, and its message or the "problem saving" alert shows as usual. Resolves true

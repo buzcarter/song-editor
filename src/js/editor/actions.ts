@@ -12,7 +12,7 @@ declare namespace UgsEditorPlus {
 		/** Reads the page, listens for "ugs:option" events and applies `ugsEditorPlus.options` */
 		init(): void;
 		/** Redraws the song from the Edit Song box; `isDoBackup` makes it the new "original" for transposing */
-		run(isDoBackup?: boolean): void;
+		run(isDoBackup?: boolean, isLive?: boolean): void;
 	}
 	/**
 	 * The settings an "ugs:option" event can change, and each one's value. Menus send the
@@ -212,14 +212,16 @@ ugsEditorPlus.actions = (function() {
 	 * Rebuilds song, info, chord diagrams using current settings.
 	 * @method run
 	 * @param isDoBackup {bool} true forces backup; optional, default false.
+	 * @param isLive {bool} true when the host page redraws as its user types (songText.set()):
+	 *   the Reformat offer isn't shown again once it has been declined. Optional, default false.
 	 */
-	_public.run = function(isDoBackup?: boolean){
+	_public.run = function(isDoBackup?: boolean, isLive?: boolean){
 		isDoBackup = (arguments.length > 0) && isDoBackup;
 		// run(markup) HTML-escapes the raw (untrusted) ChordPro text for us
 		_song = ukeGeeks.scriptasaurus.run(_ele.cpmSource.value);
 
 		if (_song && _song.chords.length < 1){
-			ugsEditorPlus.autoReformat.run(_ele);
+			ugsEditorPlus.autoReformat.run(_ele, isLive);
 		}
 
 		if (_song){

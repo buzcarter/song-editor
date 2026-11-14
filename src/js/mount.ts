@@ -6,12 +6,14 @@
  *     song: chordProText,
  *     save: async (text) => 'Saved.', // optional; without it there's no Save button
  *     onChange: (text) => {},          // optional: the song's text changed
+ *     onEdit: () => {},                // optional: the Edit button calls this; no Edit Song box
  *     aceUrl: '/js/ace/',              // optional
  *     imgUrl: '/img/editor/',          // optional
  *     fontSize: 14,                    // ...and any other ugsEditorPlus.options
  *   });
  *   editor.getSong();
  *   editor.save(); // what the Save button does
+ *   editor.setSong(text); // the host's own editor changed the song
  *
  * The editor finds its elements by id, so a page holds one editor.
  *
@@ -44,11 +46,18 @@
    * @param [options.imgUrl] {string} folder holding the editor images; default "../img/editor/" from the bundle's folder
    * @param [options.aceUrl] {string} folder holding ace-chordpro.min.js; default "ace/" in the bundle's folder
    * @param [options.onChange] {Function} called with the ChordPro text each time it changes
-   * @return {Object} `{ getSong(), save() }`
+   * @param [options.onEdit] {Function} called when the toolbar's Edit button is clicked, instead of showing the
+   *   Edit Song box (which then stays closed): for a host page that edits the song its own way and
+   *   passes the text back with `setSong()`
+   * @return {Object} `{ getSong(), setSong(), save() }`
    */
   ugsEditorPlus.songAmatic.mount = (container: HTMLElement, options?: UgsEditorPlus.MountOptions) => {
-    const { song = '', save, onChange, imgUrl, ...editorOptions } = options || {};
+    const { song = '', save, onChange, onEdit, imgUrl, ...editorOptions } = options || {};
     const canSave = typeof save === 'function';
+    const hostEdits = typeof onEdit === 'function';
+    if (hostEdits) {
+      editorOptions.showEditOnLoad = false;
+    }
 
     container.innerHTML = ugsEditorPlus.markup.editorHtml({
       canSave,
@@ -57,6 +66,7 @@
     });
     document.body.classList.add('editableSongPage', 'pageWidth_screen');
 
+    ugsEditorPlus.topMenus.setEditHandler(hostEdits ? onEdit : null);
     ugsEditorPlus.songAmatic.init(editorOptions);
     if (canSave) {
       ugsEditorPlus.updateSong.setSaveHandler(save);
@@ -68,6 +78,8 @@
     return {
       /** @return {string} the ChordPro text: the Fullscreen editor's while it's open, else the Edit Song box's */
       getSong: ugsEditorPlus.songText.get,
+      /** Replaces the song's text and redraws the songsheet (`{ render: false }`: the text only) */
+      setSong: ugsEditorPlus.songText.set,
       /** @return {Promise<boolean>} saves as the Save button does; true when it saved */
       save: ugsEditorPlus.updateSong.save,
     };

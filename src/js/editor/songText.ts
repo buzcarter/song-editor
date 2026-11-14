@@ -9,6 +9,12 @@ declare namespace UgsEditorPlus {
      * Tells the host page, unless the text is the same as last time.
      */
     changed(): void;
+    /**
+     * Replaces the song's text from the host page (`mount()`'s `editor.setSong()`): the Edit
+     * Song box gets it, and Fullscreen too while it's open. Redraws the songsheet unless
+     * `options.render` is false.
+     */
+    set(text: string, options?: SetSongOptions): void;
     /** The host page's `onChange` (one at a time; null for none) */
     setChangeHandler(handler: ChangeHandler | null): void;
   }
@@ -22,7 +28,8 @@ interface UgsEditorPlus {
  *
  * The text lives in the Edit Song box (#chordProSource), or in Ace while Fullscreen is
  * open. Typing fires the box's own "input" event; code that sets the text (Transpose,
- * Reformat, the Chord Builder, Fullscreen) calls changed().
+ * Reformat, the Chord Builder, Fullscreen) calls changed(). A host page that edits the
+ * song itself (its own editor window, say) puts its text here with set().
  *
  * @class songText
  * @namespace ugsEditorPlus
@@ -45,6 +52,16 @@ ugsEditorPlus.songText = (function() {
   _public.get = function() {
     const fullscreenText = ugsEditorPlus.resize.getText();
     return fullscreenText !== null ? fullscreenText : box().value;
+  };
+
+  _public.set = function(text, options) {
+    box().value = String(text);
+    ugsEditorPlus.resize.setText(box().value);
+    _public.changed();
+    if (!options || options.render !== false) {
+      // as the Update button does, but the Reformat offer isn't repeated once it's declined
+      ugsEditorPlus.actions.run(true, true);
+    }
   };
 
   _public.changed = function() {

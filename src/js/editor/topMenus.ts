@@ -4,6 +4,8 @@ declare namespace UgsEditorPlus {
 		init(): void;
 		/** Deselects every toolbar item */
 		makeAllInactive(): void;
+		/** The host page's `onEdit`: the toolbar's Edit button calls it instead of showing the Edit Song box (null: the box) */
+		setEditHandler(handler: EditHandler | null): void;
 	}
 }
 interface UgsEditorPlus {
@@ -24,6 +26,12 @@ ugsEditorPlus.topMenus = (function() {
 	 * @public
 	 * @return {void}
 	 */
+	let _editHandler: UgsEditorPlus.EditHandler | null = null;
+
+	const _setEditHandler = function(handler: UgsEditorPlus.EditHandler | null) {
+		_editHandler = typeof handler === 'function' ? handler : null;
+	};
+
 	const _init = function() {
 		const dom = ugsEditorPlus.dom;
 		// (a, button: Songbook 1.5 pages have links here)
@@ -91,8 +99,19 @@ ugsEditorPlus.topMenus = (function() {
 	const _onShowDlgBtnClick = function(this: HTMLElement, e: Event) {
 		_closeAll();
 
-		// now show dialog associated with the clicked button
-		ugsEditorPlus.dom.fadeIn(document.getElementById(this.getAttribute('data-dialog') || ''));
+		const dialogId = this.getAttribute('data-dialog') || '';
+		if (_editHandler && dialogId === 'songSourceDlg') {
+			// the host edits the song its own way
+			try {
+				_editHandler();
+			} catch (err) {
+				console.error('[ugsEditorPlus] onEdit:', err);
+			}
+		}
+		else {
+			// now show dialog associated with the clicked button
+			ugsEditorPlus.dom.fadeIn(document.getElementById(dialogId));
+		}
 
 		// prevent event bubbling
 		e.preventDefault();
@@ -153,7 +172,8 @@ ugsEditorPlus.topMenus = (function() {
 	// ---------------------------------------
 	return {
 		init: _init,
-		makeAllInactive: _makeAllInactive
+		makeAllInactive: _makeAllInactive,
+		setEditHandler: _setEditHandler
 	};
 
 }());
