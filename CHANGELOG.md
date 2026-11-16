@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.0.0-beta.6 (2026-11-16)
 
 Hooks for a host page that edits the song its own way (UGS-0039). Nothing changes for pages that don't use them: the markup, the toolbar and the Edit Song box are as before.
 
