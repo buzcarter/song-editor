@@ -2,6 +2,8 @@ declare namespace UgsEditorPlus {
 	interface ChordBuilderBridge {
 		/** Sets up the Chord Builder and its toolbar button */
 		init(): void;
+		/** Opens the Chord Builder with the song's chords, as its button does (`mount()`'s `editor.openChordBuilder()`) */
+		open(): void;
 	}
 }
 interface UgsEditorPlus {
@@ -69,11 +71,20 @@ ugsEditorPlus.chordBuilder = (function() {
 	 */
 	const onShowDlgBtnClick = function(this: HTMLElement, evt: Event){
 		evt.preventDefault();
-		// (init() makes the builder before it listens for this click)
-		if (_builder) {
-			_builder.reload();
+		_public.open();
+	};
+
+	/**
+	 * Shows the Chord Builder, re-reading the song's chords.
+	 * @method open
+	 */
+	_public.open = function(){
+		// (init() makes the builder; before that there's nothing to open)
+		if (!_builder) {
+			return;
 		}
-		ugsEditorPlus.dom.fadeIn(document.getElementById(this.getAttribute('data-dialog') || ''));
+		_builder.reload();
+		ugsEditorPlus.dom.fadeIn(ugsEditorPlus.dom.byId('cdBldDlg', HTMLElement));
 	};
 
 	// ---------------------------------------

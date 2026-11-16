@@ -59,13 +59,14 @@ The editor finds its parts by `id`, so a page holds one editor. Its own class na
 
 ### `ugsEditorPlus.songAmatic.mount(container, options)`
 
-Writes the editor into `container` (an empty element), renders the song and returns the editor: `{ getSong(), save() }`.
+Writes the editor into `container` (an empty element), renders the song and returns the editor: `{ getSong(), setSong(), save(), setEditMenu(), openChordBuilder() }`.
 
 | Option | Default | |
 |---|---|---|
 | `song` | `''` | The ChordPro text to open. |
 | `save` | none | `(text) => message`, or a promise of one. Called by the Save button; the message shows next to it. A rejection shows a "problem saving" alert. **Without `save` there's no Save button**, for read-only pages. |
 | `onChange` | none | `(text) => {}`, called each time the song's text changes: typing in the Edit Song box or Fullscreen, Transpose, Reformat, the Chord Builder. Not called for the song the editor opens with. Use it for an "unsaved changes" mark or autosave. |
+| `editMenu` | none | `[{ label, onSelect, checked }]`: the host's own Edit menu. The toolbar's Edit button shows these items in a drop-down **instead of the Edit Song box**, which then stays closed (`showEditOnLoad` is ignored). `onSelect()` runs when an item is chosen; `checked: true` shows a check mark. For a host that edits the song its own way, in a window or panel of its own, and passes the text back with `editor.setSong()`. Without it nothing changes. |
 | `aceUrl` | `ace/` in the folder `ugsEditorPlus.min.js` was loaded from | Folder (with trailing slash) holding `ace-chordpro.min.js`. |
 | `imgUrl` | `../img/editor/` from the folder `ugsEditorPlus.min.js` was loaded from | Folder holding `busy.gif`. |
 | any of `ugsEditorPlus.options` | | `showEditOnLoad`, `fontSize`, `diagramSize`, `diagramPosition`, `lyricStyle`, `paper`, `theme`, `tuning`, `hideChordEnclosures`, `sortAlphabetical`, `ignoreCommonChords`, `commonChords`. See `src/js/editor/options.ts`. |
@@ -75,6 +76,9 @@ The editor it returns:
 | | |
 |---|---|
 | `editor.getSong()` | The ChordPro text being edited: the Fullscreen editor's while it's open, else the Edit Song box's. |
+| `editor.setSong(text, options)` | Replaces the song's text, as if it had been typed and Update clicked: the songsheet, the diagrams and the Transpose menu follow, and `onChange` hears it. `{ render: false }` changes the text only (so `getSong()` and Save have it) and leaves the songsheet until the next `setSong()`: for text that's half-typed, like an open `[` or `{`. Setting the same text again redraws without calling `onChange`. If a song with no chords gets the "Use Auto-Formated Version?" offer and it's declined, `setSong()` doesn't offer again. |
+| `editor.setEditMenu(items)` | Replaces the Edit button's menu (see `editMenu`): call it again when a label or check mark changes. `null` brings back the Edit Song box. |
+| `editor.openChordBuilder()` | Opens the Chord Builder with the song's chords, as its button in the Edit Song box does: for an item of the host's Edit menu. |
 | `editor.save()` | Saves now, as the Save button does, for a host's own Save command or shortcut: the text goes to `save`, and its message or the "problem saving" alert shows as usual. Returns a promise of `true` when it saved, `false` when `save` rejected or there's no `save`. |
 
 Use these instead of reaching into the editor's page (its `#saveBtn`, `#chordProSource` or Ace): the markup changes between versions.

@@ -4,6 +4,8 @@ declare namespace UgsEditorPlus {
 		toggle(dlgElement: HTMLElement): boolean;
 		/** The text in the Fullscreen editor while it's open; null when it's closed (or Ace is still loading) */
 		getText(): string | null;
+		/** Puts the text in the Fullscreen editor, if it's open (else does nothing) */
+		setText(text: string): void;
 	}
 }
 interface UgsEditorPlus {
@@ -211,6 +213,14 @@ ugsEditorPlus.resize = (function(){
 	 */
 	_public.getText = function(){
 		return (isBig && editor !== null) ? editor.getValue() : null;
+	};
+
+	_public.setText = function(text: string){
+		if (isBig && editor !== null && editor.getValue() !== text) {
+			isCopying = true;
+			editor.setValue(text);
+			isCopying = false;
+		}
 	};
 
 	_public.toggle = function(dlgElement: HTMLElement){

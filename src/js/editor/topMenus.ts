@@ -4,6 +4,11 @@ declare namespace UgsEditorPlus {
 		init(): void;
 		/** Deselects every toolbar item */
 		makeAllInactive(): void;
+		/**
+		 * The host page's own Edit menu: the toolbar's Edit button shows these items in a
+		 * drop-down instead of the Edit Song box (null or none: the box again)
+		 */
+		setEditMenu(items: EditMenuItem[] | null): void;
 	}
 }
 interface UgsEditorPlus {
@@ -24,6 +29,78 @@ ugsEditorPlus.topMenus = (function() {
 	 * @public
 	 * @return {void}
 	 */
+	/** the host's Edit menu (see setEditMenu), or null: Edit shows the Edit Song box */
+	let _editMenu: UgsEditorPlus.EditMenuItem[] | null = null;
+
+	const EDIT_MENU_ID = 'editMenuDlg';
+
+	/**
+	 * The Edit menu's drop-down box, made the first time a host asks for a menu: the
+	 * editor's own markup (editorHtml()) doesn't have it.
+	 * @method _editMenuBox
+	 * @private
+	 * @return {DOM-element}
+	 */
+	const _editMenuBox = function() {
+		const dom = ugsEditorPlus.dom;
+		let box = dom.one('#' + EDIT_MENU_ID);
+		if (!box) {
+			dom.byId('ugsAppToolbar', HTMLElement).insertAdjacentHTML('afterend',
+				'<aside class="ugsEditor-arrowBox ugsEditor-editMenu" id="' + EDIT_MENU_ID + '">'
+				+ '<fieldset class="ugsEditor-arrowBoxContent ugsEditor-linksList"><ul></ul></fieldset></aside>');
+			box = dom.byId(EDIT_MENU_ID, HTMLElement);
+			box.addEventListener('click', _onEditMenuClick);
+		}
+		return box;
+	};
+
+	/**
+	 * @method _setEditMenu
+	 * @param items {Array} `{ label, onSelect, checked }` each; null or an empty list for no menu
+	 */
+	const _setEditMenu = function(items: UgsEditorPlus.EditMenuItem[] | null) {
+		const dom = ugsEditorPlus.dom;
+		_editMenu = Array.isArray(items) && items.length > 0 ? items.slice() : null;
+		if (!_editMenu) {
+			dom.hide(dom.one('#' + EDIT_MENU_ID));
+			return;
+		}
+		const list = dom.find('ul', HTMLElement, _editMenuBox());
+		list.textContent = '';
+		_editMenu.forEach(function(item, index) {
+			const li = document.createElement('li');
+			const button = document.createElement('button');
+			button.type = 'button';
+			button.textContent = String(item.label);
+			button.dataset.index = String(index);
+			li.classList.toggle('ugsEditor-checked', !!item.checked);
+			li.appendChild(button);
+			list.appendChild(li);
+		});
+	};
+
+	/**
+	 * A click in the Edit menu: on an item, closes the menu and tells the host.
+	 * @method _onEditMenuClick
+	 * @private
+	 */
+	const _onEditMenuClick = function(e: Event) {
+		const button = e.target instanceof Element ? e.target.closest<HTMLElement>('button[data-index]') : null;
+		const item = button && _editMenu ? _editMenu[Number(button.dataset.index)] : undefined;
+		if (!item) {
+			return;
+		}
+		e.preventDefault();
+		e.stopPropagation();
+		_closeAll();
+		try {
+			item.onSelect();
+		} catch (err) {
+			// the host's problem: the editor carries on
+			console.error('[ugsEditorPlus] Edit menu "' + item.label + '":', err);
+		}
+	};
+
 	const _init = function() {
 		const dom = ugsEditorPlus.dom;
 		// (a, button: Songbook 1.5 pages have links here)
@@ -89,10 +166,24 @@ ugsEditorPlus.topMenus = (function() {
 	 * @return {bool} false to kill event bubbling
 	 */
 	const _onShowDlgBtnClick = function(this: HTMLElement, e: Event) {
-		_closeAll();
+		const dialogId = this.getAttribute('data-dialog') || '';
+		if (_editMenu && dialogId === 'songSourceDlg') {
+			// the host's own Edit menu, not the Edit Song box
+			const box = _editMenuBox();
+			const wasOpen = ugsEditorPlus.dom.isVisible(box);
+			_closeAll();
+			if (!wasOpen) {
+				ugsEditorPlus.dom.fadeIn(box);
+				this.classList.add('ugsEditor-active');
+			}
+			e.preventDefault();
+			e.stopPropagation();
+			return;
+		}
 
+		_closeAll();
 		// now show dialog associated with the clicked button
-		ugsEditorPlus.dom.fadeIn(document.getElementById(this.getAttribute('data-dialog') || ''));
+		ugsEditorPlus.dom.fadeIn(document.getElementById(dialogId));
 
 		// prevent event bubbling
 		e.preventDefault();
@@ -153,7 +244,8 @@ ugsEditorPlus.topMenus = (function() {
 	// ---------------------------------------
 	return {
 		init: _init,
-		makeAllInactive: _makeAllInactive
+		makeAllInactive: _makeAllInactive,
+		setEditMenu: _setEditMenu
 	};
 
 }());

@@ -184,7 +184,8 @@ html .ugsEditor-active label {
 		text-align: left;
 		float: none;
 	}
-	a {
+	a,
+	button {
 		border-radius: 8px;
 		color: #B9B9B9;
 		display: block;
@@ -195,6 +196,22 @@ html .ugsEditor-active label {
 			background-color: #000;
 			color:#fff;
 		}
+	}
+	// menu items that do something (the host's Edit menu) are buttons
+	button {
+		appearance: none;
+		background: none;
+		border: 0;
+		box-sizing: border-box;
+		cursor: pointer;
+		font: inherit;
+		padding-left: 30px;
+		text-align: left;
+		width: 100%;
+	}
+	.ugsEditor-checked button {
+		background: url("../img/editor/checked.png") no-repeat scroll 8px center transparent;
+		color: #fff;
 	}
 }
 /* Feedback message -- on UPDATE

@@ -7,7 +7,7 @@ declare namespace UgsEditorPlus {
 	}
 	interface AutoReformat {
 		/** Offers to convert the song to ChordPro when it has no chords (the Reformat dialog) */
-		run(elements: SongElements): void;
+		run(elements: SongElements, isLive?: boolean): void;
 	}
 }
 interface UgsEditorPlus {
@@ -38,9 +38,11 @@ ugsEditorPlus.autoReformat = (function() {
 
 	let _formatted: string;
 	let _isDisabled = false;
+	/** "No, Thanks!" was clicked: a host page that redraws as its user types doesn't get the offer again on every key */
+	let _isDeclined = false;
 
-	_public.run = function(elements){
-		if (_isDisabled){
+	_public.run = function(elements, isLive){
+		if (_isDisabled || (isLive && _isDeclined)){
 			return;
 		}
 		const dom = ugsEditorPlus.dom;
@@ -55,6 +57,7 @@ ugsEditorPlus.autoReformat = (function() {
 			return false;
 		};
 		dom.byId('reformatNoBtn', HTMLElement).onclick = function() {
+			_isDeclined = true;
 			doClose();
 			return false;
 		};

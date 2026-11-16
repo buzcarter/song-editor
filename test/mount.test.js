@@ -364,3 +364,133 @@ test("a theme colors a muted string's X like its fret numbers", () => {
   assert.match(x.getAttribute('style'), /stroke:#999999;/); // "reversed" fretText; it was black before
   assert.deepEqual(errors, []);
 });
+
+const editButton = (document) => document.querySelector('#ugsAppToolbar li[data-dialog="songSourceDlg"] > button');
+const shown = (ele) => !!ele && !!ele.style.display && ele.style.display !== 'none';
+
+test('without an Edit menu the markup and the Edit button are as before', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG, showEditOnLoad: false });
+  assert.equal(document.getElementById('editMenuDlg'), null, 'no menu box');
+  assert.ok(document.querySelector('#songSourceDlg #cdBldOpenBtn'), 'the Chord Builder button is in the Edit Song box');
+  const box = document.getElementById('songSourceDlg');
+  assert.equal(box.style.display, 'none');
+  editButton(document).click();
+  assert.notEqual(box.style.display, 'none');
+  assert.deepEqual(errors, []);
+});
+
+test('editMenu: the Edit button shows the host\'s items, and the Edit Song box stays closed', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const chosen = [];
+  window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    showEditOnLoad: true, // ignored
+    editMenu: [
+      { label: 'Edit <Song>', onSelect: () => chosen.push('edit') },
+      { label: 'Favorite', checked: true, onSelect: () => chosen.push('favorite') },
+    ],
+  });
+  const box = document.getElementById('songSourceDlg');
+  const menu = document.getElementById('editMenuDlg');
+  assert.equal(box.style.display, 'none', 'closed when the song opens');
+  assert.ok(document.getElementById('editor').contains(menu), 'the menu is inside the editor\'s element');
+  assert.equal(shown(menu), false);
+
+  editButton(document).click();
+  assert.equal(shown(menu), true);
+  assert.equal(box.style.display, 'none', 'still closed');
+  const items = [...menu.querySelectorAll('li')];
+  assert.deepEqual(items.map((li) => li.textContent), ['Edit <Song>', 'Favorite'], 'labels are text, not HTML');
+  assert.deepEqual(items.map((li) => li.classList.contains('ugsEditor-checked')), [false, true]);
+
+  items[1].querySelector('button').click();
+  assert.deepEqual(chosen, ['favorite']);
+  assert.deepEqual(errors, []);
+});
+
+test('setEditMenu() replaces the items; none brings back the Edit Song box', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const chosen = [];
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    editMenu: [{ label: 'One', onSelect: () => chosen.push(1) }],
+  });
+  editor.setEditMenu([
+    { label: 'Two', onSelect: () => chosen.push(2) },
+    { label: 'Throws', onSelect: () => { throw new Error('host bug'); } },
+  ]);
+  const menu = document.getElementById('editMenuDlg');
+  assert.deepEqual([...menu.querySelectorAll('li')].map((li) => li.textContent), ['Two', 'Throws']);
+  menu.querySelectorAll('button')[0].click();
+  menu.querySelectorAll('button')[1].click(); // the editor carries on
+  assert.deepEqual(chosen, [2]);
+
+  editor.setEditMenu(null);
+  editButton(document).click();
+  assert.notEqual(document.getElementById('songSourceDlg').style.display, 'none');
+  assert.equal(shown(menu), false);
+});
+
+test('openChordBuilder() opens the Chord Builder with the song\'s chords', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
+  const dialog = document.getElementById('cdBldDlg');
+  assert.equal(shown(dialog), false);
+  editor.setSong('{define: Typed frets 1 1 1 1}\n[Typed]la\n');
+  editor.openChordBuilder();
+  assert.equal(shown(dialog), true);
+  assert.deepEqual([...window.ugsChordBuilder.chooserList.getDefinitions()].map((d) => d.name), ['Typed']);
+  assert.deepEqual(errors, []);
+});
+
+test('setSong() replaces the text, redraws the songsheet and tells onChange once', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const changes = [];
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    onChange: (text) => changes.push(text),
+  });
+  const next = '{title: Typed Elsewhere}\n[F]la [C]la\n';
+  editor.setSong(next);
+  assert.equal(editor.getSong(), next);
+  assert.equal(document.getElementById('songTitle').textContent, 'Typed Elsewhere');
+  assert.match(document.getElementById('ukeSongText').textContent, /la/);
+  editor.setSong(next); // the same text: redrawn, not a change
+  assert.deepEqual(changes, [next]);
+  assert.deepEqual(errors, []);
+});
+
+test('setSong(text, { render: false }) keeps the songsheet until the next setSong()', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const changes = [];
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), {
+    song: SAMPLE_SONG,
+    onChange: (text) => changes.push(text),
+  });
+  const half = '{title: Half\n[C]la\n';
+  editor.setSong(half, { render: false });
+  assert.equal(editor.getSong(), half, 'getSong() and Save have the text');
+  assert.equal(document.getElementById('songTitle').textContent, 'Fixture Song', 'the songsheet waits');
+  editor.setSong('{title: Half Done}\n[C]la\n');
+  assert.equal(document.getElementById('songTitle').textContent, 'Half Done');
+  assert.equal(changes.length, 2);
+  assert.deepEqual(errors, []);
+});
+
+test('setSong(): the Reformat offer, once declined, is not shown again', () => {
+  const { window, document, errors } = loadEditorPage({ body: '<div id="editor"></div>' });
+  const editor = window.ugsEditorPlus.songAmatic.mount(document.getElementById('editor'), { song: SAMPLE_SONG });
+  const dialog = document.getElementById('reformatDlg');
+  const offered = () => !dialog.classList.contains('ugsEditor-isHidden');
+  const plain = 'C        G7\nSome say love\nF        C\nit is a river\n';
+  editor.setSong(plain);
+  assert.equal(offered(), true, 'offered for a songsheet that is not ChordPro');
+  document.getElementById('reformatNoBtn').click();
+  assert.equal(offered(), false);
+  editor.setSong(plain + 'more\n');
+  assert.equal(offered(), false, 'not offered again while typing');
+  document.getElementById('updateBtn').click();
+  assert.equal(offered(), true, 'the Update button still offers it');
+  assert.deepEqual(errors, []);
+});

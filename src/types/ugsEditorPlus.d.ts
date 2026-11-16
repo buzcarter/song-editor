@@ -69,7 +69,29 @@ declare namespace UgsEditorPlus {
    */
   type ChangeHandler = (song: string) => void;
 
-  /** `mount()`'s options: these four plus any of the `Options` */
+  /**
+   * An item of the host's own Edit menu (`mount()`'s `editMenu`, `editor.setEditMenu()`):
+   * the toolbar's Edit button shows the items in a drop-down instead of the Edit Song box.
+   */
+  interface EditMenuItem {
+    /** The item's text (plain text, not HTML) */
+    label: string;
+    /** Called when the item is chosen; the menu has closed by then */
+    onSelect(): void;
+    /** Shows a check mark beside the item. Default `false`. */
+    checked?: boolean;
+  }
+
+  /** `setSong()`'s options */
+  interface SetSongOptions {
+    /**
+     * Redraw the songsheet with the new text. Default `true`. Pass `false` while the text is
+     * half-typed (an open `[` or `{`), then call `setSong()` again once it isn't.
+     */
+    render?: boolean;
+  }
+
+  /** `mount()`'s options: these five plus any of the `Options` */
   interface MountOptions extends Partial<Options> {
     /** The ChordPro text to open. Default `''`. */
     song?: string;
@@ -77,6 +99,12 @@ declare namespace UgsEditorPlus {
     save?: SaveHandler;
     /** Called with the ChordPro text each time it changes: for an "unsaved changes" mark, autosave... */
     onChange?: ChangeHandler;
+    /**
+     * The host's own Edit menu: the toolbar's Edit button shows these items instead of the
+     * Edit Song box, which then stays closed (`showEditOnLoad` is ignored). For a host that
+     * edits the song its own way and passes the text back with `editor.setSong()`.
+     */
+    editMenu?: EditMenuItem[];
     /** Folder holding the editor images. Default "../img/editor/" from the bundle's folder. */
     imgUrl?: string;
   }
@@ -85,6 +113,21 @@ declare namespace UgsEditorPlus {
   interface Editor {
     /** The ChordPro text being edited: the Fullscreen editor's while it's open, else the Edit Song box's */
     getSong(): string;
+    /**
+     * Replaces the song's text, as if it had been typed (`onChange` hears it) and Update
+     * clicked: the songsheet, the diagrams and the Transpose menu follow. With
+     * `{ render: false }` only the text changes, so `getSong()` and Save have it, and the
+     * songsheet waits for the next `setSong()`. Setting the same text again redraws without
+     * calling `onChange`.
+     */
+    setSong(text: string, options?: SetSongOptions): void;
+    /**
+     * Replaces the Edit button's menu: call it again when a label or check mark changes.
+     * `null` or an empty list brings back the Edit Song box.
+     */
+    setEditMenu(items: EditMenuItem[] | null): void;
+    /** Opens the Chord Builder with the song's chords, as its button in the Edit Song box does. */
+    openChordBuilder(): void;
     /**
      * Saves now, as the Save button does: the text being edited (Fullscreen's too) goes to
      * `save`, and its message or the "problem saving" alert shows as usual. Resolves true

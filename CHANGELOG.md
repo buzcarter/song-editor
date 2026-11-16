@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+Hooks for a host page that edits the song its own way (UGS-0039). Nothing changes for pages that don't use them: the markup, the toolbar and the Edit Song box are as before.
+
+### New
+
+- `mount()` option `editMenu: [{ label, onSelect, checked }]`, and `editor.setEditMenu(items)` to change it: the toolbar's Edit button shows the host's items in a drop-down instead of the Edit Song box, which then stays closed.
+- `editor.setSong(text, { render })`: replaces the song's text and redraws the songsheet, as typing and Update would. `{ render: false }` changes the text only, for text that's half-typed. Once the "Use Auto-Formated Version?" offer is declined, `setSong()` doesn't show it again (the Update button still does).
+- `editor.openChordBuilder()`: opens the Chord Builder, as its button in the Edit Song box does.
+
+## 2.0.0-beta.5 (2026-11-12)
+
 The Chord Builder stands on its own: it uses nothing of the editor's, has its own bundle and types, and is tested part by part.
 
 ### New
