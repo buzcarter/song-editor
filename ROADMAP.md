@@ -25,11 +25,12 @@ Each layer only knows the one below it.
 
 | Piece | Local checkout | GitHub / npm | State |
 |---|---|---|---|
-| Song Editor (this repo) | `~/Code/ukegeeks-unnamed-editor-project` | buzcarter/song-editor · `@ukegeeks/song-editor` | 2.0.0-beta.2 |
-| Song Formatter | `~/Code/ugs-song-formatter` | buzcarter/song-formatter · `@ukegeeks/song-formatter` | 1.0.0-beta.1, npm `latest` |
-| ACE ChordPro Extension | `~/Code/ugs-ace-chordpro-extension` | buzcarter/ace-chordpro-extension · `@ukegeeks/ace-chordpro-extension` | 1.0.0 |
-| UkeGeeks Songbook | `~/Code/UkeGeeks` | buzcarter/UkeGeeks | v1.5.1; `master` already uses Song Formatter and Ace 1.0.0 |
-| ukegeeks.org | `~/Sites/ukegeeks.org/public_html` | buzcarter/ukegeeks-org-site (private), Cloudflare Pages | live; `/songeditor/` moved to Song Formatter on branch `songeditor-song-formatter` |
+| Song Editor (this repo) | `~/Code/UkeGeeks/ugs-editor` | buzcarter/song-editor · `@ukegeeks/song-editor` | 2.0.0 (UkeGeeks 2026.12) |
+| Song Formatter | `~/Code/UkeGeeks/ugs-song-formatter` | buzcarter/song-formatter · `@ukegeeks/song-formatter` | 1.0.0 (UkeGeeks 2026.12) |
+| ACE ChordPro Extension | `~/Code/UkeGeeks/ugs-ace-chordpro-extension` | buzcarter/ace-chordpro-extension · `@ukegeeks/ace-chordpro-extension` | 1.0.0 |
+| UkeGeeks Songbook | `~/Code/UkeGeeks/ugs-songbook` | buzcarter/UkeGeeks | 2.0.0 (UkeGeeks 2026.12), on this editor 2.x |
+| UkeGeeks Studio | `~/Code/UkeGeeks/ugs-ukegeeks-studio` | buzcarter/ukegeeks-studio | 0.1.0 (UkeGeeks 2026.12), uses the host hooks |
+| ukegeeks.org | `~/Code/UkeGeeks/ugs-website` | buzcarter/ukegeeks-org-site (private), Cloudflare Pages | live; libraries synced from the Songbook (`npm run sync:songbook`) |
 
 All four are GPL-3.0, like this repo.
 

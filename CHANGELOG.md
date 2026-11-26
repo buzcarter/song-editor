@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0 (2026-12)
+
+Stable release, part of **UkeGeeks 2026.12**, and npm `latest` (which pointed at 1.0.0-beta.1 until now). The code is 2.0.0-beta.6's. The UkeGeeks Songbook 2.0.0, UkeGeeks Studio 0.1.0 and ukegeeks.org run it.
+
+Coming from 1.x, the betas below have the details. In short:
+
+- **Breaking:** the editor's own class names start with `ugsEditor-` (`.overlay` is `.ugsEditor-overlay`, 75 in all), its action controls are `<button>`s, and the songsheet's `<hgroup>` is gone. Pages that copy the markup should take it from `editorHtml()` again; pages that only call `mount()` need no change (2.0.0-beta.1, beta.2).
+- **Breaking:** `ugsEditorPlus.dom` lookups search inside the editor's element once an editor is running (beta.2).
+- **New host API** on `mount()`: `onChange`, `editor.save()`, `editMenu` / `setEditMenu()`, `setSong()` and `openChordBuilder()` (beta.1, beta.6).
+- **The Chord Builder** has its own bundle (`ugsChordBuilder.*.js`) and types, and opens a chord from its mini-diagram (beta.5).
+- **Fixes:** Chord Builder names with `$` or quotes, `{define}` lines missing a fret, string or finger, escaped chord names, Reformat's tab stops.
+- **Inside:** TypeScript sources with shipped type declarations, strict lint and `noUncheckedIndexedAccess`.
+
 ## 2.0.0-beta.6 (2026-11-16)
 
 Hooks for a host page that edits the song its own way (UGS-0039). Nothing changes for pages that don't use them: the markup, the toolbar and the Edit Song box are as before.
