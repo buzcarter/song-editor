@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- Transpose keeps text typed since the last Update (UGS-0042). It counted from the song as of the last Update click, so lines typed in the Edit Song box, or in Fullscreen, without clicking Update were dropped. Now typed text becomes the song it counts from, so "+5" still means five steps from the original key, and "Original key" gives back the text as typed.
+
 ## 2.0.0 (2026-12)
 
 Stable release, part of **UkeGeeks 2026.12**, and npm `latest` (which pointed at 1.0.0-beta.1 until now). The code is 2.0.0-beta.6's. The UkeGeeks Songbook 2.0.0, UkeGeeks Studio 0.1.0 and ukegeeks.org run it.
