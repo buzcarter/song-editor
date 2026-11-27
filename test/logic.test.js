@@ -117,6 +117,25 @@ describe('transpose', () => {
     pick('up_0');
     assert.equal(source.value, '[G]Edited\n');
   });
+
+  test('keeps text typed since the last Update', () => {
+    const { source, pick } = setup();
+    source.value = SONG + '[F]New line, not Updated\n';
+    pick('up_2');
+    assert.match(source.value, /\[D\]Hello \[Bm\]there \[A7\]friend\n\[G\]New line, not Updated\n$/);
+    pick('up_0');
+    assert.equal(source.value, SONG + '[F]New line, not Updated\n', 'Original is the typed text');
+  });
+
+  test('keeps text typed after a transpose, counting from the original key', () => {
+    const { source, pick } = setup();
+    pick('up_2');
+    source.value += '[E]Typed in D\n';
+    pick('up_5');
+    assert.match(source.value, /\[F\]Hello \[Dm\]there \[C7\]friend\n\[G\]Typed in D\n$/, '+5 from C: E typed at +2 becomes G');
+    pick('up_0');
+    assert.match(source.value, /\[C\]Hello \[Am\]there \[G7\]friend\n\[D\]Typed in D\n$/);
+  });
 });
 
 describe('Chord Builder export', () => {

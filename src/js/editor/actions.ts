@@ -72,6 +72,10 @@ ugsEditorPlus.actions = (function() {
 	let _song: UgsEditorPlus.Song | null = null;
 	//
 	let _originalSource: string | null = null;
+	// what Transpose last put in the box, and how many steps from the original that was:
+	// text that differs from it was typed since (see rebaseOnTypedText)
+	let _transposedText: string | null = null;
+	let _transposeSteps = 0;
 	let _originalChords: string[] = [];
 
 	const _regEx = {
@@ -416,9 +420,9 @@ ugsEditorPlus.actions = (function() {
 	 * @param steps {int} number of semitones, +/-6
 	 */
 	const transpose = function(steps: number){
+		rebaseOnTypedText();
 		const safeChords = [];
-		let bad = '',
-			i;
+		let bad = '';
 
 		// find "shiftable" chords
 		for (const chord of _originalChords) {
@@ -440,18 +444,39 @@ ugsEditorPlus.actions = (function() {
 		if (_originalSource === null) {
 			return;
 		}
-		const newChords = ukeGeeks.transpose.shiftChords(safeChords, steps);
-		let s = _originalSource;
+		const s = shiftText(_originalSource, safeChords, steps);
+
+		// manipulations done, ready to...
+		_ele.cpmSource.value = s;
+		_transposedText = s;
+		_transposeSteps = steps;
+		ugsEditorPlus.songText.changed();
+		_public.run();
+
+	};
+
+	/**
+	 * The song's text with the given chords, and its {key}, moved by steps semitones.
+	 * @method shiftText
+	 * @private
+	 * @param text {string} ChordPro text
+	 * @param chords {string[]} the chord names to move ("safe" ones: shift() knows them)
+	 * @param steps {int} semitones, +/-
+	 * @return {string}
+	 */
+	const shiftText = function(text: string, chords: string[], steps: number): string {
+		const newChords = ukeGeeks.transpose.shiftChords(chords, steps);
+		let s = text;
 		let rEx;
 
 		// "safe" (temp) rename chords (prepend noise "ugsxx_" so a renamed G will be distinguisable from a new G)
-		for (i = 0; i < safeChords.length; i++) {
-			rEx = new RegExp('\\[' + safeChords[i] + '\\]', 'g');
+		for (let i = 0; i < chords.length; i++) {
+			rEx = new RegExp('\\[' + chords[i] + '\\]', 'g');
 			s = s.replace(rEx, '[ugsxx_' + i + ']');
 		}
 
 		// final rename; placeholder names to desired names
-		for (i = 0; i < newChords.length; i++) {
+		for (let i = 0; i < newChords.length; i++) {
 			rEx = new RegExp('\\[ugsxx_' + i + '\\]', 'g');
 			s = s.replace(rEx, '[' + newChords[i] + ']');
 		}
@@ -467,12 +492,40 @@ ugsEditorPlus.actions = (function() {
 				s = s.replace(rEx, m[0].replace(key, newKey));
 			}
 		}
+		return s;
+	};
 
-		// manipulations done, ready to...
-		_ele.cpmSource.value = s;
-		ugsEditorPlus.songText.changed();
-		_public.run();
+	/** the distinct chord names in a song's [brackets], in order */
+	const chordsIn = function(text: string): string[] {
+		const names: string[] = [];
+		for (const m of text.matchAll(/\[([^\]]+)\]/g)) {
+			const name = m[1] ?? '';
+			if (name !== '' && names.indexOf(name) < 0) {
+				names.push(name);
+			}
+		}
+		return names;
+	};
 
+	/**
+	 * When the song was typed in since the last Update or Transpose (the Edit Song box or
+	 * Fullscreen, without clicking Update), makes that text the original Transpose counts
+	 * from: moved back by the steps already applied, so "+5" still means five steps from
+	 * the original key. Without this, Transpose dropped what was typed.
+	 * @method rebaseOnTypedText
+	 * @private
+	 */
+	const rebaseOnTypedText = function() {
+		const current = ugsEditorPlus.songText.get();
+		const expected = _transposedText !== null ? _transposedText : _originalSource;
+		if (_originalSource === null || current === expected) {
+			return;
+		}
+		const typedChords = chordsIn(current).filter((chord) => _regEx.safe.test(chord));
+		_originalSource = _transposeSteps === 0 ? current : shiftText(current, typedChords, -_transposeSteps);
+		_originalChords = chordsIn(_originalSource);
+		_transposedText = null;
+		_transposeSteps = 0;
 	};
 
  /**
@@ -488,6 +541,8 @@ ugsEditorPlus.actions = (function() {
 		let steps = -6;
 
 		_prevValues['transpose'] = 'up_0';
+		_transposedText = null;
+		_transposeSteps = 0;
 
 		ugsEditorPlus.submenuUi.resetTransposeLabel();
 
